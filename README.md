@@ -1,1 +1,2 @@
-# MITM_demo
+# Demonstrační nástroj Man-in-the-middle útoků
+## Bakalářská práce
