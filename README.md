@@ -188,6 +188,11 @@ https://www.hackers-arise.com/post/wi-fi-hacking-part-17-wi-fi-hacking-with-bett
 ### 3. Wifiphisher
 https://www.youtube.com/watch?v=ay-77C9ZZQM
 - tool pro tvorbu předdefinovaných phishingových útoků na WiFi sítě. 
+- neukazuje MITM a lámání hesel :x:
+![Alt text](Wifiphisher.png)
+---
+# Závěr z rešerše: 
+## Existují nástroje, které zcela nebo částečně plní požadovanou funkcionalitu. Všechny se ale zaměřují na splnění úkolu bez zbytečného výukového balastu. Je potřeba využít dostupné konzolové tooly a obalit je GUI, které postupnými demonstrativně vysvětlenými kroky provedou celou procedurou útoku. 
 
 
 
