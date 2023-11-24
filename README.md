@@ -15,4 +15,24 @@ Cílem práce je navrhnout a implementovat demonstrační nástroj k popisu a  v
 - vnitřní funkcionalita v Pythonu - interaktivní script ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 - GUI nadstavba v Pythonu
 
+---
+### Rešerše:
 
+- :heavy_check_mark: Ahoj
+- [x] Je potřeba Wi-Fi adaptér, který podporuje "monitor mode" (aka promiscuous mode) 
+    - zakoupen USB adaptér TP-Link Archer U ACT Dual Band (https://www.alza.cz/tp-link-archer-t4u-ac1300-dual-band-d1530247.htm)
+    - jsou potřeba custom ovladače ke zprovoznení monitorovacího módu
+    - funkční jsou:
+        - https://github.com/RinCat/RTL88x2BU-Linux-Driver
+        - https://github.com/cilynx/rtl88x2bu
+
+
+
+
+### Solar System Exploration, 1950s – 1960s
+
+- [ ] Mercury
+- [x] Venus
+- [x] Earth (Orbit/Moon)
+- [x] Mars
+- [ ] Jupiter
