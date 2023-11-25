@@ -94,6 +94,10 @@ Cílem práce je navrhnout a implementovat demonstrační nástroj k popisu a  v
         - kdykoliv posluchač zahlédne konzolové okno, tak vypíná mozek
         - důraz demonstračního nástroje je nejen na ukázání toho, že Wi-Fi může být "hacknuta" relativně jednoduše, doslova na pár kliknutí, ale také musí být nezbytnou součástí doplňující text s vysvětlivkami a možnostmi mitigace jednotlivých kroků útoku (např. v části lámání hesla by měly být zobrazeny i stručně zásady bezpečného hesla apod.) - **GUI je nezbytné!** 
 ---
+BP, které podobné téma zpracovávají:
+- MARUŠIC, Marek. Automatizace MitM útoku pro dešifrování SSL/TLS. Brno, 2016. Bakalářská práce. Vysoké učení technické v Brně, Fakulta informačních technologií. Vedoucí práce Pluskal Jan.
+- PLCH, Matěj. Practical man-in-the-middle attacks in computer networks. 2015. Baklalářská práce. Masarykova univerzita, Fakulta Inforamtiky.
+---
 ## "Průmyslový standard" MITM útoku: :heavy_check_mark:
 https://linuxhint.com/install_aircrack-ng_ubuntu/
 1. Přepnutí adaptéru do monitorovacího módu:  
@@ -190,6 +194,21 @@ https://www.youtube.com/watch?v=ay-77C9ZZQM
 - tool pro tvorbu předdefinovaných phishingových útoků na WiFi sítě. 
 - neukazuje MITM a lámání hesel :x:
 ![Alt text](Wifiphisher.png)
+
+### Další nástroje _**TODO**_ :x:
+- hostapd
+- airbase-ng
+- WebSploit Framework
+- Ghopst Phisher
+- MANA Toolkit
+- Supterfuge
+- easy-creds
+---
+- mitmproxy
+- sslstrip
+- SSLsplit
+- Mallory
+- Metasploit
 ---
 # Závěr z rešerše: 
 ## Existují nástroje, které zcela nebo částečně plní požadovanou funkcionalitu. Všechny se ale zaměřují na splnění úkolu bez zbytečného výukového balastu. Je potřeba využít dostupné konzolové tooly a obalit je GUI, které postupnými demonstrativně vysvětlenými kroky provedou celou procedurou útoku. 
