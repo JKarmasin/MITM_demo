@@ -193,11 +193,234 @@ https://www.youtube.com/watch?v=ay-77C9ZZQM
 ---
 # Závěr z rešerše: 
 ## Existují nástroje, které zcela nebo částečně plní požadovanou funkcionalitu. Všechny se ale zaměřují na splnění úkolu bez zbytečného výukového balastu. Je potřeba využít dostupné konzolové tooly a obalit je GUI, které postupnými demonstrativně vysvětlenými kroky provedou celou procedurou útoku. 
+---
+---
+# Hrubý popis kompletníhop MITM útoku:
+## 0. Originální situace
+Klient je připojen k AP pomocí heslem zabezpečeného připojení (WEP) a komunikuje
+![Alt text](MITM_begin.png)
+## 1. Fáze útoku - přístup do zabezpečené sítě
+- Rekonoskace: Útočník pomocí adaptéru v monitorovacím módu zachytává rámce a zjišťuje dostupné bezdrátové sítě a k nim připojené klienty.
+- Deautentifikuje vybraného klienta na vybrané síti, aby zachytil 4-way handshake ráme při opkusu o opětovné připojení klienta k síti
+- Lámání hesla: zachycené EAPOL rámce láme například pomocí slovníkového offline útoku
+- **CÍL: útočník má heslo k síti** 
 
+## 2. Fáze útoku - útočník je v síti a provádí Man-in-the-middle útok
+- útočník je pomocí helsa připojen k síti
+- pomocí ARP poisoning útoku přesměrovává komunikaci klienta na AP přes sebe
 
+## 3. Fáze útoku - Impact fáze
+- Zachytávání DNS dotazů
+- přesměrování na jinou adresu (DNS spoof)
+- SSLsplit  
+![Alt text](MITM_end.png)
+## 4. Fáze útoku - Exfiltration
+- navrácení původních ARP záznamů klienta a AP
+- odpojení od sítě
+- -> Návrat do **"0. Originální situace"**
 
+## 5. Profit
+- :)
 
+---
+---
+# Chat GPT rešerše:
+## Wi-Fi protokoly
+Wi-Fi (Wireless Fidelity) je technologie, která umožňuje bezdrátové připojení k počítačovým sítím pomocí rádiových vln. Existují různé protokoly používané v rámci Wi-Fi připojení. Zde jsou některé z hlavních:
 
+1. 802.11b/g/n/ac/ax: Tyto označení označují standardy IEEE (Institute of Electrical and Electronics Engineers), které definují parametry pro Wi-Fi sítě. Každý standard má své vlastní vlastnosti a rychlosti přenosu dat. Starší standardy, jako například 802.11b/g, pracují ve frekvenčním pásmu 2,4 GHz, zatímco novější standardy, jako 802.11ac a 802.11ax (Wi-Fi 6), mohou pracovat i ve frekvenčním pásmu 5 GHz.
 
+2. WEP (Wired Equivalent Privacy): Tento protokol byl jedním z prvních používaných k zabezpečení Wi-Fi sítí. Nicméně, WEP má závažné bezpečnostní nedostatky a není doporučováno jej používat.
+
+3. WPA (Wi-Fi Protected Access): V důsledku zranitelností WEP byl vyvinut WPA, aby zlepšil bezpečnost bezdrátových sítí. Existuje několik verzí WPA, včetně WPA, WPA2 a WPA3, přičemž každá verze zlepšuje bezpečnostní funkce.
+
+4. TKIP (Temporal Key Integrity Protocol): TKIP byl navržen jako dočasná náhrada za WEP a byl používán s první verzí WPA. Nicméně, podobně jako WEP, TKIP má bezpečnostní nedostatky.
+
+5. AES (Advanced Encryption Standard): Je používán v kombinaci s WPA2 a WPA3 pro zajištění bezpečného šifrování dat v bezdrátových sítích. AES je považován za bezpečnější než TKIP.
+
+6. EAP (Extensible Authentication Protocol): EAP je framework pro autentizaci používaný v bezdrátových sítích. Různé metody autentizace, jako například EAP-TLS (Transport Layer Security) nebo EAP-PEAP (Protected Extensible Authentication Protocol), mohou být implementovány pomocí EAP.
+
+Je důležité mít na paměti, že zabezpečení Wi-Fi sítí je klíčovým prvkem prevence neoprávněného přístupu a ochrany dat. Doporučuje se používat nejnovější a nejbezpečnější protokoly dostupné v rámci vašeho zařízení a infrastruktury.
+
+## 802.11ac:
+[1] https://www.candelatech.com/downloads/802.11-2016.pdf (komplet specifikace 3534 stránek!)
+
+IEEE 802.11ac je standard pro bezdrátové lokální sítě (WLANs), který definuje technologie pro vysokorychlostní bezdrátové přenosy dat v pásmu 5 GHz. Byl přijat v roce 2013 jako nástupce starších standardů, jako je 802.11n, a přináší několik vylepšení v rychlosti a výkonu. Zde jsou některé klíčové vlastnosti protokolu 802.11ac:
+
+1. Šířka pásma: 802.11ac podporuje širší pásma ve srovnání s předchozím standardem 802.11n. Standardně může operovat na šířce pásma 20 MHz, 40 MHz, 80 MHz nebo dokonce 160 MHz, což umožňuje přenos většího množství dat najednou.
+
+2. MIMO (Multiple Input, Multiple Output): 802.11ac využívá technologii MIMO, což znamená, že může využívat více antén pro současný přenos dat. To zvyšuje přenosovou rychlost a zlepšuje výkon sítě.
+
+3.  QAM (Quadrature Amplitude Modulation): 802.11ac používá pokročilé formy modulace, včetně 256-QAM, což znamená, že může přenášet více datových bitů v jednom symbolu, což zvyšuje efektivitu přenosu.
+
+4.  Beamforming: Tato technologie umožňuje směrování signálu Wi-Fi směrem k konkrétním zařízením, což zvyšuje stabilitu připojení a snižuje interferenci.
+
+5.  Rychlosti přenosu dat: Standard 802.11ac může dosahovat vysokých rychlostí přenosu dat, včetně několika gigabitů za sekundu. To z něj činí vhodný výběr pro aplikace, které vyžadují vysokorychlostní přenos dat, jako jsou streamování videa ve vysokém rozlišení nebo online hraní her.
+
+6.  Zpětná kompatibilita: Zařízení podporující 802.11ac jsou obvykle zpětně kompatibilní s předchozími standardy, což znamená, že mohou komunikovat s zařízeními, která používají starší standardy jako 802.11n nebo 802.11g.
+
+802.11ac je běžně označován jako "Wi-Fi 5", v rámci novějších standardů, jako je 802.11ax (Wi-Fi 6) a 802.11be (Wi-Fi 7). Používá se v široké škále zařízení, včetně směrovačů, přístupových bodů a moderních mobilních zařízení.
+
+## Připojení zařízení k Wi-Fi:
+Při připojování zařízení k Wi-Fi síti se vysílají různé rámce (frames), které slouží k různým účelům. Zde jsou některé z hlavních typů rámců, které se používají během procesu připojení:
+
+1. Beacon Frame:
+    - https://mrncciew.com/2014/10/08/802-11-mgmt-beacon-frame/
+    - Účel: Beacon rámce jsou vysílány pravidelně od přístupových bodů (AP) a obsahují informace o síti, jako je identifikace sítě (SSID), podporované rychlosti přenosu dat, informace o zabezpečení a další. Tyto rámce pomáhají klientům nalézt a identifikovat dostupné sítě.
+    - Použití při připojování: Klient, který se snaží připojit k síti, může přijímat Beacon rámce od okolních AP a rozhodnout se, ke které síti se připojit.
+    - **Beacon Frame:**
+        - Účel: 
+            - Beacon rámce jsou základním prvkem komunikace přístupových bodů (AP) v bezdrátových sítích. Tyto rámce jsou pravidelně vysílány AP do éteru, aby informovaly okolní zařízení o existenci a parametrech sítě.
+            - Účelem Beacon rámců je umožnit klientům (Wi-Fi zařízením) identifikovat dostupné sítě a rozhodnout se, ke které se připojit.
+        - Obsah Beacon rámce: 
+            - SSID (Service Set Identifier): Jedná se o jedinečný identifikátor sítě. Klienti používají SSID k identifikaci sítí, ke kterým se mohou připojit.
+            - Rychlost přenosu dat: Informace o podporovaných rychlostech přenosu dat, které mohou klienti v síti očekávat.
+            - Příznaky (Flags): Beacon rámce obsahují různé příznaky, které informují klienty o různých vlastnostech sítě, například zda je síť skrytá (nevysílá SSID) nebo zda používá zabezpečení.
+            - Délka do dalšího Beacon rámu: Informace o tom, za jak dlouho klienti mohou očekávat další Beacon rámec od stejného přístupového bodu.
+            - Další informace: Beacon rámce mohou obsahovat další informace, jako například časový razítko (Timestamp), což může pomoci klientům odhadnout stabilitu sítě.
+        - Použití při připojování:
+            - Když klient hledá dostupné sítě, naslouchá Beacon rámce vysílaným přístupovými body v okolí.
+            - Klienti mohou použít informace obsažené v Beacon rámcích, jako je SSID, síla signálu a další, k rozhodnutí, ke které síti se připojit.
+            - Beacon rámce hrají klíčovou roli při procesu připojení, protože pomáhají klientům identifikovat sítě a získat potřebné informace pro bezpečné připojení k Wi-Fi síti.
+
+Beacon rámce jsou tedy základním prvkem pro efektivní správu a identifikaci bezdrátových sítí a hrají důležitou roli v procesu inicializace a připojení zařízení k Wi-Fi síti.
+
+2. Probe Request/Response Frame:
+    - Účel: Probe rámce jsou vysílány klienty, kteří aktivně hledají dostupné sítě. Tyto rámce mohou obsahovat informace o konkrétních sítích, na které klient cíleně zkoumá připojení.
+    - Použití při připojování: Klient může vysílat Probe Request rámce a přijímat Probe Response rámce od přístupových bodů, které odpovídají na jeho žádost.
+    - **Probe Request/Response Frame:**
+        - Účel:
+            - Probe Request: Klienty mohou vysílat Probe Request rámce, když aktivně hledají dostupné sítě. Tyto rámce obsahují informace o síti, kterou klient hledá, jako je SSID.
+            - Probe Response: Přístupové body odpovídají na Probe Request rámce prostřednictvím Probe Response rámce. Tyto rámce obsahují informace o síti, na kterou je klient zván, včetně SSID, rychlosti přenosu dat a dalších informací.
+        - Obsah Probe Request/Response rámce:
+            - SSID (Service Set Identifier): V případě Probe Request obsahuje požadovaný SSID, tedy identifikátor sítě, kterou klient hledá. V případě Probe Response obsahuje informace o síti, na kterou klient reaguje.
+            - Dálkový rámec: Obsahuje informace o rychlosti přenosu dat a dalších parametrech, které klient požaduje nebo na které reaguje.
+            - Příznaky (Flags): Identifikují, zda se jedná o Probe Request nebo Probe Response, a mohou obsahovat další informace o stavu sítě.
+            - Informace o síti: Probe Response může obsahovat informace o dostupné síti, jako je SSID, rychlost přenosu dat, případně další informace, které by mohly být užitečné pro klienta.
+        - Použití při připojování:
+            - Probe Request: Klienty vysílají Probe Request rámce, když aktivně hledají dostupné sítě. Tyto rámce jsou vysílány na všechny okolní přístupové body.
+            - Probe Response: Přístupový bod, který odpovídá na Probe Request, vysílá Probe Response rámec, který obsahuje informace o síti. Klienti pak mohou rozhodnout, ke které síti se připojit na základě těchto informací.
+        - Probe Request a Probe Response rámce jsou důležité pro aktivní vyhledávání dostupných sítí ze strany klientů a poskytují mechanismus pro identifikaci a komunikaci s přístupovými body v dané oblasti. Tyto rámce jsou součástí procesu inicializace připojení k Wi-Fi síti.
+
+3. Authentication Frame:
+    - Účel: Rámce autentizace jsou používány k ověření identity klienta nebo přístupového bodu v rámci zabezpečeného připojení.
+    - Použití při připojování: Klient a přístupový bod komunikují pomocí autentizačních rámů před tím, než začne proces asociace.
+    - Authentication Frame:
+        - Otevřená autentizace (Open System Authentication):
+            - Klient požádá o autentizaci u přístupového bodu pomocí Authentication Request rámce.
+            - Přístupový bod odpoví Authentication Response rámcem, který může být potvrzením nebo zamítnutím autentizační žádosti klienta.
+        - Autentizace s předáváním klíče (Shared Key Authentication):
+            - Klient požádá o autentizaci u přístupového bodu pomocí Authentication Request rámce.
+            - Přístupový bod odpoví Authentication Response rámcem a žádá od klienta, aby potvrdil svou identitu pomocí sdíleného klíče.
+            - Klient odpovídá Authentication Request rámcem, který obsahuje textový řetězec (challenge text). Tento text je šifrován pomocí sdíleného klíče.
+            - Přístupový bod dešifruje přijatý text pomocí svého sdíleného klíče a porovná ho s původním textem. Pokud odpovídají, autentizace je úspěšná.
+        - Obsah Authentication rámce:
+            - Typ autentizace: Indikuje, zda se jedná o otevřenou autentizaci nebo autentizaci s předáváním klíče.
+            - Status autentizace: Indikuje, zda byla autentizace úspěšná nebo neúspěšná.
+            - Délka challenge textu (pouze u autentizace s předáváním klíče): Obsahuje délku challenge textu, který je přenášen v Authentication rámci.
+        - Použití při připojování:
+            - Autentizační rámce jsou součástí procesu inicializace připojení k Wi-Fi síti.
+            - Otevřená autentizace může být použita, pokud je síť otevřená, zatímco autentizace s předáváním klíče poskytuje další vrstvu bezpečnosti při výměně klíčů pro autentizaci.
+        - Bezpečnostní úvahy:
+            - Otevřená autentizace je méně bezpečná, protože komunikace mezi klientem a přístupovým bodem není šifrovaná.
+            - Autentizace s předáváním klíče poskytuje vyšší úroveň bezpečnosti, protože výměna klíčů je šifrovaná, což ztěžuje odposlech a útoky na autentizační proces.
+    - Authentication rámce jsou klíčovým prvkem v procesu zajištění, že zařízení, která se připojují k Wi-Fi síti, jsou legitimní a mají oprávnění přistupovat k síti.
+
+4. Association Request/Response Frame:
+    - Účel: Rámce asociace jsou používány k oficiálnímu připojení klienta k přístupovému bodu. Obsahují informace, jako je SSID sítě, rychlosti přenosu dat a další.
+    - Použití při připojování: Klient vysílá Association Request rámce a přístupový bod odpovídá pomocí Association Response rámce, pokud je připojení povoleno.
+    - Association Request/Response Frame:
+        - Association Request:
+            - Klient vysílá Association Request rámec k přístupovému bodu, se kterým chce vytvořit asociaci.
+            - Association Request obsahuje informace o požadované síti, včetně SSID (identifikátor sítě), rychlosti přenosu dat a dalších parametrů.
+        - Association Response:
+            - Přístupový bod odpovídá Association Request rámci pomocí Association Response rámce.
+            - Association Response obsahuje informace o tom, zda byla asociace povolena nebo zamítnuta, a další parametry, jako je přidělená adresa IP nebo rychlost přenosu dat.
+        - Obsah Association rámce:
+            - BSSID (Basic Service Set Identifier): Unikátní identifikátor přístupového bodu.
+            - SSID: Identifikátor sítě, ke které klient žádá o připojení.
+            - Rychlost přenosu dat: Informace o podporovaných rychlostech přenosu dat mezi klientem a přístupovým bodem.
+            - Délka období do další asociace: Informace o tom, za jak dlouho může klient očekávat další asociaci od stejného přístupového bodu.
+            - Status asociace: Indikuje, zda byla asociace úspěšná nebo neúspěšná.
+            - Další parametry: Association Response může obsahovat další informace, jako například přidělenou IP adresu nebo další konfigurační informace.
+        - Použití při připojování:
+            - Asociační rámce jsou klíčovým prvkem v procesu inicializace připojení klienta k bezdrátové síti.
+            - Klient používá Association Request k formální žádosti o připojení k síti a přístupový bod odpovídá pomocí Association Response, což ukončuje proces asociace.
+    - Asociační rámce jsou nezbytné pro vytvoření spojení mezi klientem a přístupovým bodem a umožňují klientovi komunikovat s ostatními zařízeními v síti. Při úspěšné asociaci klient získává plný přístup k síti a může začít využívat bezdrátové spojení.
+
+5. ARP Request/Response Frame:
+    - Účel: ARP (Address Resolution Protocol) rámce jsou používány pro zjištění MAC adresy zařízení na základě jeho IP adresy v lokální síti.
+    - Použití při připojování: Když zařízení potřebuje komunikovat s jiným zařízením v síti, ale zná pouze jeho IP adresu, může vyslat ARP Request, aby zjistilo odpovídající MAC adresu.
+    - ARP Request/Response Frame:
+        - ARP Request:
+            - Účel: Používá se k získání MAC adresy cílového zařízení na základě známé IP adresy.
+            - Obsah:
+                - Zdrojová IP adresa: IP adresa odesílatele (zařízení, které posílá ARP Request).
+                - Zdrojová MAC adresa: MAC adresa odesílatele.
+                - Cílová IP adresa: IP adresa zařízení, pro které chce odesílatel zjistit MAC adresu.
+                - Cílová MAC adresa: V ARP Requestu je tato adresa obvykle nastavena na broadcastovou adresu (všechny jednotky) FF:FF:FF:FF:FF:FF, protože odesílatel nezná MAC adresu cílového zařízení.
+
+        - ARP Response:
+            - Účel: Odpovídá na ARP Request a poskytuje cílovou MAC adresu.
+            - Obsah:
+                - Zdrojová IP adresa: IP adresa odpovídajícího zařízení (zařízení, které odpovídá na ARP Request).
+                - Zdrojová MAC adresa: MAC adresa odpovídajícího zařízení.
+                - Cílová IP adresa: IP adresa zařízení, pro které byla cílová MAC adresa vyhledána.
+                - Cílová MAC adresa: MAC adresa zařízení, pro které byla odpověď poskytnuta.
+
+        - Použití:
+            - Když zařízení potřebuje komunikovat s jiným zařízením v lokální síti a zná pouze jeho IP adresu, zařízení zašle ARP Request s dotazem na MAC adresu tohoto zařízení.
+            - Cílové zařízení odpovídá pomocí ARP Response s informacemi o své MAC adrese.
+            - Odesílatel ARP Requestu si nyní může uložit odpověď do ARP cache, aby nemusel opakovaně dotazovat síť na stejnou informaci.
+    - ARP rámce jsou základním prvkem v lokálních sítích, protože umožňují zařízením získávat informace o MAC adresách dalších zařízení v síti, což je nezbytné pro úspěšnou komunikaci na datalinkové vrstvě OSI modelu.
+
+Tyto rámce spolu tvoří proces inicializace a připojení zařízení k Wi-Fi síti. Jejich vzájemná komunikace umožňuje efektivní přenos dat a zajistí správnou identifikaci a autentizaci připojovaných zařízení.
+
+## Posílání hesla:
+Při připojování k Wi-Fi síti je heslo obvykle přenášeno v rámci tzv. "4-Way Handshake" (4-fázové rukopisu). Tento proces zabezpečuje, že heslo není přenášeno přímo veřejně, ale je chráněno proti odposlechu. Čtyři fáze tohoto rukopisu zahrnují následující rámcové typy:
+- Authentication Request/Response:
+    - V této fázi klient posílá žádost o autentizaci (Authentication Request) k přístupovému bodu.
+    - Přístupový bod odpovídá (Authentication Response) potvrzením nebo zamítnutím autentizačního požadavku.
+
+- Association Request/Response:
+    - Klient odesílá Association Request rámec, což je žádost o oficiální připojení k síti.
+    - Přístupový bod odpovídá Association Response rámcem, což ukončuje proces asociace.
+
+- **4-Way Handshake:** [1], str. 2029
+    1. EAPOL (Extensible Authentication Protocol over LAN) Key Frame (Message 1):
+        - Klient posílá tento rámec k přístupovému bodu s požadavkem na spuštění 4-Way Handshake.
+        - Tento rámec obsahuje náhodný číselný nonce (N1) od klienta.
+    2. EAPOL Key Frame (Message 2):
+        - Přístupový bod odpovídá na první rámec a posílá zpět svůj náhodný číselný nonce (N2) a informaci o síle signálu.
+        - Tento rámec obsahuje také informaci o Pairwise Transient Key (PTK), což je dočasný klíč používaný pro šifrování komunikace.
+    3. EAPOL Key Frame (Message 3):
+        - Klient potvrzuje přijetí informací o PTK a posílá zpět náhodný číselný nonce (N3).
+    4. EAPOL Key Frame (Message 4):
+        - Přístupový bod potvrzuje přijetí informací od klienta a posílá poslední náhodný číselný nonce (N4).
+        - Po obdržení tohoto rámce je 4-Way Handshake dokončen.
+
+- Ve fázích 3 a 4 handshakeu jsou obsaženy všechny informace potřebné pro odvození klíčů pro šifrování (Pairwise Transient Key - PTK) a autentizaci (Message Integrity Code - MIC). **Heslo samo o sobě není přenášeno v síti, což zvyšuje bezpečnost procesu připojování k Wi-Fi síti.**
+
+## Pairwise Transient Key:
+Pairwise Transient Key (PTK) je dočasný klíč používaný pro šifrování komunikace mezi jedním konkrétním klientem a přístupovým bodem v bezdrátové síti. PTK je vytvořen během procesu 4-Way Handshake v rámci WPA (Wi-Fi Protected Access) nebo WPA2 (Wi-Fi Protected Access 2), což jsou bezpečnostní protokoly používané v Wi-Fi sítích.
+
+- Pro vytvoření PTK jsou využity následující informace a prvky:
+    - Pre-Shared Key (PSK): Jedná se o heslo, které je sdíleno mezi klientem a přístupovým bodem. Toto heslo je předem známo a používá se k inicializaci bezpečnostního procesu.
+    - Nonce (N1, N2, N3, N4): Náhodná čísla generovaná během 4-Way Handshake. Klient a přístupový bod si mezi sebou vyměňují nonce, která jsou následně použita k vytvoření klíče.
+    - MAC (Media Access Control) adresa klienta a přístupového bodu: Unikátní adresy, které identifikují jednotlivá zařízení v síti.
+    - SSID (Service Set Identifier): Identifikátor sítě.
+    - PMK (Pairwise Master Key): Hlavní klíč vytvořený z PSK a SSID během procesu autentizace.
+    - Anonce a Snonce: Náhodná čísla, která jsou generována klientem a přístupovým bodem, a jsou součástí 4-Way Handshake.
+
+- Proces vytváření PTK probíhá následujícím způsobem během 4-Way Handshake:
+    - Výpočet PMK: PMK je odvozen z PSK a SSID během fáze autentizace.
+    - Výpočet PTK:
+        - Klient a přístupový bod použijí PMK, Anonce (klient), Snonce (přístupový bod), MAC adresy a další informace ke vytvoření PTK.
+        - PTK se skládá z několika klíčů, včetně klíče pro šifrování dat (Pairwise Temporal Key - PTK-TK), klíče pro kontrolu integrity dat (Pairwise Temporal Key - PTK-KCK), a klíče pro šifrování zpráv (Pairwise Temporal Key - PTK-KEK).
+    - Dokončení 4-Way Handshake:
+        - PTK je přenášen v rámci 4-Way Handshake zpráv, které jsou zabezpečeny pomocí PTK.
+        - Po dokončení 4-Way Handshake je PTK vytvořen a obě strany (klient a přístupový bod) mohou začít používat vytvořené klíče pro šifrování komunikace.
+
+- PTK zajišťuje, že každá dvojice klient-přístupový bod má své vlastní unikátní klíče pro šifrování a zajištění integrity dat. Tím je dosaženo individuální bezpečnosti pro každé připojení v bezdrátové síti.
 
 
