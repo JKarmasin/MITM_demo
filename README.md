@@ -99,6 +99,7 @@ BP, které podobné téma zpracovávají:
 - PLCH, Matěj. Practical man-in-the-middle attacks in computer networks. 2015. Baklalářská práce. Masarykova univerzita, Fakulta Inforamtiky.
 ---
 ## "Průmyslový standard" MITM útoku: :heavy_check_mark:
+https://prabhjeetlearning.medium.com/capturing-a-wi-fi-handshake-the-key-to-network-security-testing-d7aad39b3fdf
 https://linuxhint.com/install_aircrack-ng_ubuntu/
 1. Přepnutí adaptéru do monitorovacího módu:  
     - Zjištění názvu adaptéru
