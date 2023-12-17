@@ -105,7 +105,7 @@ https://linuxhint.com/install_aircrack-ng_ubuntu/
     - Zjištění názvu adaptéru
         ```s
         iwconfig
-        ```
+        ``` 
         ![iwconfig](https://linuxhint.com/wp-content/uploads/2019/01/2-18.png)
         standarně bude mít název _wlan0_ a bude mít _Mode: Managed_
     - Vypnutí (zapnutí adaptéru)
