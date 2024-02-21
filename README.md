@@ -443,4 +443,28 @@ Pairwise Transient Key (PTK) je dočasný klíč používaný pro šifrování k
 
 - PTK zajišťuje, že každá dvojice klient-přístupový bod má své vlastní unikátní klíče pro šifrování a zajištění integrity dat. Tím je dosaženo individuální bezpečnosti pro každé připojení v bezdrátové síti.
 
+===
+# Instalace driveru Atheros Archer T4u v2
+- záloha: https://github.com/cilynx/rtl88x2bu
+- záloha: https://github.com/RinCat/RTL88x2BU-Linux-Driver
 
+### Nefungující postup:
+```
+git clone https://github.com/gnab/rtl8812au
+cd rtl8812au
+make
+sudo cp 8812au.ko /lib/modules/$(uname -r)/kernel/drivers/net/wireless/
+sudo depmod -a
+sudo modprobe 8812au
+```
+### Fungující postup!!!:
+```
+https://github.com/aircrack-ng/rtl8812au
+cd rtl*
+sudo make dkms_install
+sudo reboot
+```
+```
+(odinstalace sudo dkms_remove)
+make && make install
+```
