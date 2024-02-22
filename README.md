@@ -188,7 +188,7 @@ sudo ettercap -G
 https://www.hackers-arise.com/post/wi-fi-hacking-part-17-wi-fi-hacking-with-bettercap
 - Mocný nástroj splňující všechny požadavky
 - Konzolový bez GUI :x:
-    ![Alt text](6a4a49_9bf90ed3320b40b19ab7661298e9a76b~mv2.png)
+    ![Alt text](bettercap.png)
 
 ### 3. Wifiphisher
 https://www.youtube.com/watch?v=ay-77C9ZZQM
