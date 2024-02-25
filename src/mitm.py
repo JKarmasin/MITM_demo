@@ -661,12 +661,14 @@ def grep_aircrack_process():
     crack_pw_progress.grid_forget()
 # ========================================================================================================================
 def crack_pw():
-    crack_pw_progress.grid(row=3,column=0,columnspan=2)
+    crack_pw_progress.grid(row=3,column=0,columnspan=3, sticky=EW)
     status.config(text="Lámání hesla")
 
-    capfile = "wpa-good.cap"        # TODO změnit na fungující hovno !!!!!!!!!!!!!!!!
-
+    #capfile = "wpa-good.cap"        # TODO změnit na fungující hovno !!!!!!!!!!!!!!!!
+    capfile = output_handshake + "-01.cap"
     command = f"aircrack-ng {capfile} -w {wordlist_name} -l {output_password}"
+    print("==================")
+    print("COMMAND: "+command)
     global aircrack_process
     aircrack_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
     Thread(target=grep_aircrack_process, daemon=True).start()
@@ -754,16 +756,20 @@ notebook.add(tab3, text="Prolomení hesla")
 notebook.add(tab4, text="Man-in-the-middle")
 notebook.add(tab5, text="Odposlech DNS dotazů")
 frame_t1 = Frame(tab1)
-frame_t2 = ttk.Frame(tab2)
-frame_t3 = ttk.Frame(tab3)
-frame_t4 = ttk.Frame(tab4)
-frame_t5 = ttk.Frame(tab5)
-frame_t1.pack()
-frame_t2.pack()
-frame_t3.pack()
-frame_t4.pack()
-frame_t5.pack()
-
+frame_t2 = Frame(tab2)
+frame_t3 = Frame(tab3)
+frame_t4 = Frame(tab4)
+frame_t5 = Frame(tab5)
+frame_t1.pack(fill='both', expand=True)
+frame_t2.pack(fill='both', expand=True)
+frame_t3.pack(fill='both', expand=True)
+frame_t4.pack(fill='both', expand=True)
+frame_t5.pack(fill='both', expand=True)
+frame_t1.pack_propagate(0)
+frame_t2.pack_propagate(0)
+frame_t3.pack_propagate(0)
+frame_t4.pack_propagate(0)
+frame_t5.pack_propagate(0)
 
 # Tlačítka pro navigaci
 btn_prev = ttk.Button(main_frame, text="<<", command=lambda: change_tab("prev"))
@@ -776,131 +782,136 @@ btn_next.pack(side=tk.RIGHT, fill='y')
 
 # Inicializace stavu tlačítek
 update_button_state()
+
 # Tab "Vyhledání cílů" ==================================================================================================================
 # Interface frame ========================================================================
-interface_frame = LabelFrame(frame_t1, text="Vyhledání a výběr požadovaného rozhraní")
-interface_frame.pack(padx=10,pady=5, fill='x', expand=1)  # WTF Todle není rozatežný po celé šířce?!
+interface_frame = LabelFrame(frame_t1, text="Vyhledání a výběr požadovaného rozhraní", borderwidth=4)
+interface_frame.pack_propagate(0)
+interface_frame.pack(padx=10,pady=5, fill=X, expand=True, side=TOP)
 
 # Create a button to run iwconfig command
-interface_button = tk.Button(interface_frame, text="Najít Wi-fi rozhraní", command=find_wifi_interfaces)
-interface_button.grid(row=0, column=0)
+interface_button = tk.Button(interface_frame, text="Najít Wi-fi rozhraní", width=20, command=find_wifi_interfaces)
+interface_button.grid(row=0, column=0, sticky=N, padx=5, pady=5)
 
 # Create a scrolled text area widget
-interfaces_field = tk.Listbox(interface_frame, width=30, height=5)  # Adjusted size for interface names
+interfaces_field = tk.Listbox(interface_frame, width=30, height=3)  # Adjusted size for interface names
 interfaces_field.bind('<<ListboxSelect>>', interfaces_on_select)
 interfaces_field.grid(row=0, column= 1, pady=5)
 
 # Monitor mode frame ========================================================================
-monitor_frame = LabelFrame(frame_t1, text="Přepnutí rozhraní do monitorovacího módu")
+monitor_frame = LabelFrame(frame_t1, text="Přepnutí rozhraní do monitorovacího módu", borderwidth=4)
 monitor_frame.pack(padx=10,pady=5, fill='x')
 
-monitor_on_button = tk.Button(monitor_frame, text="Spustit monitorovací mód", state=DISABLED, command=start_monitor_mode)
-monitor_off_button = tk.Button(monitor_frame, text="Vypnout monitorovací mód", state=DISABLED, command=stop_monitor_mode)
-monitor_on_button.grid(row=0, column=0)
-monitor_off_button.grid(row=0, column=1)
+monitor_on_button = tk.Button(monitor_frame, text="Spustit monitorovací mód", width=20, state=DISABLED, command=start_monitor_mode)
+monitor_off_button = tk.Button(monitor_frame, text="Vypnout monitorovací mód", width=20, state=DISABLED, command=stop_monitor_mode)
+monitor_on_button.grid(row=0, column=0, padx=5, pady=5)
+monitor_off_button.grid(row=0, column=1, pady=5)
 
 # Airodump frame ========================================================================
-airodump_frame = LabelFrame(frame_t1, text="Záchyt komunikace v okolí")
-airodump_frame.pack(padx=10,pady=5, fill='x')
+airodump_frame = LabelFrame(frame_t1, text="Záchyt komunikace v okolí", borderwidth=4)
+airodump_frame.pack(padx=10,pady=5, fill='x', expand=True)
 
-airodump_on_button = tk.Button(airodump_frame, text="Spustit airodump-ng", state=DISABLED, command=lambda: Thread(target=start_airodump_full).start())
-airodump_off_button = tk.Button(airodump_frame, text="Zastavit airodump-ng", state=DISABLED, command=stop_airodump_full)
-airodump_on_button.grid(row=0, column=0)
-airodump_off_button.grid(row=0, column=1)
-
-# Zobrazeni labelu s informaci o zapnuti/vypnuti monitorovaciho modu
-#airodump_field = scrolledtext.ScrolledText(airodump_frame)
-#airodump_field.pack(padx=10,pady=5, fill='x')
+airodump_on_button = tk.Button(airodump_frame, text="Spustit airodump-ng", width=20, state=DISABLED, command=lambda: Thread(target=start_airodump_full).start())
+airodump_off_button = tk.Button(airodump_frame, text="Zastavit airodump-ng", width=20, state=DISABLED, command=stop_airodump_full)
+airodump_on_button.grid(row=0, column=0,  sticky=W, padx=5, pady=5)
+airodump_off_button.grid(row=0, column=1, sticky=W, pady=5)
 
 # Treeview pro Access Pointy
 tree_ap_label = Label(airodump_frame, text="Seznam Access Pointů")
-tree_ap_label.grid(row=1, column=0, columnspan=3)
+tree_ap_label.grid(row=1, column=0, columnspan=4)
 
 tree_ap = ttk.Treeview(airodump_frame, selectmode='browse')
 tree_ap.bind('<<TreeviewSelect>>', tree_ap_selected)
-tree_ap.grid(row=2, column=0, columnspan=3, sticky=W)
-#scrollbarv_ap = ttk.Scrollbar(airodump_frame, orient="vertical", command=tree_ap.yview)
-#scrollbarv_ap.pack(side='right', fill='y')
-#tree_ap.configure(yscrollcommand=scrollbarv_ap.set)
+tree_ap.grid(row=2, column=0, columnspan=3, sticky=EW, padx=5, pady=5)
+
+scrollbarv_ap = ttk.Scrollbar(airodump_frame, orient="vertical", command=tree_ap.yview)
+scrollbarv_ap.grid(row=2, column=3,sticky=NS, pady=5)
+tree_ap.configure(yscrollcommand=scrollbarv_ap.set)
 
 # Treeview pro Clienty
 tree_cl_label = Label(airodump_frame, text="Seznam klientů")
-tree_cl_label.grid(row=3, column=0, columnspan=3)
+tree_cl_label.grid(row=3, column=0, columnspan=4)
+
 tree_cl = ttk.Treeview(airodump_frame, selectmode='browse')
 tree_cl.bind('<<TreeviewSelect>>', tree_cl_selected)
-tree_cl.grid(row=4, column=0, columnspan=3, sticky=W)
-#scrollbarv_cl = ttk.Scrollbar(airodump_frame, orient="vertical", command=tree_cl.yview)
-#scrollbarv_cl.pack(side='right', fill='y')
-#tree_cl.configure(yscrollcommand=scrollbarv_cl.set)
+tree_cl.grid(row=4, column=0, columnspan=3, sticky=EW, padx=5, pady=5)
 
-# TODO přejmenovat tyto pole do češtiny
-target_net_label = Label(airodump_frame, text="TARGET NETWORK:", font=('Helvetica', 20))
-target_net = Label(airodump_frame, text="", font=('Helvetica', 20), fg='green')
-target_ap_label = Label(airodump_frame, text="TARGET ACCES POINT:", font=('Helvetica', 20))
-target_ap = Label(airodump_frame, text="", font=('Helvetica', 20), fg='green')
-target_cl_label = Label(airodump_frame, text="TARGET CLIENT:", font=('Helvetica', 20))
-target_cl = Label(airodump_frame, text="", font=('Helvetica', 20), fg='green')
-target_ch_label = Label(airodump_frame, text="TARGET CHANNEL:", font=('Helvetica', 20))
-target_ch = Label(airodump_frame, text="", font=('Helvetica', 20), fg='green')
-target_net_label.grid(row=5, column=0, sticky=W)
+scrollbarv_cl = ttk.Scrollbar(airodump_frame, orient="vertical", command=tree_cl.yview)
+scrollbarv_cl.grid(row=4, column=3,sticky=NS, pady=5)
+tree_cl.configure(yscrollcommand=scrollbarv_cl.set)
+
+airodump_frame.grid_columnconfigure(2, weight=1)
+
+# Target frame ========================================================================
+target_frame = LabelFrame(frame_t1, text="Cíl MITM útoku", borderwidth=4)
+target_frame.pack(padx=10,pady=5, fill='x', expand=True)
+
+target_net_label = Label(target_frame, text="Cílová síť:", font=('Helvetica', 16))
+target_ap_label = Label(target_frame, text="Cílový Access Point:", font=('Helvetica', 16))
+target_cl_label = Label(target_frame, text="Cílové zařízení:", font=('Helvetica', 16))
+target_ch_label = Label(target_frame, text="Kanál komunikace:", font=('Helvetica', 16))
+target_net = Label(target_frame, text="", font=('Helvetica', 16), fg='green')
+target_ap = Label(target_frame, text="", font=('Helvetica', 16), fg='green')
+target_cl = Label(target_frame, text="", font=('Helvetica', 16), fg='green')
+target_ch = Label(target_frame, text="", font=('Helvetica', 16), fg='green')
+target_net_label.grid(row=5, column=0, sticky=W, padx=5, pady=5)
+target_ap_label.grid(row=6, column=0, sticky=W, padx=5, pady=5)
+target_cl_label.grid(row=7, column=0, sticky=W, padx=5, pady=5)
+target_ch_label.grid(row=8, column=0, sticky=W, padx=5, pady=5)
 target_net.grid(row=5, column=1, sticky=W)
-target_ap_label.grid(row=6, column=0, sticky=W)
 target_ap.grid(row=6, column=1, sticky=W)
-target_cl_label.grid(row=7, column=0, sticky=W)
 target_cl.grid(row=7, column=1, sticky=W)
-target_ch_label.grid(row=8, column=0, sticky=W)
 target_ch.grid(row=8, column=1, sticky=W)
 
 # ========================================================================================================================================
 # Tab "Záchyt handshaku" =================================================================================================================
 
 # WPA Catch Frame ========================================================================================================================
-handshake_catch_frame = LabelFrame(frame_t2, text="Záchyt WPA handshaku")
+handshake_catch_frame = LabelFrame(frame_t2, text="Záchyt WPA handshaku", borderwidth=4)
 handshake_catch_frame.pack(padx=10,pady=5, fill='x')
 
 handshake_catch_label = Label(handshake_catch_frame, text="Spustit proces na zachytávání komunikace klienta s AP a zachycením WPA handshaku:")
+handshake_catch_on_button = Button(handshake_catch_frame, text="Spustit", width= 20, command=start_handshake_catch)
+handshake_catch_off_button = Button(handshake_catch_frame, text="Zastavit", width= 20, state=DISABLED, command=stop_handshake_catch)
 
+handshake_catch_label.grid(row=0, column=0, sticky=W, padx=5, pady=5)
+handshake_catch_on_button.grid(row=0,column=1, pady=5, padx=5)
+handshake_catch_off_button.grid(row=0,column=2, pady=5, padx=5)
 
-handshake_catch_on_button = Button(handshake_catch_frame, text="Spustit", command=start_handshake_catch)
-#handshake_catch_on_button = Button(handshake_catch_frame, text="Spustit", command=detect_eapol)
-
-
-handshake_catch_off_button = Button(handshake_catch_frame, text="Zastavit", state=DISABLED, command=stop_handshake_catch)
-handshake_catch_label.grid(row=0, column=0)
-handshake_catch_on_button.grid(row=0,column=1, pady=5)
-handshake_catch_off_button.grid(row=0,column=2, pady=5)
-
-handshake_catch_progress = ttk.Progressbar(handshake_catch_frame, orient=HORIZONTAL, length=800, mode='indeterminate')
+handshake_catch_progress = ttk.Progressbar(handshake_catch_frame, orient=HORIZONTAL, mode='indeterminate')
 handshake_catch_progress.step(0)
-handshake_catch_progress.grid(row=1,column=0,columnspan=3)
+handshake_catch_progress.grid(row=1,column=0,columnspan=4, sticky=EW, padx=15, pady=5)
 
 handshake_command = Label(handshake_catch_frame, text="")
-handshake_command.grid(row=2, column=0, columnspan=3)
+handshake_command.grid(row=2, column=0, columnspan=4, pady=5)
 
 #handshake_catch_textarea = scrolledtext.ScrolledText(handshake_catch_frame, wrap=tk.WORD, width=98, height=20)
 #handshake_catch_textarea.grid(row=3, column=0, columnspan=3, padx=10, pady=10)
 
-handshake_finished_label = Label(handshake_catch_frame, text="Spusťte zachytávání handshaku!", font=('Helvetica', 20))
-handshake_finished_label.grid(row=3, column=0, columnspan=3, padx=10, pady=10)
+handshake_finished_label = Label(handshake_catch_frame, text="Spusťte zachytávání handshaku!", font=('Helvetica', 16))
+handshake_finished_label.grid(row=3, column=0, columnspan=4, padx=5, pady=5)
+
+handshake_catch_frame.grid_columnconfigure(3, weight=1)
 
 # Deauthificate Frame ========================================================================================================================
-deauth_frame = LabelFrame(frame_t2, text="Deauthentifikace target klienta")
+deauth_frame = LabelFrame(frame_t2, text="Deauthentifikace target klienta", borderwidth=4)
 deauth_frame.pack(padx=10,pady=5, fill='x')
 
 deauth_label = Label(deauth_frame, text="Spustit proces odpojování komunikace Clienta s AP pro opětovné zaslání handshake:")
-deauth_on_button = Button(deauth_frame, text="Spustit", command=start_deauthentification)
-deauth_off_button = Button(deauth_frame, text="Zastavit", state=DISABLED, command=stop_deauthentification)
-deauth_label.grid(row=0, column=0)
-deauth_on_button.grid(row=0,column=1, pady=5)
-deauth_off_button.grid(row=0,column=2, pady=5)
+deauth_on_button = Button(deauth_frame, text="Spustit", width= 20, command=start_deauthentification)
+deauth_off_button = Button(deauth_frame, text="Zastavit", width= 20, state=DISABLED, command=stop_deauthentification)
+deauth_label.grid(row=0, column=0, sticky=W, padx=5, pady=5)
+deauth_on_button.grid(row=0,column=1, sticky=W, pady=5, padx=5)
+deauth_off_button.grid(row=0,column=2, sticky=W, pady=5, padx=5)
 
 deauth_progress = ttk.Progressbar(deauth_frame, orient=HORIZONTAL, length=800, mode='indeterminate')
 deauth_progress.step(0)
-deauth_progress.grid(row=1,column=0,columnspan=3)
+deauth_progress.grid(row=1,column=0,columnspan=4, sticky=EW, padx=15, pady=5)
 
 deauth_command_label = Label(deauth_frame, text="")
-deauth_command_label.grid(row=2, column=0, columnspan=3)
+deauth_command_label.grid(row=2, column=0, columnspan=4, pady=5)
 
+deauth_frame.grid_columnconfigure(3, weight=1)
 # ========================================================================================================================================
 # Tab "Prolomení hesla" ==================================================================================================================
 
@@ -908,7 +919,7 @@ deauth_command_label.grid(row=2, column=0, columnspan=3)
 password_frame = LabelFrame(frame_t3, text="Prolomení zachyceného hesla")
 password_frame.pack(padx=10,pady=5, fill='x')
 
-create_wordlist_frame = LabelFrame(frame_t3, text="Vytvořit slovník hesel")
+create_wordlist_frame = LabelFrame(frame_t3, text="Vytvořit slovník hesel", borderwidth=4)
 create_wordlist_frame.pack(padx=10,pady=5, fill='x')
 
 wl_label = Label(create_wordlist_frame, text="Parametry vytvářeného slovníku hesel:")
@@ -921,59 +932,63 @@ wl_max_entry = Entry(create_wordlist_frame, width=20)
 wl_char_entry = Entry(create_wordlist_frame, width=20)
 wl_name_entry = Entry(create_wordlist_frame, width=20)
 
-wl_label.grid(row=0 , column=0)
-wl_min_label.grid(row=1 , column=0)
-wl_max_label.grid(row=1 , column=2)
-wl_char_label.grid(row=2 , column=0)
-wl_name_label.grid(row=2 , column=2)
-wl_min_entry.grid(row=1 , column=1)
-wl_max_entry.grid(row=1 , column=3)
-wl_char_entry.grid(row=2 , column=1)
-wl_name_entry.grid(row=2 , column=3)
+wl_label.grid(row=0, column=0, columnspan=4, padx=5, pady=5)
+wl_min_label.grid(row=1, column=0, sticky=W, padx=5, pady=5)
+wl_max_label.grid(row=1, column=2, sticky=W, padx=5, pady=5)
+wl_char_label.grid(row=2, column=0, sticky=W, padx=5, pady=5)
+wl_name_label.grid(row=2, column=2, sticky=W, padx=5, pady=5)
+wl_min_entry.grid(row=1, column=1, sticky=W, padx=5, pady=5)
+wl_max_entry.grid(row=1, column=3, sticky=W, padx=5, pady=5)
+wl_char_entry.grid(row=2, column=1, sticky=W, padx=5, pady=5)
+wl_name_entry.grid(row=2, column=3, sticky=W, padx=5, pady=5)
 
-create_wl_button = Button(create_wordlist_frame, text="Vytvořit", command=create_wordlist)
-create_wl_button.grid(row=3, column=1, columnspan=2)
+create_wl_button = Button(create_wordlist_frame, text="Vytvořit", width= 20, command=create_wordlist)
+create_wl_button.grid(row=3, column=0, columnspan=4)
 
+# WTF s progress barem u vytváření slovníku? TODO test, jestli je potřeba
 create_wl_progress = ttk.Progressbar(create_wordlist_frame, orient=HORIZONTAL, length=800, mode='indeterminate')
 create_wl_progress.step(0)
 
 # Load Wordlist Frame ========================================================================================================================
-load_wordlist_frame = LabelFrame(frame_t3, text="Načíst hotový slovník hesel", highlightthickness=2)
+load_wordlist_frame = LabelFrame(frame_t3, text="Načíst hotový slovník hesel", highlightthickness=2, borderwidth=4)
 load_wordlist_frame.pack(padx=10,pady=5, fill='x')
 
-load_wl_button = Button(load_wordlist_frame, text="Načíst slovník hesel", command=load_wordlist)
-load_wl_button.grid(row=0, column=1, columnspan=2)
+load_wl_button = Button(load_wordlist_frame, text="Načíst slovník hesel", width= 20, command=load_wordlist)
+load_wl_button.grid(row=0, column=0, padx=5, pady=5)
 
 # Crack the password Frame ========================================================================================================================
-crack_pw_frame = LabelFrame(frame_t3, text="Prolomit heslo sítě hrubou silou", highlightthickness=4)
+crack_pw_frame = LabelFrame(frame_t3, text="Prolomit heslo sítě hrubou silou", highlightthickness=4, borderwidth=4)
 crack_pw_frame.pack(padx=10,pady=5, fill='x')
 
 crack_pw_label  =Label(crack_pw_frame, text="Zvolený soubor:")
 wordlist_name = ""
 wordlist_name_label = Label(crack_pw_frame, text=wordlist_name)
-crack_pw_label.grid(row=0, column=0)
-wordlist_name_label.grid(row=0, column=1)
+crack_pw_label.grid(row=0, column=0, padx=5, pady=5)
+wordlist_name_label.grid(row=0, column=1, padx=5, pady=5)
 
-crack_pw_button = Button(crack_pw_frame, text="Prolomit heslo", command=crack_pw)
-crack_pw_button.grid(row=1, column=0, columnspan=2)
+crack_pw_button = Button(crack_pw_frame, text="Prolomit heslo", width= 20, command=crack_pw)
+crack_pw_button.grid(row=1, column=0, columnspan=2, sticky=W, padx=5, pady=5)
 
-crack_pw_progress = ttk.Progressbar(crack_pw_frame, orient=HORIZONTAL, length=800, mode='determinate')
+#crack_pw_progress = ttk.Progressbar(crack_pw_frame, orient=HORIZONTAL, length=800, mode='determinate')
+crack_pw_progress = ttk.Progressbar(crack_pw_frame, orient=HORIZONTAL, mode='determinate')
 crack_pw_progress.step(0)
 
-crack_pw_current_line_label = Label(crack_pw_frame, text="foo")  # TODO rename
+crack_pw_current_line_label = Label(crack_pw_frame, text="")  
 crack_pw_current_line_label.grid(row=2, column=0, columnspan=2)
 
+deauth_frame.grid_columnconfigure(2, weight=1)
+
 # Network Connection Frame ========================================================================================================================
-connect_frame = LabelFrame(frame_t3, text="Připojit se k cílové Wi-Fi síti", highlightthickness=4)
+connect_frame = LabelFrame(frame_t3, text="Připojit se k cílové Wi-Fi síti", highlightthickness=4, borderwidth=4)
 connect_frame.pack(padx=10,pady=5, fill='x')
 
 password_info_label = Label(connect_frame, text="Heslo k Wi-fi síti: ")
-password_label = Label(connect_frame, text="", font=('Helvetica', 20), fg='green')
-password_info_label.grid(row=0, column=0)
-password_label.grid(row=0, column=1)
+password_label = Label(connect_frame, text="", font=('Helvetica', 16), fg='green')
+password_info_label.grid(row=0, column=0, padx=5, pady=5, sticky=W)
+password_label.grid(row=0, column=1, padx=5, pady=5)
 
-connect_button = Button(connect_frame, text="Připojit se k síti", command=connect_to_wifi)
-connect_button.grid(row=1, column=1, columnspan=2)
+connect_button = Button(connect_frame, text="Připojit se k síti", width= 20, command=connect_to_wifi)
+connect_button.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
 
 
 # Tab "Man-in-the-middle" ================================================================================================================
