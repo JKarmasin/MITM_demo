@@ -180,21 +180,21 @@ sudo ettercap -G
 ```
 - GUI aplikace :check:
 - bez doprovodn0ho infa a bez vysvětlivek :x:
-    ![Alt text](image.png)
+    ![Alt text](images/image.png)
 
-    ![Alt text](image-1.png)
+    ![Alt text](images/image-1.png)
 
 ### 2. bettercap
 https://www.hackers-arise.com/post/wi-fi-hacking-part-17-wi-fi-hacking-with-bettercap
 - Mocný nástroj splňující všechny požadavky
 - Konzolový bez GUI :x:
-    ![Alt text](bettercap.png)
+    ![Alt text](images/bettercap.png)
 
 ### 3. Wifiphisher
 https://www.youtube.com/watch?v=ay-77C9ZZQM
 - tool pro tvorbu předdefinovaných phishingových útoků na WiFi sítě. 
 - neukazuje MITM a lámání hesel :x:
-![Alt text](Wifiphisher.png)
+![Alt text](images/Wifiphisher.png)
 
 ### Další nástroje _**TODO**_ :x:
 - hostapd
@@ -218,7 +218,7 @@ https://www.youtube.com/watch?v=ay-77C9ZZQM
 # Hrubý popis kompletníhop MITM útoku:
 ## 0. Originální situace
 Klient je připojen k AP pomocí heslem zabezpečeného připojení (WEP) a komunikuje
-![Alt text](MITM_begin.png)
+![Alt text](images/MITM_begin.png)
 ## 1. Fáze útoku - přístup do zabezpečené sítě
 - Rekonoskace: Útočník pomocí adaptéru v monitorovacím módu zachytává rámce a zjišťuje dostupné bezdrátové sítě a k nim připojené klienty.
 - Deautentifikuje vybraného klienta na vybrané síti, aby zachytil 4-way handshake ráme při opkusu o opětovné připojení klienta k síti
@@ -233,7 +233,7 @@ Klient je připojen k AP pomocí heslem zabezpečeného připojení (WEP) a komu
 - Zachytávání DNS dotazů
 - přesměrování na jinou adresu (DNS spoof)
 - SSLsplit  
-![Alt text](MITM_end.png)
+![Alt text](images/MITM_end.png)
 ## 4. Fáze útoku - Exfiltration
 - navrácení původních ARP záznamů klienta a AP
 - odpojení od sítě
@@ -468,3 +468,6 @@ sudo reboot
 (odinstalace sudo dkms_remove)
 make && make install
 ```
+
+
+# pip install pyshark
