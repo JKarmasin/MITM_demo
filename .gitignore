@@ -1,3 +1,4 @@
 backup/*
 test/*
+#src/__pycache__
 
