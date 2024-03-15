@@ -8,10 +8,22 @@ password = ""
 
 #==================================================================
 # DEBUG abych se mohl posunout hned na skoro poslední tab =========
-net = "KARMASIN"
-interface = "wlan1"
-password = "klara59501350"
-cl = "BC:1A:E4:92:5E:25"    # HUAWEI PHONE
+#net = "KARMASIN"
+#interface = "wlan1"
+#password = "klara59501350"
+#cl = "BC:1A:E4:92:5E:25"    # HUAWEI PHONE
+#cl = "3C:9C:0F:72:F5:F1"    # IMO ntb
+##ap = "CC:2D:E0:C2:EE:6B"      # KARMASIN AP router
+"""
+# TEST =========
+interface = "wlan0"
+net = "HackMe"
+ap = "1E:58:AB:BE:DE:BD"    #Pixel
+cl = "BC:1A:E4:92:5E:25"    #Huawei
+ch = "11"
+password = "Hackme123"
+# TEST==========
+"""
 # DEBUG ===========================================================
 #==================================================================
 
@@ -33,33 +45,23 @@ aircrack_process = None
 arpspoof_cl_process = None
 arpspoof_ap_process = None
 
+my_color = "#58b74d"
 
-#print("=== DEBUG: Načetl jsem globalni proměnné ===")
+# Proměnná, ve které je číslo tabu, kde již byly splněny všechny potřebné kroky. Čísluje se od 0. Je potřeba ke správnému zvýrazňování framů.
+finished_tab = -2
 
-# Globální flagy pro ukončování threadů
-#stop_reading_file = False           # ukončení threadu se čtením ze souboru TODO jakého souboru? přejmenovat!
-#stop_parse_handshake_cap = False    # ukončení threadu tsharku pro filtrování eapol rámců
+"""# Zabráním přepnutí na následující tab, dokud není splněná podmínka z předcházejícího tabu
+def on_tab_change(event):
+    current_tab = notebook.index(notebook.select())
+    #print("=== DEBUG: curr tab: " + str(current_tab))
+    #print("=== DEBUG: finn tab: " + str(global_names.finished_tab))
 
-# Pomocná proměnná, pomocí které vypisuju výstup z airodump an stdout.... TODO delete
-#capture = None
+    # Nastavím defaultní barvu tlačítka
+    btn_next.config(bg="lightgrey")
+    btn_prev.config(bg="lightgrey")
 
-# Názvy výstupních a pomocných souborů
+    if global_names.finished_tab == current_tab:
+        btn_next.config(bg=global_names.my_color)
 
-# Uklidím případný soubor output_airodump-01.csv po předešlém spuštění
-#file_name = output_airodump + "-01.csv"
-#if os.path.isfile(file_name):
-#    os.remove(file_name)
-
-# Uklidím případný soubor output_handshake-01.csv po předešlém spuštění
-#files_in_current_dir = os.listdir('src/tmp')
-#output_handshake_prefix = "handshake"
-# Filter files that start with the prefix
-#files_to_delete = [file for file in files_in_current_dir if file.startswith(output_handshake_prefix)]
-
-# Delete the filtered files
-#for file in files_to_delete:
-#    os.remove("tmp/"+file)
-
-#file_name = output_password
-#if os.path.isfile(file_name):
-#    os.remove(file_name)
+    if global_names.finished_tab == (current_tab-1):
+        btn_prev.config(bg=global_names.my_color)"""

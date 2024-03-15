@@ -34,6 +34,7 @@ def crunch(min, max, chars, output):
     print("COMMAND: " + command)
     subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
 
+# ========================================================================================================================
 def create_wordlist():
     print("===== CREATING PASSWORDS WORDLIST =====================")
     #global create_wl_progress
@@ -52,6 +53,8 @@ def create_wordlist():
     create_wl_progress.grid_forget()
     #status.config(text="Slovník hesel byl úspěšně vytvořen!")
     wordlist_name_label.config(text=os.getcwd()+"/"+output)
+    global create_wordlist_frame
+    create_wordlist_frame.config(highlightthickness=0)
 
 # ========================================================================================================================
 def load_wordlist(root):
@@ -60,8 +63,13 @@ def load_wordlist(root):
     wordlist_name = root.filename
     #print("Wordlist: "+wordlist_name) 
     wordlist_name_label.config(text=wordlist_name)
-    load_wordlist_frame.config(background="green")      # TADY JE TO OK !!!!!!!!!!!!!!!!!
-    crack_pw_frame.config(highlightbackground="green")  # TADY JE TO OK !!!!!!!!!!!!!!!!!
+
+    global crack_pw_frame
+    global load_wordlist_frame
+    global create_wordlist_frame
+    crack_pw_frame.config(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color) 
+    load_wordlist_frame.config(highlightthickness=0)
+    create_wordlist_frame.config(highlightthickness=0)
 
 # ========================================================================================================================
 def secs_to_str(seconds):
@@ -79,20 +87,17 @@ def secs_to_str(seconds):
             return '%dm%ds' % (mins, secs)
         else:
             return '%ds' % secs
-# ========================================================================================================================
-"""
-def aircrack(capfile, wordlist):
-    command = f"aircrack-ng {capfile} -w {wordlist}"
-    global aircrack_process
-    aircrack_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
-    #grep_aircrack_process()
-"""
+
 # ========================================================================================================================
 def grep_aircrack_process():
     # Report progress of cracking
-    print("     -- DEBUG: started grep process")
+    #print("     -- DEBUG: started grep process")
 
     global aircrack_process         # TODO
+    global load_wordlist_frame
+    global connect_frame
+    global crack_pw_frame
+    global create_wordlist_frame
 
     aircrack_nums_re = re.compile(r'(\d+)/(\d+) keys tested.*\(([\d.]+)\s+k/s')
     aircrack_key_re = re.compile(r'Current passphrase:\s*(\S.*\S)\s*$')
@@ -124,6 +129,12 @@ def grep_aircrack_process():
 
     if not os.path.isfile(output_password):
         #status.configure(text="Heslo nebylo prolomeno...")
+        print("     ----------------------------") 
+        print("     -- HESLO NEBYLO PROLOMENO --")
+        print("     ----------------------------")
+
+        load_wordlist_frame.config(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color) 
+        create_wordlist_frame.config(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color) 
         return
 
     # Vypíšu nalezené heslo do odpovídajícího labelu
@@ -133,6 +144,13 @@ def grep_aircrack_process():
             password = file.readline()
             password_label.config(text=password)
             global_names.password = password
+            print("     ----------------------------------") 
+            print("     -- HESLO BYLO ÚSPĚŠNĚ PROLOMENO --")
+            print("     ----------------------------------")
+
+            crack_pw_frame.config(highlightthickness=0)
+            load_wordlist_frame.config(highlightthickness=0)
+            connect_frame.config(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color)
 
     # Ukončím běhání progress baru
     print("     -- Konec lámání hesla!")
@@ -152,9 +170,6 @@ def crack_pw():
     global aircrack_process
     aircrack_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
     Thread(target=grep_aircrack_process, daemon=True).start()
-
-    # TODO check jestli se tohle nezobrazí dřív, než doběhne lámání helsa
-    #status.config(text="Heslo bylo úspěšně prolomeno!")
 
 # ========================================================================================================================
 def connect_to_wifi():
@@ -183,7 +198,16 @@ def connect_to_wifi():
         subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
 
         #status.config(text=f"Úspěšně připojeno k cílové Wi-fi síti!")
-        connect_button.configure(state=DISABLED) 
+        connect_button.configure(state=DISABLED)
+        print("     -------------------------------------") 
+        print("     -- ÚSPĚŠNĚ PŘIPOJENO K WI-FI SÍTI! --")
+        print("     -------------------------------------")
+
+        global connect_frame
+        connect_frame.config(highlightthickness=0)
+        global_names.finished_tab = 2
+        global button_next
+        button_next.config(bg=global_names.my_color)
 
     except subprocess.CalledProcessError as e:
         #status.config(text=f"Chyba při připojování k síti: {e}")
@@ -192,12 +216,19 @@ def connect_to_wifi():
 
 # ========================================================================================================================================
 # Tab "Prolomení hesla" ==================================================================================================================
-def draw_crack(frame_t3, root):
+def draw_crack(frame_t3, root, btn_next):
+    global button_next
+    button_next = btn_next
+
     # Create Wordlist Frame ==============================================================================================================
+    #global password_frame
     password_frame = LabelFrame(frame_t3, text="Prolomení zachyceného hesla")
     password_frame.pack(padx=10,pady=5, fill='x')
 
-    create_wordlist_frame = LabelFrame(frame_t3, text="Vytvořit slovník hesel", borderwidth=4)
+    global create_wordlist_frame
+    create_wordlist_frame = LabelFrame(frame_t3, text="Vytvořit slovník hesel")
+    #if global_names.finished_tab == 1:
+    create_wordlist_frame.config(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
     create_wordlist_frame.pack(padx=10,pady=5, fill='x')
 
     global wl_char_entry
@@ -234,7 +265,9 @@ def draw_crack(frame_t3, root):
 
     # Load Wordlist Frame ==================================================================================================================
     global load_wordlist_frame
-    load_wordlist_frame = LabelFrame(frame_t3, text="Načíst hotový slovník hesel", highlightthickness=2, borderwidth=4)
+    load_wordlist_frame = LabelFrame(frame_t3, text="Načíst hotový slovník hesel")
+    #if global_names.finished_tab == 1:
+    load_wordlist_frame.config(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color)
     load_wordlist_frame.pack(padx=10,pady=5, fill='x')
 
     load_wl_button = Button(load_wordlist_frame, text="Načíst slovník hesel", width= 20, command=lambda: load_wordlist(root))
@@ -242,10 +275,9 @@ def draw_crack(frame_t3, root):
 
     # Crack the password Frame ========================================================================================================================
     global crack_pw_frame
-    crack_pw_frame = LabelFrame(frame_t3, text="Prolomit heslo sítě hrubou silou", highlightthickness=4, borderwidth=4)
+    crack_pw_frame = LabelFrame(frame_t3, text="Prolomit heslo sítě hrubou silou")
     crack_pw_frame.pack(padx=10,pady=5, fill='x')
 
-    
     global wordlist_name_label
     crack_pw_label  =Label(crack_pw_frame, text="Zvolený soubor:")
     wordlist_name = ""
@@ -268,7 +300,8 @@ def draw_crack(frame_t3, root):
     crack_pw_frame.grid_columnconfigure(2, weight=1)
 
     # Network Connection Frame ===============================================================================================================
-    connect_frame = LabelFrame(frame_t3, text="Připojit se k cílové Wi-Fi síti", highlightthickness=4, borderwidth=4)
+    global connect_frame
+    connect_frame = LabelFrame(frame_t3, text="Připojit se k cílové Wi-Fi síti")
     connect_frame.pack(padx=10,pady=5, fill='x')
 
     password_info_label = Label(connect_frame, text="Heslo k Wi-fi síti: ")

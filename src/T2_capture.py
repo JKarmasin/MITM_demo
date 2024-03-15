@@ -70,30 +70,15 @@ def start_handshake_catch():
 
     print(" -- spuštím airodump na target")
     # TODO tady je zatím výstup na stdout - později změnit na PIPE
-    #airodump_target_process = subprocess.Popen(command_catch_handshake, shell=True, stdout=capture, stderr=subprocess.PIPE, preexec_fn=os.setsid)
-    #airodump_target_process = subprocess.Popen(command_catch_handshake, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
     airodump_target_process = subprocess.Popen(command_catch_handshake, shell=True, stderr=subprocess.STDOUT, preexec_fn=os.setsid)
     
-    
-    # Dám tomu čas na vytvoření souborů - možná netřeba TODO test
-    #print(" - airodump na target byl spuštěn")
-
-    #print(" -- START parsovani " + output_handshake)
-    #global output_handshake_only
-    #print(" - Output file: "+ output_handshake_only)
-    #tshark_command = f"tshark -r {output_handshake}-01.cap -n -Y \"eapol\" -w {output_handshake_only}"
-    #print(" - COMMAND: " + tshark_command)
-
-    #print(" - Spouštím thread s parsováním .cap")
-    global parse_handshake_cap_thread
+    #global parse_handshake_cap_thread
     Thread(target=parse_handshake_cap, daemon=True).start() #================= TODO
     #print(" - Thread s parsováním byl spuštěn")
-
-    """
-    time.sleep(1)
-    #detect_eapol()
-    # parse_handshake_cap(tshark_command)
-    """
+    global deauth_frame
+    global handshake_catch_frame
+    handshake_catch_frame.config(highlightthickness=0)
+    deauth_frame.config(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
 
 # ========================================================================================================================
 def stop_handshake_catch():
@@ -113,6 +98,9 @@ def stop_handshake_catch():
     # Nastavuji správně tlačítka
     handshake_catch_on_button.configure(state=NORMAL) 
     handshake_catch_off_button.configure(state=DISABLED)
+    global handshake_catch_frame
+    handshake_catch_frame.config(highlightthickness=0)
+
 
 # ========================================================================================================================
 def start_deauthentification():
@@ -164,7 +152,7 @@ def parse_handshake_cap():
     # Flag pro zastaveni parsovani v okamziku, kdy najdu vice nez 4 zpravy EAPOL  
     captured = False
 
-    tshark_command = f"tshark -r {output_handshake}-01.cap -n -Y \"eapol\""
+    tshark_command = f"tshark -r {output_handshake}-01.cap -n -Y \"eapol\" | grep \"Message 4 of 4\""
     print("COMMAND: "+ tshark_command)
 
     print("     -- Začínám cyklus čtení " + output_handshake)
@@ -188,10 +176,22 @@ def parse_handshake_cap():
                         
             #nlines = len(out2.splitlines())
             #print("      - Zachycené zprávy eapol handshaku: " + str(nlines))
-            if nlines >= 4:
-                print("     -- Handshake byl zachycen! (Captured i>=4)")
+            if nlines >= 1:         
+                print("     ------------------------------------------------------")
+                print("     -- HANDSHAKE BYL ZACHYCEN (Captured Message 4 of 4) --")
+                print("     ------------------------------------------------------")
                 handshake_finished_label.config(text="Handshake byl zachycen!", fg='green')
                 captured = True
+                global_names.finished_tab = 1
+                global button_next
+                button_next.config(bg=global_names.my_color)
+
+                global deauth_frame
+                global handshake_catch_frame
+                handshake_catch_frame.config(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+                deauth_frame.config(highlightthickness=0)
+
+                # TODO Zezelenat tlačítko!
 
         except FileNotFoundError:
             #status.config(text="File not found. Waiting...")
@@ -202,9 +202,16 @@ def parse_handshake_cap():
 
 # ========================================================================================================================================
 # Tab "Záchyt handshaku" =================================================================================================================
-def draw_capture(frame_t2):
+def draw_capture(frame_t2, btn_next):
+    global button_next
+    button_next = btn_next
+
     # WPA Catch Frame ========================================================================================================================
-    handshake_catch_frame = LabelFrame(frame_t2, text="Záchyt WPA handshaku", borderwidth=4)
+    global handshake_catch_frame
+    handshake_catch_frame = LabelFrame(frame_t2, text="Záchyt WPA handshaku")
+    # Postarám se o to, že je zvýrazněný frame ve správný okamžik
+    #if global_names.finished_tab == 0:
+    handshake_catch_frame.config(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
     handshake_catch_frame.pack(padx=10,pady=5, fill='x')
 
     handshake_catch_label = Label(handshake_catch_frame, text="Spustit proces na zachytávání komunikace klienta s AP a zachycením WPA handshaku:")
@@ -235,7 +242,8 @@ def draw_capture(frame_t2):
     handshake_catch_frame.grid_columnconfigure(3, weight=1)
 
     # Deauthificate Frame ========================================================================================================================
-    deauth_frame = LabelFrame(frame_t2, text="Deauthentifikace target klienta", borderwidth=4)
+    global deauth_frame
+    deauth_frame = LabelFrame(frame_t2, text="Deauthentifikace target klienta")
     deauth_frame.pack(padx=10,pady=5, fill='x')
 
     deauth_label = Label(deauth_frame, text="Spustit proces odpojování komunikace Clienta s AP pro opětovné zaslání handshake:")

@@ -74,6 +74,12 @@ def interfaces_on_select(event):
 
     #status.config(text=interfaces_field.get(ANCHOR).split()[0])
     monitor_on_button.configure(state=NORMAL)
+
+    # Nastavím zvýraznění udělaných rámců činností
+    global interface_frame
+    global monitor_frame
+    interface_frame.config(highlightthickness=0)     
+    monitor_frame.config(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
 # ========================================================================================================================
 # ========================================================================================================================
 def start_monitor_mode():
@@ -95,6 +101,12 @@ def start_monitor_mode():
         monitor_off_button.configure(state=NORMAL) 
         monitor_on_button.configure(state=DISABLED)
         airodump_on_button.configure(state=NORMAL) 
+
+        # Nastavím zvýraznění udělaných rámců činností
+        global airodump_frame
+        global monitor_frame
+        monitor_frame.config(highlightthickness=0) 
+        airodump_frame.config(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color)
 
     except subprocess.CalledProcessError as e:
         #status.config(text=f"Chyba při nastavování monitorovacího módu: {e}")
@@ -385,16 +397,31 @@ def tree_cl_selected(Event):
     target_cl.configure(text=cl)
     target_ch.configure(text=ch)
 
-
+    # Nastavím zvýraznění udělaných rámců činností
+    global airodump_frame
+    global target_frame
+    airodump_frame.config(highlightthickness=0) 
+    target_frame.config(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+    global_names.finished_tab = 0
+    #on_tab_change()
+    global button_next
+    button_next.config(bg=global_names.my_color) 
 
 # ===========================================================
-def draw_reco(frame_t1):
+def draw_reco(frame_t1, btn_next):
+    global button_next
+    button_next = btn_next
+    
     # Tab "Vyhledání cílů" ==================================================================================================================
     # Interface frame ========================================================================
+    global interface_frame
     interface_frame = LabelFrame(frame_t1, text="Vyhledání a výběr požadovaného rozhraní", borderwidth=4)
     interface_frame.pack_propagate(0)
     interface_frame.pack(padx=10,pady=5, fill=X, expand=True, side=TOP)
-   
+
+    interface_frame.config(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+    
+
     global interfaces_field
     # Create a button to run iwconfig command
     interface_button = tk.Button(interface_frame, text="Najít Wi-fi rozhraní", width=20, command=lambda: find_wifi_interfaces(interfaces_field))
@@ -407,6 +434,7 @@ def draw_reco(frame_t1):
     interfaces_field.grid(row=0, column= 1, pady=5)
 
     # Monitor mode frame ========================================================================
+    global monitor_frame
     monitor_frame = LabelFrame(frame_t1, text="Přepnutí rozhraní do monitorovacího módu", borderwidth=4)
     monitor_frame.pack(padx=10,pady=5, fill='x')
 
@@ -418,6 +446,7 @@ def draw_reco(frame_t1):
     monitor_off_button.grid(row=0, column=1, pady=5)
 
     # Airodump frame ========================================================================
+    global airodump_frame
     airodump_frame = LabelFrame(frame_t1, text="Záchyt komunikace v okolí", borderwidth=4)
     airodump_frame.pack(padx=10,pady=5, fill='x', expand=True)
 
@@ -457,6 +486,7 @@ def draw_reco(frame_t1):
     airodump_frame.grid_columnconfigure(2, weight=1)
 
     # Target frame ========================================================================
+    global target_frame
     target_frame = LabelFrame(frame_t1, text="Cíl MITM útoku", borderwidth=4)
     target_frame.pack(padx=10,pady=5, fill='x', expand=True)
 

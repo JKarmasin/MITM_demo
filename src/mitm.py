@@ -11,28 +11,15 @@ from src import global_names
 
 # ========================================================================================================================
 # Globální proměnná s názvem interface pro monitorovací mód
-global interface
+#global interface
 
 # Globální proměnné nutné pro připojení k síti:
 # Název sítě (net), MAC adresa Access Pointu (ap), MAC adresa klienta (cl), Kanál, na kterém se vysílá (ch), Heslo pro připojení (password)
-global net
-global ap
-global cl
-global ch
-global password
-
-
-"""
-# TEST =========
-interface = "wlan0"
-net = "HackMe"
-ap = "1E:58:AB:BE:DE:BD"    #Pixel
-cl = "BC:1A:E4:92:5E:25"    #Huawei
-ch = "11"
-password = "Hackme123"
-# TEST==========
-"""
-
+#global net
+#global ap
+#global cl
+#global ch
+#global password
 
 # Globální proměnná pro uchování reference na nekončící procesy pro jejich pozdější ukončení
 airodump_process = None
@@ -42,39 +29,8 @@ aircrack_process = None
 arpspoof_cl_process = None
 arpspoof_ap_process = None
 
-
-# Globální flagy pro ukončování threadů
-#stop_reading_file = False           # ukončení threadu se čtením ze souboru TODO jakého souboru? přejmenovat!
-#stop_parse_handshake_cap = False    # ukončení threadu tsharku pro filtrování eapol rámců
-
 # Pomocná proměnná, pomocí které vypisuju výstup z airodump an stdout.... TODO delete
 capture = None
-
-# Názvy výstupních a pomocných souborů
-#output_airodump = "tmp/airdump"
-#output_handshake = "tmp/handshake"
-#output_password = "password.txt"
-#output_traffic = "tmp/full_traffic.pcap"
-
-# Uklidím případný soubor output_airodump-01.csv po předešlém spuštění
-#file_name = output_airodump + "-01.csv"
-#if os.path.isfile(file_name):
-#    os.remove(file_name)
-
-# Uklidím případný soubor output_handshake-01.csv po předešlém spuštění
-#files_in_current_dir = os.listdir('src/tmp')
-#output_handshake_prefix = "handshake"
-# Filter files that start with the prefix
-#files_to_delete = [file for file in files_in_current_dir if file.startswith(output_handshake_prefix)]
-
-# Delete the filtered files
-#for file in files_to_delete:
-#    os.remove("tmp/"+file)
-
-#file_name = output_password
-#if os.path.isfile(file_name):
-#    os.remove(file_name)
-
 
 
 # ========================================================================================================================
@@ -87,6 +43,7 @@ def change_tab(direction):
     elif direction == "prev" and current_tab > 0:
         notebook.select(current_tab - 1)
     update_button_state()
+
 # ========================================================================================================================
 # Aktualizace stavu tlačítek
 def update_button_state():
@@ -94,13 +51,31 @@ def update_button_state():
     btn_prev['state'] = tk.NORMAL if current_tab > 0 else tk.DISABLED
     btn_next['state'] = tk.NORMAL if current_tab < notebook.index("end") - 1 else tk.DISABLED
 # ========================================================================================================================
+
+# Zabráním přepnutí na následující tab, dokud není splněná podmínka z předcházejícího tabu
+def on_tab_change(event):
+    current_tab = notebook.index(notebook.select())
+    #print("=== DEBUG: curr tab: " + str(current_tab))
+    #print("=== DEBUG: finn tab: " + str(global_names.finished_tab))
+
+    # Nastavím defaultní barvu tlačítka
+    btn_next.config(bg="lightgrey")
+    btn_prev.config(bg="lightgrey")
+
+    if global_names.finished_tab == current_tab:
+        btn_next.config(bg=global_names.my_color)
+
+    if global_names.finished_tab == (current_tab-1):
+        btn_prev.config(bg=global_names.my_color)
+
+
+
+# ========================================================================================================================
 # Funkce pro ukončení aplikace při stisku CTRL+C
 def destroyer(event):
-    # TODO kill všechny procesy - asi zbytečně, protože to jsou všechny deamoni a skončí sami, ale je slušnost po sobě uklidit
+    # TODO kill všechny procesy - asi zbytečně, protože to jsou všechny deamoni a skončí samy, ale je slušnost po sobě uklidit
     root.destroy()
     print('Končím po stiskuní CTRL + C')
-
-
 
 
 # ========================================================================================================================================
@@ -175,30 +150,31 @@ def main():
 
     # Tlačítka pro navigaci
     global btn_next, btn_prev
-    btn_prev = ttk.Button(main_frame, text="<<", command=lambda: change_tab("prev"))
-    btn_prev.pack(side=tk.LEFT, fill='y')
 
+    btn_prev = tk.Button(main_frame, text="<<", command=lambda: change_tab("prev"))
+    btn_prev.pack(side=tk.LEFT, fill='y')
     notebook.pack(side=tk.LEFT, expand=True, fill='both')
 
-    btn_next = ttk.Button(main_frame, text=">>", command=lambda: change_tab("next"))
+    #btn_next = ttk.Button(main_frame, text=">>", bg=global_names.my_color, command=lambda: change_tab("next"))
+    btn_next = tk.Button(main_frame, text=">>", command=lambda: change_tab("next"))
     btn_next.pack(side=tk.RIGHT, fill='y')
+    #btn_next.flash()
 
     # Inicializace stavu tlačítek
     update_button_state()
-
-
+    notebook.bind("<<NotebookTabChanged>>", on_tab_change)
 
     # Tab 1 "Vyhledání cílů" ==================================================================================================================
-    T1_reco.draw_reco(frame_t1)
+    T1_reco.draw_reco(frame_t1, btn_next)
 
     # Tab 2 "Záchyt handshaku" =================================================================================================================
-    T2_capture.draw_capture(frame_t2)
+    T2_capture.draw_capture(frame_t2, btn_next)
     
     # Tab 3 "Prolomení hesla" ==================================================================================================================
-    T3_crack.draw_crack(frame_t3, root)
+    T3_crack.draw_crack(frame_t3, root, btn_next)
 
     # Tab 4 "Man-in-the-middle" ================================================================================================================
-    T4_arp_spoof.draw_arp_spoof(frame_t4,global_names.interface, global_names.cl)
+    T4_arp_spoof.draw_arp_spoof(frame_t4, btn_next)
 
     # Tab 5 "Odposlech DNS dotazů" =============================================================================================================
     T5_dns_spoof.draw_dns(frame_t5)
