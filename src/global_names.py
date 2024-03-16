@@ -16,12 +16,12 @@ password = ""
 ##ap = "CC:2D:E0:C2:EE:6B"      # KARMASIN AP router
 """
 # TEST =========
-interface = "wlan0"
-net = "HackMe"
-ap = "1E:58:AB:BE:DE:BD"    #Pixel
-cl = "BC:1A:E4:92:5E:25"    #Huawei
-ch = "11"
-password = "Hackme123"
+#interface = "wlan0"
+#net = "HackMe"
+#ap = "1E:58:AB:BE:DE:BD"    #Pixel
+#cl = "BC:1A:E4:92:5E:25"    #Huawei
+#ch = "11"
+#password = "Hackme123"
 # TEST==========
 """
 # DEBUG ===========================================================

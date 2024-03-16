@@ -1,12 +1,14 @@
+import customtkinter as ctk
+from customtkinter import BOTTOM, DISABLED, E, LEFT, N, NO, NORMAL, NS, RIGHT, S, SUNKEN, SW, W
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 import os
-from src import T1_reco
-from src import T2_capture
-from src import T3_crack
-from src import T4_arp_spoof
-from src import T5_dns_spoof
+from . import c_T1_reco
+from . import c_T2_capture
+from . import c_T3_crack
+from . import c_T4_arp_spoof
+from . import c_T5_dns_spoof
 from src import global_names
 
 # ========================================================================================================================
@@ -59,14 +61,14 @@ def on_tab_change(event):
     #print("=== DEBUG: finn tab: " + str(global_names.finished_tab))
 
     # Nastavím defaultní barvu tlačítka
-    btn_next.config(bg="lightgrey")
-    btn_prev.config(bg="lightgrey")
+    btn_next.configure(bg="lightgrey")
+    btn_prev.configure(bg="lightgrey")
 
     if global_names.finished_tab == current_tab:
-        btn_next.config(bg=global_names.my_color)
+        btn_next.configure(bg=global_names.my_color)
 
     if global_names.finished_tab == (current_tab-1):
-        btn_prev.config(bg=global_names.my_color)
+        btn_prev.configure(bg=global_names.my_color)
 
 
 
@@ -83,7 +85,7 @@ def destroyer(event):
 # ========================================================================================================================================
 def main():
     global root
-    root = tk.Tk()
+    root = ctk.CTk()
     root.title("Man-in-the-middle Attack")
     icon = PhotoImage(file='images/sword.png')   
     root.tk.call('wm', 'iconphoto', root._w, icon)
@@ -98,19 +100,19 @@ def main():
     root.bind_all('<Control-c>', destroyer)
 
     # Frame pro notebook a navigační tlačítka, aby bylo možné lépe kontrolovat layout =======================================================
-    main_frame = tk.Frame(root)
+    main_frame = ctk.CTkFrame(root)
     main_frame.pack(expand=True, fill='both')
 
     # Vytvoření panelu s taby
     global notebook
     notebook = ttk.Notebook(main_frame)
 
-    tab1 = ttk.Frame(notebook)
-    tab2 = ttk.Frame(notebook)
-    tab3 = ttk.Frame(notebook)
-    tab4 = ttk.Frame(notebook)
-    tab5 = ttk.Frame(notebook)
-    tab6 = ttk.Frame(notebook)
+    tab1 = ctk.CTkFrame(notebook)
+    tab2 = ctk.CTkFrame(notebook)
+    tab3 = ctk.CTkFrame(notebook)
+    tab4 = ctk.CTkFrame(notebook)
+    tab5 = ctk.CTkFrame(notebook)
+    tab6 = ctk.CTkFrame(notebook)
 
     notebook.add(tab1, text="Vyhledání cílů")
     notebook.add(tab2, text="Záchyt handshaku")
@@ -118,12 +120,12 @@ def main():
     notebook.add(tab4, text="Man-in-the-middle")
     notebook.add(tab5, text="Odposlech DNS dotazů")
     #notebook.add(tab6, text="DNS spoof")
-    frame_t1 = Frame(tab1)
-    frame_t2 = Frame(tab2)
-    frame_t3 = Frame(tab3)
-    frame_t4 = Frame(tab4)
-    frame_t5 = Frame(tab5)
-    #frame_t6 = Frame(tab6)
+    frame_t1 = ctk.CTkFrame(tab1)
+    frame_t2 = ctk.CTkFrame(tab2)
+    frame_t3 = ctk.CTkFrame(tab3)
+    frame_t4 = ctk.CTkFrame(tab4)
+    frame_t5 = ctk.CTkFrame(tab5)
+    #frame_t6 = ctk.CTkFrame(tab6)
     frame_t1.pack(fill='both', expand=True)
     frame_t2.pack(fill='both', expand=True)
     frame_t3.pack(fill='both', expand=True)
@@ -142,7 +144,7 @@ def main():
     #frames = []
     #
     #for tab in tabs:
-    #    frame = Frame(tab)
+    #    frame = ctk.CTkFrame(tab)
     #    frame.pack(fill='both', expand=True)
     #    frame.pack_propagate(0)
     #    frames.append(frame)
@@ -151,12 +153,12 @@ def main():
     # Tlačítka pro navigaci
     global btn_next, btn_prev
 
-    btn_prev = tk.Button(main_frame, text="<<", command=lambda: change_tab("prev"))
+    btn_prev = ctk.CTkButton(main_frame, text="<<", command=lambda: change_tab("prev"))
     btn_prev.pack(side=tk.LEFT, fill='y')
     notebook.pack(side=tk.LEFT, expand=True, fill='both')
 
-    #btn_next = ttk.Button(main_frame, text=">>", bg=global_names.my_color, command=lambda: change_tab("next"))
-    btn_next = tk.Button(main_frame, text=">>", command=lambda: change_tab("next"))
+    #btn_next = ctk.CTkButton(main_frame, text=">>", bg_color=global_names.my_color, command=lambda: change_tab("next"))
+    btn_next = ctk.CTkButton(main_frame, text=">>", command=lambda: change_tab("next"))
     btn_next.pack(side=tk.RIGHT, fill='y')
     #btn_next.flash()
 
@@ -165,22 +167,22 @@ def main():
     notebook.bind("<<NotebookTabChanged>>", on_tab_change)
 
     # Tab 1 "Vyhledání cílů" ==================================================================================================================
-    T1_reco.draw_reco(frame_t1, btn_next)
+    c_T1_reco.draw_reco(frame_t1, btn_next)
 
     # Tab 2 "Záchyt handshaku" =================================================================================================================
-    T2_capture.draw_capture(frame_t2, btn_next)
+    c_T2_capture.draw_capture(frame_t2, btn_next)
     
     # Tab 3 "Prolomení hesla" ==================================================================================================================
-    T3_crack.draw_crack(frame_t3, root, btn_next)
+    c_T3_crack.draw_crack(frame_t3, root, btn_next)
 
     # Tab 4 "Man-in-the-middle" ================================================================================================================
-    T4_arp_spoof.draw_arp_spoof(frame_t4, btn_next)
+    c_T4_arp_spoof.draw_arp_spoof(frame_t4, btn_next)
 
     # Tab 5 "Odposlech DNS dotazů" =============================================================================================================
-    T5_dns_spoof.draw_dns(frame_t5)
+    c_T5_dns_spoof.draw_dns(frame_t5)
 
     # Status bar =============================================================================================================================
-    status = Label(root, text="OK", bd=2, relief=SUNKEN, anchor=SW)
+    status = ctk.CTkLabel(root, text="OK", bd=2, relief=SUNKEN, anchor=SW)
     status.pack(fill='x', side=BOTTOM)
 
     # Start the GUI event loop ===============================================================================================================
