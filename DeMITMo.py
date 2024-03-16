@@ -2,14 +2,14 @@ import customtkinter as ctk
 from customtkinter import N, S
 import tkinter as tk
 from tkinter import PhotoImage, Message
-from src import c_mitm
+from src import mitm
 from PIL import Image
 
 def open_main_window():
     # Zavření původního okna
     splash.destroy()
     # Otevření hlavního okna
-    app = c_mitm.App()
+    app = mitm.App()
     app.mainloop()
 
 

@@ -1,3 +1,5 @@
+import customtkinter as ctk
+from customtkinter import ANCHOR, COMMAND, DISABLED, E, END, EW, N, NO, NORMAL, NS, ON, S, TOP, W, X
 import subprocess
 import tkinter as tk
 from tkinter import ttk
@@ -43,8 +45,6 @@ if os.path.isfile(file_name):
 # ========================================================================================================================
 # ==== T1 ================================================================================================================
 def find_wifi_interfaces(interfaces_field):    
-    # Clear the text area
-    interfaces_field.delete(0, tk.END)
     
     try:
         # Run the iwconfig command
@@ -53,13 +53,17 @@ def find_wifi_interfaces(interfaces_field):
 
         # Parse the output to extract interface names
         interfaces = []
+
         for line in output.split('\n'):
             if line and not line.startswith(' '):  # Check if line starts with interface name
                 interface_name = line.split()[0]  # Extract interface name
                 interface_mac = get_mac_address(interface_name) # Gets MAC address for the interface
-                interfaces_field.insert(tk.END, interface_name + " (" + interface_mac + ")")
+                interfaces.append(interface_name + " (" + interface_mac + ")")
+
+        interfaces_field.configure(values=interfaces)
     except Exception as e:
-        interfaces_field.insert(f"Failed to run iwconfig: {e}")
+        interfaces_field.set(f"Failed to run iwconfig: {e}")
+        print(e)
 # ========================================================================================================================
 def interfaces_on_select(event):
     global interface
@@ -67,21 +71,23 @@ def interfaces_on_select(event):
     #global status       # TODO =========
     #global monitor_on_button
 
-    interface = interfaces_field.get(ANCHOR).split()[0]
-    global_names.interface = interface  # TODO ============
+    #interface = interfaces_field.get(ANCHOR).split()[0]
+    interface = interfaces_field.get().split()[0]
+    global_names.interface = interface  
 
     #print(f"=== DEBUG: Interface po selectu: {interface} ===")
 
-    #status.config(text=interfaces_field.get(ANCHOR).split()[0])
+    #status.configure(text=interfaces_field.get(ANCHOR).split()[0])
     monitor_on_button.configure(state=NORMAL)
 
     # Nastavím zvýraznění udělaných rámců činností
-    global interface_frame
-    global monitor_frame
-    interface_frame.config(highlightthickness=0)     
-    monitor_frame.config(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+    #global interface_frame
+    #global monitor_frame
+    #interface_frame.configure(highlightthickness=0)     
+    #monitor_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
 # ========================================================================================================================
 # ========================================================================================================================
+
 def start_monitor_mode():
     print("===== START MONITOR MODE =================================")
     #print(f"=== DEBUG: Interface v airmonu_on: {interface} ===")
@@ -95,7 +101,7 @@ def start_monitor_mode():
         # Restartuji službu NetworkManager
         subprocess.run(['service', 'NetworkManager', 'restart'], check=True)
 
-        #status.config(text=f"Rozhraní {interface} bylo úspěšně přepnuto do monitorovacího módu.")
+        #status.configure(text=f"Rozhraní {interface} bylo úspěšně přepnuto do monitorovacího módu.")
         print(f"Rozhraní {interface} bylo úspěšně přepnuto do monitorovacího módu.")
 
         monitor_off_button.configure(state=NORMAL) 
@@ -103,13 +109,13 @@ def start_monitor_mode():
         airodump_on_button.configure(state=NORMAL) 
 
         # Nastavím zvýraznění udělaných rámců činností
-        global airodump_frame
-        global monitor_frame
-        monitor_frame.config(highlightthickness=0) 
-        airodump_frame.config(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color)
+        #global airodump_frame
+        #global monitor_frame
+        #monitor_frame.configure(highlightthickness=0) 
+        #airodump_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color)
 
     except subprocess.CalledProcessError as e:
-        #status.config(text=f"Chyba při nastavování monitorovacího módu: {e}")
+        #status.configure(text=f"Chyba při nastavování monitorovacího módu: {e}")
         print(f"Chyba při nastavování monitorovacího módu rozhraní: {e}")
 # ========================================================================================================================
 def stop_monitor_mode():
@@ -123,14 +129,14 @@ def stop_monitor_mode():
         # Restartuji službu NetworkManager
         subprocess.run(['service', 'NetworkManager', 'restart'], check=True)
         
-        #status.config(text=f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
+        #status.configure(text=f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
         print(f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
 
         monitor_on_button.configure(state=NORMAL) 
         monitor_off_button.configure(state=DISABLED) 
 
     except subprocess.CalledProcessError as e:
-        #status.config(text=f"Chyba při nastavování normálního módu: {e}")
+        #status.configure(text=f"Chyba při nastavování normálního módu: {e}")
         print(f"Chyba při nastavování normálního módu rozhraní: {e}")
 # ========================================================================================================================
 def get_mac_address(iface):
@@ -155,7 +161,7 @@ def get_mac_address(iface):
 # ======================================================================================================================== 
 # Spustí příkaz airodump-ng na zvoleném interfacu v samostatném procesu a výsledek zapisuje do souboru
 def start_airodump_full():
-    print("===== START AIRODUM-NG (FULL) =================================")
+    print("===== START AIRODUMP-NG (FULL) =================================")
     global airodump_process
     #global capture
 
@@ -398,115 +404,131 @@ def tree_cl_selected(Event):
     target_ch.configure(text=ch)
 
     # Nastavím zvýraznění udělaných rámců činností
-    global airodump_frame
-    global target_frame
-    airodump_frame.config(highlightthickness=0) 
-    target_frame.config(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+    #global airodump_frame
+    #global target_frame
+    #airodump_frame.configure(highlightthickness=0) 
+    #target_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
     global_names.finished_tab = 0
+    
+    menu_button.configure(fg_color="transparent", text_color=("green", "green"))
     #on_tab_change()
-    global button_next
-    button_next.config(bg=global_names.my_color) 
+    #global button_next
+    #button_next.configure(bg=global_names.my_color) 
 
 # ===========================================================
-def draw_reco(frame_t1, btn_next):
-    global button_next
-    button_next = btn_next
+def draw_reco(frame_t1, frame_1_button):      # def draw_reco(frame_t1, btn_next):
+    global menu_button
+    menu_button = frame_1_button
     
     # Tab "Vyhledání cílů" ==================================================================================================================
     # Interface frame ========================================================================
     global interface_frame
-    interface_frame = LabelFrame(frame_t1, text="Vyhledání a výběr požadovaného rozhraní", borderwidth=4)
+    interface_frame = ctk.CTkFrame(frame_t1)
     interface_frame.pack_propagate(0)
     interface_frame.pack(padx=10,pady=5, fill=X, expand=True, side=TOP)
-
-    interface_frame.config(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+    #interface_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
     
+    interface_frame_label = ctk.CTkLabel(interface_frame, text="Vyhledání a výběr požadovaného rozhraní")
+    interface_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
-    global interfaces_field
     # Create a button to run iwconfig command
-    interface_button = tk.Button(interface_frame, text="Najít Wi-fi rozhraní", width=20, command=lambda: find_wifi_interfaces(interfaces_field))
-    interface_button.grid(row=0, column=0, sticky=N, padx=5, pady=5)
+    interface_button = ctk.CTkButton(interface_frame, text="Najít Wi-fi rozhraní", width=200, command=lambda: find_wifi_interfaces(interfaces_field))
+    interface_button.grid(row=1, column=0, sticky=N, padx=5, pady=5)
 
-    # Create a scrolled text area widget
-
-    interfaces_field = tk.Listbox(interface_frame, width=30, height=3)  # Adjusted size for interface names
-    interfaces_field.bind('<<ListboxSelect>>', interfaces_on_select)
-    interfaces_field.grid(row=0, column= 1, pady=5)
+    # Create a OptionMenu widget
+    global interfaces_field
+    interfaces_field = ctk.CTkOptionMenu(interface_frame, dynamic_resizing=False, values=[""], width=200, command=interfaces_on_select)
+    find_wifi_interfaces(interfaces_field)
+    interfaces_field.grid(row=1, column= 1, pady=5)
+    interfaces_field.set("Vyber rozhraní...") 
 
     # Monitor mode frame ========================================================================
     global monitor_frame
-    monitor_frame = LabelFrame(frame_t1, text="Přepnutí rozhraní do monitorovacího módu", borderwidth=4)
+    monitor_frame = ctk.CTkFrame(frame_t1)
     monitor_frame.pack(padx=10,pady=5, fill='x')
+
+    monitor_frame_label = ctk.CTkLabel(monitor_frame, text="Přepnutí rozhraní do monitorovacího módu")
+    monitor_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
     global monitor_on_button
     global monitor_off_button
-    monitor_on_button = tk.Button(monitor_frame, text="Spustit monitorovací mód", width=20, state=DISABLED, command=start_monitor_mode)
-    monitor_off_button = tk.Button(monitor_frame, text="Vypnout monitorovací mód", width=20, state=DISABLED, command=stop_monitor_mode)
-    monitor_on_button.grid(row=0, column=0, padx=5, pady=5)
-    monitor_off_button.grid(row=0, column=1, pady=5)
+    monitor_on_button = ctk.CTkButton(monitor_frame, text="Spustit monitorovací mód", width=200, state=DISABLED, command=start_monitor_mode)
+    monitor_off_button = ctk.CTkButton(monitor_frame, text="Vypnout monitorovací mód", width=200, state=DISABLED, command=stop_monitor_mode)
+    monitor_on_button.grid(row=1, column=0, padx=5, pady=5)
+    monitor_off_button.grid(row=1, column=1, pady=5)
 
     # Airodump frame ========================================================================
     global airodump_frame
-    airodump_frame = LabelFrame(frame_t1, text="Záchyt komunikace v okolí", borderwidth=4)
+    airodump_frame = ctk.CTkFrame(frame_t1)
     airodump_frame.pack(padx=10,pady=5, fill='x', expand=True)
+
+    airodump_frame_label = ctk.CTkLabel(airodump_frame, text="Záchyt komunikace v okolí")
+    airodump_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
     global airodump_off_button
     global airodump_on_button
-    airodump_on_button = tk.Button(airodump_frame, text="Spustit airodump-ng", width=20, state=DISABLED, command=lambda: Thread(target=start_airodump_full).start())
-    airodump_off_button = tk.Button(airodump_frame, text="Zastavit airodump-ng", width=20, state=DISABLED, command=stop_airodump_full)
-    airodump_on_button.grid(row=0, column=0,  sticky=W, padx=5, pady=5)
-    airodump_off_button.grid(row=0, column=1, sticky=W, pady=5)
+    airodump_on_button = ctk.CTkButton(airodump_frame, text="Spustit airodump-ng", width=200, state=DISABLED, command=lambda: Thread(target=start_airodump_full).start())
+    airodump_off_button = ctk.CTkButton(airodump_frame, text="Zastavit airodump-ng", width=200, state=DISABLED, command=stop_airodump_full)
+    airodump_on_button.grid(row=1, column=0,  sticky=W, padx=5, pady=5)
+    airodump_off_button.grid(row=1, column=1, sticky=W, pady=5)
 
     # Treeview pro Access Pointy
-    tree_ap_label = Label(airodump_frame, text="Seznam Access Pointů")
-    tree_ap_label.grid(row=1, column=0, columnspan=4)
+    tree_ap_label = ctk.CTkLabel(airodump_frame, text="Seznam Access Pointů")
+    tree_ap_label.grid(row=2, column=0, columnspan=4)
 
     global tree_ap
+    #tree_ap = ctk.CTkTreeview(airodump_frame, selectmode='browse')
     tree_ap = ttk.Treeview(airodump_frame, selectmode='browse')
     tree_ap.bind('<<TreeviewSelect>>', tree_ap_selected)
-    tree_ap.grid(row=2, column=0, columnspan=3, sticky=EW, padx=5, pady=5)
+    tree_ap.grid(row=3, column=0, columnspan=3, sticky=EW, padx=5, pady=5)
 
-    scrollbarv_ap = ttk.Scrollbar(airodump_frame, orient="vertical", command=tree_ap.yview)
-    scrollbarv_ap.grid(row=2, column=3,sticky=NS, pady=5)
-    tree_ap.configure(yscrollcommand=scrollbarv_ap.set)
+    #scrollbarv_ap = ctk.CTkScrollbar(airodump_frame, orient="vertical", command=tree_ap.yview)
+    #scrollbarv_ap.grid(row=2, column=3,sticky=NS, pady=5)
+    #tree_ap.configure(yscrollcommand=scrollbarv_ap.set)
 
     # Treeview pro Clienty
-    tree_cl_label = Label(airodump_frame, text="Seznam klientů")
-    tree_cl_label.grid(row=3, column=0, columnspan=4)
+    tree_cl_label = ctk.CTkLabel(airodump_frame, text="Seznam klientů")
+    tree_cl_label.grid(row=4, column=0, columnspan=4)
 
     global tree_cl
+    #tree_cl = ctk.CTkTreeview(airodump_frame, selectmode='browse')
     tree_cl = ttk.Treeview(airodump_frame, selectmode='browse')
     tree_cl.bind('<<TreeviewSelect>>', tree_cl_selected)
-    tree_cl.grid(row=4, column=0, columnspan=3, sticky=EW, padx=5, pady=5)
+    tree_cl.grid(row=5, column=0, columnspan=3, sticky=EW, padx=5, pady=5)
 
-    scrollbarv_cl = ttk.Scrollbar(airodump_frame, orient="vertical", command=tree_cl.yview)
-    scrollbarv_cl.grid(row=4, column=3,sticky=NS, pady=5)
-    tree_cl.configure(yscrollcommand=scrollbarv_cl.set)
+    #scrollbarv_cl = ctk.CTkScrollbar(airodump_frame, orient="vertical", command=tree_cl.yview)
+    #scrollbarv_cl.grid(row=4, column=3,sticky=NS, pady=5)
+    #tree_cl.configure(yscrollcommand=scrollbarv_cl.set)
 
     airodump_frame.grid_columnconfigure(2, weight=1)
 
     # Target frame ========================================================================
     global target_frame
-    target_frame = LabelFrame(frame_t1, text="Cíl MITM útoku", borderwidth=4)
+    target_frame = ctk.CTkFrame(frame_t1)
     target_frame.pack(padx=10,pady=5, fill='x', expand=True)
+
+    target_frame_label = ctk.CTkLabel(target_frame, text="Cíl MITM útoku")
+    target_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
     global target_net
     global target_ap
     global target_cl
     global target_ch
-    target_net_label = Label(target_frame, text="Cílová síť:", font=('Helvetica', 16))
-    target_ap_label = Label(target_frame, text="Cílový Access Point:", font=('Helvetica', 16))
-    target_cl_label = Label(target_frame, text="Cílové zařízení:", font=('Helvetica', 16))
-    target_ch_label = Label(target_frame, text="Kanál komunikace:", font=('Helvetica', 16))
-    target_net = Label(target_frame, text="", font=('Helvetica', 16), fg='green')
-    target_ap = Label(target_frame, text="", font=('Helvetica', 16), fg='green')
-    target_cl = Label(target_frame, text="", font=('Helvetica', 16), fg='green')
-    target_ch = Label(target_frame, text="", font=('Helvetica', 16), fg='green')
-    target_net_label.grid(row=5, column=0, sticky=W, padx=5, pady=5)
-    target_ap_label.grid(row=6, column=0, sticky=W, padx=5, pady=5)
-    target_cl_label.grid(row=7, column=0, sticky=W, padx=5, pady=5)
-    target_ch_label.grid(row=8, column=0, sticky=W, padx=5, pady=5)
-    target_net.grid(row=5, column=1, sticky=W)
-    target_ap.grid(row=6, column=1, sticky=W)
-    target_cl.grid(row=7, column=1, sticky=W)
-    target_ch.grid(row=8, column=1, sticky=W)
+    target_net_label = ctk.CTkLabel(target_frame, text="Cílová síť:", font=('Helvetica', 16))
+    target_ap_label = ctk.CTkLabel(target_frame, text="Cílový Access Point:", font=('Helvetica', 16))
+    target_cl_label = ctk.CTkLabel(target_frame, text="Cílové zařízení:", font=('Helvetica', 16))
+    target_ch_label = ctk.CTkLabel(target_frame, text="Kanál komunikace:", font=('Helvetica', 16))
+    target_net = ctk.CTkLabel(target_frame, text="", font=('Helvetica', 16), text_color='green')
+    target_ap = ctk.CTkLabel(target_frame, text="", font=('Helvetica', 16), text_color='green')
+    target_cl = ctk.CTkLabel(target_frame, text="", font=('Helvetica', 16), text_color='green')
+    target_ch = ctk.CTkLabel(target_frame, text="", font=('Helvetica', 16), text_color='green')
+    target_net_label.grid(row=6, column=0, sticky=W, padx=5, pady=5)
+    target_ap_label.grid(row=7, column=0, sticky=W, padx=5, pady=5)
+    target_cl_label.grid(row=8, column=0, sticky=W, padx=5, pady=5)
+    target_ch_label.grid(row=9, column=0, sticky=W, padx=5, pady=5)
+    target_net.grid(row=6, column=1, sticky=W, padx=5)
+    target_ap.grid(row=7, column=1, sticky=W, padx=5)
+    target_cl.grid(row=8, column=1, sticky=W, padx=5)
+    target_ch.grid(row=9, column=1, sticky=W, padx=5)
+
+    

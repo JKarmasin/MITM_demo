@@ -1,4 +1,5 @@
 backup/*
 test/*
 src/__pycache__
+venv
 

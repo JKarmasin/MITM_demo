@@ -1,9 +1,0 @@
-
-BSSID, First time seen, Last time seen, channel, Speed, Privacy, Cipher, Authentication, Power, # beacons, # IV, LAN IP, ID-length, ESSID, Key
-CC:2D:E0:C2:EE:6B, 2024-03-16 15:55:01, 2024-03-16 15:55:47,  5, 270, WPA2 WPA, CCMP, PSK, -54,      360,      578,   0.  0.  0.  0,   8, KARMASIN, 
-
-Station MAC, First time seen, Last time seen, Power, # packets, BSSID, Probed ESSIDs
-10:63:C8:DB:2B:BB, 2024-03-16 15:55:01, 2024-03-16 15:55:42, -25,       44, CC:2D:E0:C2:EE:6B,
-3C:9C:0F:72:F5:F1, 2024-03-16 15:55:02, 2024-03-16 15:55:42, -26,     2218, CC:2D:E0:C2:EE:6B,
-8E:4D:BE:69:78:0A, 2024-03-16 15:55:05, 2024-03-16 15:55:39, -31,       29, CC:2D:E0:C2:EE:6B,
-

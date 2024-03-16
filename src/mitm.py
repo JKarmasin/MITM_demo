@@ -1,189 +1,176 @@
-import customtkinter as ctk
-from customtkinter import BOTTOM, DISABLED, E, LEFT, N, NO, NORMAL, NS, RIGHT, S, SUNKEN, SW, W
-import tkinter as tk
-from tkinter import ttk
-from tkinter import *
-import os
-from . import c_T1_reco
-from . import c_T2_capture
-from . import c_T3_crack
-from . import c_T4_arp_spoof
-from . import c_T5_dns_spoof
-from src import global_names
+import customtkinter
+from PIL import Image
+from tkinter import PhotoImage
+from src import T1_reco
+from src import T2_capture
+from src import T3_crack
+from src import T4_arp_spoof
+from src import T5_dns_spoof
 
-# ========================================================================================================================
-# Globální proměnná s názvem interface pro monitorovací mód
-#global interface
-
-# Globální proměnné nutné pro připojení k síti:
-# Název sítě (net), MAC adresa Access Pointu (ap), MAC adresa klienta (cl), Kanál, na kterém se vysílá (ch), Heslo pro připojení (password)
-#global net
-#global ap
-#global cl
-#global ch
-#global password
-
-# Globální proměnná pro uchování reference na nekončící procesy pro jejich pozdější ukončení
-airodump_process = None
-airodump_client_process = None
-deauth_process = None
-aircrack_process = None
-arpspoof_cl_process = None
-arpspoof_ap_process = None
-
-# Pomocná proměnná, pomocí které vypisuju výstup z airodump an stdout.... TODO delete
-capture = None
+import sys
+sys.path.append('/usr/local/lib/python3.11/dist-packages')
 
 
-# ========================================================================================================================
-# ========================================================================================================================
-# Funkce pro změnu tabu
-def change_tab(direction):
-    current_tab = notebook.index(notebook.select())
-    if direction == "next" and current_tab < notebook.index("end") - 1:
-        notebook.select(current_tab + 1)
-    elif direction == "prev" and current_tab > 0:
-        notebook.select(current_tab - 1)
-    update_button_state()
+class App(customtkinter.CTk):
+    def __init__(self):
+        super().__init__()
 
-# ========================================================================================================================
-# Aktualizace stavu tlačítek
-def update_button_state():
-    current_tab = notebook.index(notebook.select())
-    btn_prev['state'] = tk.NORMAL if current_tab > 0 else tk.DISABLED
-    btn_next['state'] = tk.NORMAL if current_tab < notebook.index("end") - 1 else tk.DISABLED
-# ========================================================================================================================
+        self.title("DeMITMo")
+        images_path = "images/"
+        icon = PhotoImage(file=images_path + "sword.png")   
+        self.tk.call('wm', 'iconphoto', self._w, icon)
 
-# Zabráním přepnutí na následující tab, dokud není splněná podmínka z předcházejícího tabu
-def on_tab_change(event):
-    current_tab = notebook.index(notebook.select())
-    #print("=== DEBUG: curr tab: " + str(current_tab))
-    #print("=== DEBUG: finn tab: " + str(global_names.finished_tab))
+        width=1500
+        height=1000
+        x=700
+        y=1445
+        self.geometry('%dx%d+%d+%d' % (width, height, x, y))
+        
+        # set grid layout 1x2
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
 
-    # Nastavím defaultní barvu tlačítka
-    btn_next.configure(bg="lightgrey")
-    btn_prev.configure(bg="lightgrey")
+        customtkinter.set_appearance_mode("Dark")
 
-    if global_names.finished_tab == current_tab:
-        btn_next.configure(bg=global_names.my_color)
+        # load images with light and dark mode image
+        self.logo_image = customtkinter.CTkImage(Image.open(images_path + "sword.png"), size=(26, 26))
+        self.large_test_image = customtkinter.CTkImage(Image.open(images_path + "large_test_image.png"), size=(500, 150))
+        self.image_icon_image = customtkinter.CTkImage(Image.open(images_path + "image_icon_light.png"), size=(20, 20))
+        self.home_image = customtkinter.CTkImage(light_image=Image.open(images_path + "home_dark.png"),
+                                                 dark_image=Image.open(images_path + "home_light.png"), size=(20, 20))
+        self.chat_image = customtkinter.CTkImage(light_image=Image.open(images_path + "chat_dark.png"),
+                                                 dark_image=Image.open(images_path + "chat_light.png"), size=(20, 20))
+        self.add_user_image = customtkinter.CTkImage(light_image=Image.open(images_path + "add_user_dark.png"),
+                                                     dark_image=Image.open(images_path + "add_user_light.png"), size=(20, 20))
+        
+        
+        #===================================================================================================================================
+        # create navigation frame
+        self.navigation_frame = customtkinter.CTkFrame(self, corner_radius=0)
+        self.navigation_frame.grid(row=0, column=0, sticky="nsew")
+        self.navigation_frame.grid_rowconfigure(6, weight=1)
 
-    if global_names.finished_tab == (current_tab-1):
-        btn_prev.configure(bg=global_names.my_color)
+        self.navigation_frame_label = customtkinter.CTkLabel(self.navigation_frame, text="  DeMITMo", image=self.logo_image,
+                                                             compound="left", font=customtkinter.CTkFont(size=15, weight="bold"))
+        self.navigation_frame_label.grid(row=0, column=0, padx=20, pady=20)
 
+        #============================================
+        self.frame_1_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Vyhledání cílů",
+                                                   fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
+                                                   image=self.home_image, anchor="w", command=self.frame_1_button_event)
+        self.frame_1_button.grid(row=1, column=0, sticky="ew")
 
+        self.frame_2_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Záchyt handshaku",
+                                                      fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
+                                                      image=self.chat_image, anchor="w", command=self.frame_2_button_event)
+        self.frame_2_button.grid(row=2, column=0, sticky="ew")
 
-# ========================================================================================================================
-# Funkce pro ukončení aplikace při stisku CTRL+C
-def destroyer(event):
-    # TODO kill všechny procesy - asi zbytečně, protože to jsou všechny deamoni a skončí samy, ale je slušnost po sobě uklidit
-    root.destroy()
-    print('Končím po stiskuní CTRL + C')
+        self.frame_3_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Prolomení hesla",
+                                                      fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
+                                                      image=self.add_user_image, anchor="w", command=self.frame_3_button_event)
+        self.frame_3_button.grid(row=3, column=0, sticky="ew")
 
+        self.frame_4_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Man-in-the-middle",
+                                                      fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
+                                                      image=self.add_user_image, anchor="w", command=self.frame_4_button_event)
+        self.frame_4_button.grid(row=4, column=0, sticky="ew")
 
-# ========================================================================================================================================
-# Create the main window =================================================================================================================
-# ========================================================================================================================================
-def main():
-    global root
-    root = ctk.CTk()
-    root.title("Man-in-the-middle Attack")
-    icon = PhotoImage(file='images/sword.png')   
-    root.tk.call('wm', 'iconphoto', root._w, icon)
-    # Posunutí okna vedle konzole (na pravou stranu obrazovky)
-    width=1500
-    height=1000
-    x=420
-    y=0
-    root.geometry('%dx%d+%d+%d' % (width, height, x, y))
+        self.frame_5_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Záchyt DNS dotazů",
+                                                      fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
+                                                      image=self.add_user_image, anchor="w", command=self.frame_5_button_event)
+        self.frame_5_button.grid(row=5, column=0, sticky="ew")
 
-    # Registrace signal handleru pro SIGINT pro ukončení airodump-ng pomocí CTRL+C
-    root.bind_all('<Control-c>', destroyer)
+        # Finish button
+        self.finish_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Ukončit",
+                                                      fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
+                                                      image=self.add_user_image, anchor="w", command=self.finish_button_event)
+        self.finish_button.grid(row=7, column=0, sticky="ew")
 
-    # Frame pro notebook a navigační tlačítka, aby bylo možné lépe kontrolovat layout =======================================================
-    main_frame = ctk.CTkFrame(root)
-    main_frame.pack(expand=True, fill='both')
+        # Appearence menu
+        self.appearance_mode_menu = customtkinter.CTkOptionMenu(self.navigation_frame, values=["Dark", "Light", "System"],
+                                                                command=self.change_appearance_mode_event)
+        self.appearance_mode_menu.grid(row=6, column=0, padx=20, pady=20, sticky="s")
+#===================================================
 
-    # Vytvoření panelu s taby
-    global notebook
-    notebook = ttk.Notebook(main_frame)
+        # create first frame
+        self.T1_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        T1_reco.draw_reco(self.T1_frame, self.frame_1_button)
 
-    tab1 = ctk.CTkFrame(notebook)
-    tab2 = ctk.CTkFrame(notebook)
-    tab3 = ctk.CTkFrame(notebook)
-    tab4 = ctk.CTkFrame(notebook)
-    tab5 = ctk.CTkFrame(notebook)
-    tab6 = ctk.CTkFrame(notebook)
+        # create second frame
+        self.T2_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        T2_capture.draw_capture(self.T2_frame, self.frame_2_button)
 
-    notebook.add(tab1, text="Vyhledání cílů")
-    notebook.add(tab2, text="Záchyt handshaku")
-    notebook.add(tab3, text="Prolomení hesla")
-    notebook.add(tab4, text="Man-in-the-middle")
-    notebook.add(tab5, text="Odposlech DNS dotazů")
-    #notebook.add(tab6, text="DNS spoof")
-    frame_t1 = ctk.CTkFrame(tab1)
-    frame_t2 = ctk.CTkFrame(tab2)
-    frame_t3 = ctk.CTkFrame(tab3)
-    frame_t4 = ctk.CTkFrame(tab4)
-    frame_t5 = ctk.CTkFrame(tab5)
-    #frame_t6 = ctk.CTkFrame(tab6)
-    frame_t1.pack(fill='both', expand=True)
-    frame_t2.pack(fill='both', expand=True)
-    frame_t3.pack(fill='both', expand=True)
-    frame_t4.pack(fill='both', expand=True)
-    frame_t5.pack(fill='both', expand=True)
-    #frame_t6.pack(fill='both', expand=True)
-    frame_t1.pack_propagate(0)
-    frame_t2.pack_propagate(0)
-    frame_t3.pack_propagate(0)
-    frame_t4.pack_propagate(0)
-    frame_t5.pack_propagate(0)
-    #frame_t6.pack_propagate(0)
+        # create third frame
+        self.T3_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        T3_crack.draw_crack(self.T3_frame, self, self.frame_3_button)
+        
+         # create fourth frame
+        self.T4_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        T4_arp_spoof.draw_arp_spoof(self.T4_frame, self.frame_4_button)       
+        
+         # create fourth frame
+        self.T5_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        T5_dns_spoof.draw_dns(self.T5_frame)         
+        
 
-    # TODO zkrátit to později na:
-    #tabs = [tab1, tab2, tab3, tab4, tab5, tab6]
-    #frames = []
-    #
-    #for tab in tabs:
-    #    frame = ctk.CTkFrame(tab)
-    #    frame.pack(fill='both', expand=True)
-    #    frame.pack_propagate(0)
-    #    frames.append(frame)
+        # select default frame
+        self.select_frame_by_name("frame_1")
 
 
-    # Tlačítka pro navigaci
-    global btn_next, btn_prev
+    def select_frame_by_name(self, name):
+        # set button color for selected button
+        self.frame_1_button.configure(fg_color=("gray75", "gray25") if name == "frame_1" else "transparent")
+        self.frame_2_button.configure(fg_color=("gray75", "gray25") if name == "frame_2" else "transparent")
+        self.frame_3_button.configure(fg_color=("gray75", "gray25") if name == "frame_3" else "transparent")
+        self.frame_4_button.configure(fg_color=("gray75", "gray25") if name == "frame_4" else "transparent")
+        self.frame_5_button.configure(fg_color=("gray75", "gray25") if name == "frame_5" else "transparent")
 
-    btn_prev = ctk.CTkButton(main_frame, text="<<", command=lambda: change_tab("prev"))
-    btn_prev.pack(side=tk.LEFT, fill='y')
-    notebook.pack(side=tk.LEFT, expand=True, fill='both')
+        # show selected frame
+        if name == "frame_1":
+            self.T1_frame.grid(row=0, column=1, sticky="nsew")
+        else:
+            self.T1_frame.grid_forget()
+        if name == "frame_2":
+            self.T2_frame.grid(row=0, column=1, sticky="nsew")
+        else:
+            self.T2_frame.grid_forget()
+        if name == "frame_3":
+            self.T3_frame.grid(row=0, column=1, sticky="nsew")
+        else:
+            self.T3_frame.grid_forget()
+        if name == "frame_4":
+            self.T4_frame.grid(row=0, column=1, sticky="nsew")
+        else:
+            self.T4_frame.grid_forget()
+        if name == "frame_5":
+            self.T5_frame.grid(row=0, column=1, sticky="nsew")
+        else:
+            self.T5_frame.grid_forget()
 
-    #btn_next = ctk.CTkButton(main_frame, text=">>", bg_color=global_names.my_color, command=lambda: change_tab("next"))
-    btn_next = ctk.CTkButton(main_frame, text=">>", command=lambda: change_tab("next"))
-    btn_next.pack(side=tk.RIGHT, fill='y')
-    #btn_next.flash()
 
-    # Inicializace stavu tlačítek
-    update_button_state()
-    notebook.bind("<<NotebookTabChanged>>", on_tab_change)
+    def frame_1_button_event(self):
+        self.select_frame_by_name("frame_1")
 
-    # Tab 1 "Vyhledání cílů" ==================================================================================================================
-    c_T1_reco.draw_reco(frame_t1, btn_next)
+    def frame_2_button_event(self):
+        self.select_frame_by_name("frame_2")
 
-    # Tab 2 "Záchyt handshaku" =================================================================================================================
-    c_T2_capture.draw_capture(frame_t2, btn_next)
-    
-    # Tab 3 "Prolomení hesla" ==================================================================================================================
-    c_T3_crack.draw_crack(frame_t3, root, btn_next)
+    def frame_3_button_event(self):
+        self.select_frame_by_name("frame_3")
 
-    # Tab 4 "Man-in-the-middle" ================================================================================================================
-    c_T4_arp_spoof.draw_arp_spoof(frame_t4, btn_next)
+    def frame_4_button_event(self):
+        self.select_frame_by_name("frame_4")
 
-    # Tab 5 "Odposlech DNS dotazů" =============================================================================================================
-    c_T5_dns_spoof.draw_dns(frame_t5)
+    def frame_5_button_event(self):
+        self.select_frame_by_name("frame_5")
 
-    # Status bar =============================================================================================================================
-    status = ctk.CTkLabel(root, text="OK", bd=2, relief=SUNKEN, anchor=SW)
-    status.pack(fill='x', side=BOTTOM)
+    def finish_button_event(self):
+        print("ukončuji")
 
-    # Start the GUI event loop ===============================================================================================================
-    root.mainloop()
+    def change_appearance_mode_event(self, new_appearance_mode):
+        customtkinter.set_appearance_mode(new_appearance_mode)
+
+
+#if __name__ == "__main__":
+#    app = App()
+#    app.mainloop()
+

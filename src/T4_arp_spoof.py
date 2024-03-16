@@ -1,6 +1,8 @@
+import customtkinter as ctk
+from customtkinter import COMMAND, DISABLED, E, EW, HORIZONTAL, N, NO, NORMAL, ON, S, TOP, W
 import subprocess
-from tkinter import ttk
-from tkinter import *
+#from tkinter import ttk
+#from tkinter import *
 from threading import Thread
 import time
 import signal
@@ -18,8 +20,8 @@ output_traffic = global_names.output_traffic
 capturing = True
 
 # Uklidím případný soubor output po předešlém spuštění
-if os.path.isfile(output_traffic):
-    os.remove(output_traffic)
+#if os.path.isfile(output_traffic):
+#    os.remove(output_traffic)
 
 # ========================================================================================================================
 # ========================================================================================================================
@@ -33,13 +35,15 @@ def start_forwarding():
         subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)        
         print(f"        -- Přeposílání paketů bylo úspěšně zapnuto.")
 
+        #global forwarding_on_button
+        #global forwarding_off_button
         forwarding_on_button.configure(state=DISABLED) 
         forwarding_off_button.configure(state=NORMAL)
 
-        global arp_spoofing_frame
-        global forwarding_frame
-        forwarding_frame.config(highlightthickness=0)
-        arp_spoofing_frame.config(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color) 
+        #global arp_spoofing_frame
+        #global forwarding_frame
+        #forwarding_frame.configure(highlightthickness=0)
+        #arp_spoofing_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color) 
 
     except subprocess.CalledProcessError as e:
         print(f"Chyba při zapínání přeposílání paketů: {e}")
@@ -119,13 +123,13 @@ def start_arp_spoofing(interface, cl):
         arp_spoofing_on_button.configure(state=DISABLED) 
         arp_spoofing_off_button.configure(state=NORMAL) 
         # Zapínám pohyb progress baru
-        arp_spoofing_progress.grid(row=1,column=0,columnspan=3, sticky=EW, padx=5, pady=5)
-        arp_spoofing_progress.start(10)
+        arp_spoofing_progress.grid(row=2,column=0,columnspan=3, sticky=EW, padx=5, pady=5)
+        arp_spoofing_progress.start()
 
-        global capturing_frame
-        global arp_spoofing_frame
-        arp_spoofing_frame.config(highlightthickness=0)
-        capturing_frame.config(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color) 
+        #global capturing_frame
+        #global arp_spoofing_frame
+        #arp_spoofing_frame.configure(highlightthickness=0)
+        #capturing_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color) 
 
 
         print(f"        -- ARP spoofing byl úspěšně spuštěn.")
@@ -189,8 +193,8 @@ def start_capturing():
         capturing_label.configure(text="Datový provoz na rozhraní " + interface + "je zachytáván do souboru " + output_traffic)
 
         global_names.finished_tab = 3
-        global button_next
-        button_next.config(bg=global_names.my_color)
+        global menu_button
+        menu_button.configure(fg_color="transparent", text_color=("green", "green"))
         
     except subprocess.CalledProcessError as e:
         print(f"Chyba při zapínání zachytávání paketů: {e}")
@@ -209,60 +213,67 @@ def stop_capturing():
 
 # ========================================================================================================================================
 # Tab "Man-in-the-middle" ================================================================================================================
-def draw_arp_spoof(frame, btn_next):
-    global button_next
-    button_next = btn_next
+def draw_arp_spoof(frame_t4, frame_4_button):
+    global menu_button
+    menu_button = frame_4_button
 
     # Forwarding Frame ===============================================================================================================
     global forwarding_frame
-    forwarding_frame = LabelFrame(frame, text="Přeposílání paketů")
-    #if global_names.finished_tab == 2:
-    forwarding_frame.config(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color) 
+    forwarding_frame = ctk.CTkFrame(frame_t4)
     forwarding_frame.pack(padx=10,pady=5, fill='x')
+    forwarding_frame_label = ctk.CTkLabel(forwarding_frame, text="Přeposílání paketů")
+    forwarding_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
+    #if global_names.finished_tab == 2:
+    #forwarding_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color) 
+    
 
     global forwarding_on_button
     global forwarding_off_button
-    forwarding_on_button = Button(forwarding_frame, text="Zapnout", width= 20, command=start_forwarding)
-    forwarding_on_button.grid(row=0, column=0, padx=5, pady=5)
+    forwarding_on_button = ctk.CTkButton(forwarding_frame, text="Zapnout", width= 200, command=start_forwarding)
+    forwarding_on_button.grid(row=1, column=0, padx=5, pady=5)
 
-    forwarding_off_button = Button(forwarding_frame, text="Vypnout", width= 20, state=DISABLED, command=stop_forwarding)
-    forwarding_off_button.grid(row=0, column=1, padx=5, pady=5)
+    forwarding_off_button = ctk.CTkButton(forwarding_frame, text="Vypnout", width= 200, state=DISABLED, command=stop_forwarding)
+    forwarding_off_button.grid(row=1, column=1, padx=5, pady=5)
 
     # ARP Spoof Frame ===============================================================================================================
     global arp_spoofing_frame
-    arp_spoofing_frame = LabelFrame(frame, text="ARP Spoofing")
+    arp_spoofing_frame = ctk.CTkFrame(frame_t4)
     arp_spoofing_frame.pack(padx=10,pady=5, fill='x')
+    arp_spoofing_frame_label = ctk.CTkLabel(arp_spoofing_frame, text="ARP Spoofing")
+    arp_spoofing_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
     global arp_spoofing_on_button
     global arp_spoofing_off_button
-    arp_spoofing_on_button = Button(arp_spoofing_frame, text="Zapnout", width= 20, command=lambda: start_arp_spoofing(global_names.interface, global_names.cl))
-    arp_spoofing_on_button.grid(row=0, column=0, padx=5, pady=5)
+    arp_spoofing_on_button = ctk.CTkButton(arp_spoofing_frame, text="Zapnout", width= 200, command=lambda: start_arp_spoofing(global_names.interface, global_names.cl))
+    arp_spoofing_on_button.grid(row=1, column=0, padx=5, pady=5)
 
-    arp_spoofing_off_button = Button(arp_spoofing_frame, text="Vypnout", width= 20, state=DISABLED,command=stop_arp_spoofing)
-    arp_spoofing_off_button.grid(row=0, column=1, padx=5, pady=5)
+    arp_spoofing_off_button = ctk.CTkButton(arp_spoofing_frame, text="Vypnout", width= 200, state=DISABLED,command=stop_arp_spoofing)
+    arp_spoofing_off_button.grid(row=1, column=1, padx=5, pady=5)
 
     global arp_spoofing_progress
-    arp_spoofing_progress = ttk.Progressbar(arp_spoofing_frame, orient=HORIZONTAL, length=800, mode='indeterminate')
-    arp_spoofing_progress.step(0)
+    arp_spoofing_progress = ctk.CTkProgressBar(arp_spoofing_frame, orientation=HORIZONTAL, mode='indeterminate')
+    #arp_spoofing_progress.step()
 
     arp_spoofing_frame.grid_columnconfigure(2, weight=1)
     # Capturing Frame ===============================================================================================================
     global capturing_frame
-    capturing_frame = LabelFrame(frame, text="Zachytávání paketů")
+    capturing_frame = ctk.CTkFrame(frame_t4)
     capturing_frame.pack(padx=10,pady=5, fill='x')
+    capturing_frame_label = ctk.CTkLabel(capturing_frame, text="Zachytávání paketů")
+    capturing_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
     global capturing_on_button
     global capturing_off_button
-    #capturing_on_button = Button(capturing_frame, text="Zapnout", width= 20, command=lambda: start_capturing(interface, output_traffic))
-    capturing_on_button = Button(capturing_frame, text="Zapnout", width= 20, command=start_capturing)
-    capturing_on_button.grid(row=0, column=0, padx=5, pady=5, sticky=W)
+    #capturing_on_button = ctk.CTkButton(capturing_frame, text="Zapnout", width= 20, command=lambda: start_capturing(interface, output_traffic))
+    capturing_on_button = ctk.CTkButton(capturing_frame, text="Zapnout", width= 200, command=start_capturing)
+    capturing_on_button.grid(row=1, column=0, padx=5, pady=5, sticky=W)
 
-    capturing_off_button = Button(capturing_frame, text="Vypnout", width= 20, state=DISABLED, command=stop_capturing)
-    capturing_off_button.grid(row=0, column=1, padx=5, pady=5, sticky=W)
+    capturing_off_button = ctk.CTkButton(capturing_frame, text="Vypnout", width= 200, state=DISABLED, command=stop_capturing)
+    capturing_off_button.grid(row=1, column=1, padx=5, pady=5, sticky=W)
     
     global capturing_label
-    capturing_label = Label(capturing_frame, text="")
-    capturing_label.grid(row=1, column=0, columnspan=3, padx=5, pady=5)
+    capturing_label = ctk.CTkLabel(capturing_frame, text="")
+    capturing_label.grid(row=2, column=0, columnspan=3, padx=5, pady=5)
 
     capturing_frame.grid_columnconfigure(2, weight=1)
 

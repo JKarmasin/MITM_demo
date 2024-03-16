@@ -1,8 +1,12 @@
+import customtkinter as ctk
+from customtkinter import E, END, N, NS, S, Y, EW
 import tkinter as tk
-from tkinter import *
 import pyshark
 import os
 from src import global_names
+import sys
+sys.path.append('/usr/local/lib/python3.11/dist-packages')
+from CTkListbox import *
 
 # ========================================================================================================================================
 pcap_file = global_names.output_traffic
@@ -37,9 +41,14 @@ def extract_dns_queries(pcap_file):
 # ========================================================================================================================================
 # Function to display the DNS queries
 def display_dns_queries(dns_field, dns_queries):
-    dns_field.delete(0, tk.END)
+    #dns_field.delete(0, tk.END)
+    dns_field.delete("all")
+
+    idx = 0
     for site_name, timestamp in sorted(dns_queries.items(), key=lambda item: item[1]):  # Sort by timestamp
-        dns_field.insert(tk.END, f"{timestamp} - {site_name}\n")
+        #dns_field.insert(tk.END, f"{timestamp} - {site_name}\n")
+        dns_field.insert(idx, f"{timestamp} - {site_name}")
+        idx += 1
 
 # ========================================================================================================================================
 def reload_dns(dns_field):
@@ -50,15 +59,20 @@ def reload_dns(dns_field):
 
 # ========================================================================================================================================
 def draw_dns(frame_t5):
-    dns_frame = LabelFrame(frame_t5, text="DNS dotazy")
+    dns_frame = ctk.CTkFrame(frame_t5)
     dns_frame.pack(padx=10,pady=5, fill='x')
-    dns_label = Label(frame_t5, text="Navštívené weby:", font=('Helvetica', 16))
-    dns_field = tk.Listbox(frame_t5, width=100, height=32)
-    dns_reload_button = tk.Button(frame_t5, text="Načíst", width=20, command=lambda: reload_dns(dns_field))
+    dns_frame_label = ctk.CTkLabel(dns_frame, text="DNS dotazy")
+    dns_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
-    dns_label.grid(row=0, column=0, padx=5, pady=5)
-    dns_field.grid(row=1, column=0, padx=5, pady=5)
-    dns_reload_button.grid(row=2, column=0, padx=5, pady=5)
+    dns_label = ctk.CTkLabel(dns_frame, text="Navštívené weby:", font=('Helvetica', 16))
+    #dns_field = tk.Listbox(dns_frame, width=100, height=32)
+    dns_field = CTkListbox(dns_frame, width=1200 , height=600, text_color=("black","white"))
+
+    dns_reload_button = ctk.CTkButton(dns_frame, text="Načíst", width=200, command=lambda: reload_dns(dns_field))
+
+    dns_label.grid(row=1, column=0, padx=5, pady=5)
+    dns_field.grid(row=2, column=0, padx=5, pady=5, sticky=EW)
+    dns_reload_button.grid(row=3, column=0, padx=5, pady=10)
 
     global pcap_file
 

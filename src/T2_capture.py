@@ -1,6 +1,8 @@
+import customtkinter as ctk
+from customtkinter import COMMAND, DISABLED, E, EW, HORIZONTAL, N, NO, NORMAL, ON, S, TOP, W, WORD, Y
 import subprocess
-import tkinter as tk
-from tkinter import ttk
+#import tkinter as tk
+#from tkinter import ttk
 from tkinter import *
 from threading import Thread
 import time
@@ -42,7 +44,8 @@ def start_handshake_catch():
     print("===== START HANDSHAKE CATCHING ======================")
 
     # Zapnu pobihani progress baru u WPA handshake zachyceni
-    handshake_catch_progress.start(10)
+    handshake_catch_progress.grid(row=2,column=0,columnspan=4, sticky=EW, padx=15, pady=5)
+    handshake_catch_progress.start()
 
     ch = global_names.ch
     ap = global_names.ap
@@ -75,10 +78,10 @@ def start_handshake_catch():
     #global parse_handshake_cap_thread
     Thread(target=parse_handshake_cap, daemon=True).start() #================= TODO
     #print(" - Thread s parsováním byl spuštěn")
-    global deauth_frame
-    global handshake_catch_frame
-    handshake_catch_frame.config(highlightthickness=0)
-    deauth_frame.config(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+    #global deauth_frame
+    #global handshake_catch_frame
+    #handshake_catch_frame.configure(highlightthickness=0)
+    #deauth_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
 
 # ========================================================================================================================
 def stop_handshake_catch():
@@ -86,6 +89,7 @@ def stop_handshake_catch():
 
     # Zastavuji progress bar pro zachytavani handshaku
     handshake_catch_progress.stop()
+    handshake_catch_progress.grid_forget()
 
     global airodump_target_process
     if airodump_target_process:
@@ -98,15 +102,16 @@ def stop_handshake_catch():
     # Nastavuji správně tlačítka
     handshake_catch_on_button.configure(state=NORMAL) 
     handshake_catch_off_button.configure(state=DISABLED)
-    global handshake_catch_frame
-    handshake_catch_frame.config(highlightthickness=0)
+    #global handshake_catch_frame
+    #handshake_catch_frame.configure(highlightthickness=0)
 
 
 # ========================================================================================================================
 def start_deauthentification():
     print("===== START DEAUTHENTICATING =============================")
     # Zapínám pohyb progress baru
-    deauth_progress.start(10)
+    deauth_progress.grid(row=2,column=0,columnspan=4, sticky=EW, padx=15, pady=5)
+    deauth_progress.start()
 
     #deauth_cadency = 0 nebo 10 ?
     # Testování funkčních hodnot ( --ignore-negative-one  )
@@ -146,6 +151,8 @@ def stop_deauthentification():
 
     # Zastavuji progress bar pro zachytavani handshaku
     deauth_progress.stop()
+    deauth_progress.grid_forget()
+    
 # ========================================================================================================================
 def parse_handshake_cap():
     print("===== START PARSING HANDSHAKE .CAP ====================================================")
@@ -158,7 +165,7 @@ def parse_handshake_cap():
     print("     -- Začínám cyklus čtení " + output_handshake)
     #print("     -- Captured: " + str(captured))
 
-    handshake_finished_label.config(text="Handshake ještě nebyl zachycen...", fg='grey')
+    handshake_finished_label.configure(text="Handshake ještě nebyl zachycen...", text_color='grey')
     global stop_parse_handshake_cap
 
     while (not captured) and (not stop_parse_handshake_cap):
@@ -180,21 +187,23 @@ def parse_handshake_cap():
                 print("     ------------------------------------------------------")
                 print("     -- HANDSHAKE BYL ZACHYCEN (Captured Message 4 of 4) --")
                 print("     ------------------------------------------------------")
-                handshake_finished_label.config(text="Handshake byl zachycen!", fg='green')
+                handshake_finished_label.configure(text="Handshake byl zachycen!", text_color='green')
                 captured = True
                 global_names.finished_tab = 1
-                global button_next
-                button_next.config(bg=global_names.my_color)
 
-                global deauth_frame
-                global handshake_catch_frame
-                handshake_catch_frame.config(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
-                deauth_frame.config(highlightthickness=0)
+                menu_button.configure(fg_color="transparent", text_color=("green", "green"))
+                
+                #global button_next
+                #button_next.configure(bg=global_names.my_color)
+                #global deauth_frame
+                #global handshake_catch_frame
+                #handshake_catch_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+                #deauth_frame.configure(highlightthickness=0)
 
                 # TODO Zezelenat tlačítko!
 
         except FileNotFoundError:
-            #status.config(text="File not found. Waiting...")
+            #status.configure(text="File not found. Waiting...")
             print("     -- No file to read...")
         # Kontroluji soubor každou sekundu
     print("=== DEBUG: Zachycen handshake, ukončuji vlakno ===")
@@ -202,67 +211,72 @@ def parse_handshake_cap():
 
 # ========================================================================================================================================
 # Tab "Záchyt handshaku" =================================================================================================================
-def draw_capture(frame_t2, btn_next):
-    global button_next
-    button_next = btn_next
+def draw_capture(frame_t2, frame_2_button):
+    global menu_button
+    menu_button = frame_2_button
 
     # WPA Catch Frame ========================================================================================================================
     global handshake_catch_frame
-    handshake_catch_frame = LabelFrame(frame_t2, text="Záchyt WPA handshaku")
-    # Postarám se o to, že je zvýrazněný frame ve správný okamžik
-    #if global_names.finished_tab == 0:
-    handshake_catch_frame.config(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+    handshake_catch_frame = ctk.CTkFrame(frame_t2)
     handshake_catch_frame.pack(padx=10,pady=5, fill='x')
 
-    handshake_catch_label = Label(handshake_catch_frame, text="Spustit proces na zachytávání komunikace klienta s AP a zachycením WPA handshaku:")
+    # Postarám se o to, že je zvýrazněný frame ve správný okamžik
+    #if global_names.finished_tab == 0:
+    #handshake_catch_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+
+    interface_frame_label = ctk.CTkLabel(handshake_catch_frame, text="Záchyt WPA handshaku")
+    interface_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
+
+
+    handshake_catch_label = ctk.CTkLabel(handshake_catch_frame, text="Spustit proces na zachytávání komunikace klienta s AP a zachycením WPA handshaku:")
     global handshake_catch_on_button
     global handshake_catch_off_button
-    handshake_catch_on_button = Button(handshake_catch_frame, text="Spustit", width= 20, command=start_handshake_catch)
-    handshake_catch_off_button = Button(handshake_catch_frame, text="Zastavit", width= 20, state=DISABLED, command=stop_handshake_catch)
+    handshake_catch_on_button = ctk.CTkButton(handshake_catch_frame, text="Spustit", width= 200, command=start_handshake_catch)
+    handshake_catch_off_button = ctk.CTkButton(handshake_catch_frame, text="Zastavit", width= 200, state=DISABLED, command=stop_handshake_catch)
 
-    handshake_catch_label.grid(row=0, column=0, sticky=W, padx=5, pady=5)
-    handshake_catch_on_button.grid(row=0,column=1, pady=5, padx=5)
-    handshake_catch_off_button.grid(row=0,column=2, pady=5, padx=5)
+    handshake_catch_label.grid(row=1, column=0, sticky=W, padx=5, pady=5)
+    handshake_catch_on_button.grid(row=1,column=1, pady=5, padx=5)
+    handshake_catch_off_button.grid(row=1,column=2, pady=5, padx=5)
 
+    # Progress bar 
     global handshake_catch_progress
-    handshake_catch_progress = ttk.Progressbar(handshake_catch_frame, orient=HORIZONTAL, mode='indeterminate')
-    handshake_catch_progress.step(0)
-    handshake_catch_progress.grid(row=1,column=0,columnspan=4, sticky=EW, padx=15, pady=5)
+    handshake_catch_progress = ctk.CTkProgressBar(handshake_catch_frame, orientation=HORIZONTAL, mode='indeterminate')
+
 
     global handshake_command
-    handshake_command = Label(handshake_catch_frame, text="")
-    handshake_command.grid(row=2, column=0, columnspan=4, pady=5)
+    handshake_command = ctk.CTkLabel(handshake_catch_frame, text="")
+    handshake_command.grid(row=3, column=0, columnspan=4, pady=5)
 
-    #handshake_catch_textarea = scrolledtext.ScrolledText(handshake_catch_frame, wrap=tk.WORD, width=98, height=20)
-    #handshake_catch_textarea.grid(row=3, column=0, columnspan=3, padx=10, pady=10)
     global handshake_finished_label
-    handshake_finished_label = Label(handshake_catch_frame, text="Spusťte zachytávání handshaku!", font=('Helvetica', 16))
-    handshake_finished_label.grid(row=3, column=0, columnspan=4, padx=5, pady=5)
+    handshake_finished_label = ctk.CTkLabel(handshake_catch_frame, text="Spusťte zachytávání handshaku!", font=('Helvetica', 16))
+    handshake_finished_label.grid(row=4, column=0, columnspan=4, padx=5, pady=5)
 
     handshake_catch_frame.grid_columnconfigure(3, weight=1)
 
     # Deauthificate Frame ========================================================================================================================
     global deauth_frame
-    deauth_frame = LabelFrame(frame_t2, text="Deauthentifikace target klienta")
+    deauth_frame = ctk.CTkFrame(frame_t2)
     deauth_frame.pack(padx=10,pady=5, fill='x')
 
-    deauth_label = Label(deauth_frame, text="Spustit proces odpojování komunikace Clienta s AP pro opětovné zaslání handshake:")
+    deauth_frame_label = ctk.CTkLabel(deauth_frame, text="Deauthentifikace target klienta")
+    deauth_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
+
+    deauth_label = ctk.CTkLabel(deauth_frame, text="Spustit proces odpojování komunikace Clienta s AP pro opětovné zaslání handshake:     ")
     
     global deauth_on_button
     global deauth_off_button
-    deauth_on_button = Button(deauth_frame, text="Spustit", width= 20, command=start_deauthentification)
-    deauth_off_button = Button(deauth_frame, text="Zastavit", width= 20, state=DISABLED, command=stop_deauthentification)
-    deauth_label.grid(row=0, column=0, sticky=W, padx=5, pady=5)
-    deauth_on_button.grid(row=0,column=1, sticky=W, pady=5, padx=5)
-    deauth_off_button.grid(row=0,column=2, sticky=W, pady=5, padx=5)
+    deauth_on_button = ctk.CTkButton(deauth_frame, text="Spustit", width= 200, command=start_deauthentification)
+    deauth_off_button = ctk.CTkButton(deauth_frame, text="Zastavit", width= 200, state=DISABLED, command=stop_deauthentification)
+    deauth_label.grid(row=1, column=0, sticky=W, padx=5, pady=5)
+    deauth_on_button.grid(row=1,column=1, sticky=W, pady=5, padx=5)
+    deauth_off_button.grid(row=1,column=2, sticky=W, pady=5, padx=5)
 
+    # Progress bar
     global deauth_progress
-    deauth_progress = ttk.Progressbar(deauth_frame, orient=HORIZONTAL, length=800, mode='indeterminate')
-    deauth_progress.step(0)
-    deauth_progress.grid(row=1,column=0,columnspan=4, sticky=EW, padx=15, pady=5)
-
+    deauth_progress = ctk.CTkProgressBar(deauth_frame, orientation=HORIZONTAL, mode='indeterminate')
+    
     global deauth_command_label
-    deauth_command_label = Label(deauth_frame, text="")
-    deauth_command_label.grid(row=2, column=0, columnspan=4, pady=5)
+    deauth_command_label = ctk.CTkLabel(deauth_frame, text="")
+    deauth_command_label.grid(row=3, column=0, columnspan=4, pady=5)
 
     deauth_frame.grid_columnconfigure(3, weight=1)

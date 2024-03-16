@@ -1,0 +1,6 @@
+pyshark
+customtkinter
+Pillow  # PIL je součástí balíčku Pillow, který je jeho modernější a aktivně udržovanou verzí
+scapy
+CTkListbox
+
