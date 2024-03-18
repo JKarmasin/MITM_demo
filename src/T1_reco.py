@@ -13,7 +13,7 @@ import signal
 import os
 import csv
 from src import global_names
-
+from src import infos
 
 # ========================================================================================================================
 # Globální proměnná s názvem interface pro monitorovací mód
@@ -458,7 +458,8 @@ def draw_reco(window):      # def draw_reco(frame_t1, btn_next):
     interface_frame = ctk.CTkFrame(window.T1_frame)
     interface_frame.pack_propagate(0)
     interface_frame.pack(padx=10,pady=5, fill=X, expand=True, side=TOP)
-    
+    interface_frame.grid_columnconfigure(2, weight=1)
+
     # Defaultně zvýrazním první tab
     interface_frame.configure(fg_color=global_names.my_color)
     
@@ -476,10 +477,15 @@ def draw_reco(window):      # def draw_reco(frame_t1, btn_next):
     interfaces_field.grid(row=1, column= 1, pady=5)
     interfaces_field.set("Vyber rozhraní...") 
 
+    # INFO button
+    interface_info_button = ctk.CTkButton(interface_frame, text="INFO", width=200, command=infos.info_interface)
+    interface_info_button.grid(row=1, column=2, sticky=E, padx=5, pady=5)
+
     # Monitor mode frame ========================================================================
     global monitor_frame
     monitor_frame = ctk.CTkFrame(window.T1_frame)
     monitor_frame.pack(padx=10,pady=5, fill='x')
+    monitor_frame.grid_columnconfigure(2, weight=1)
 
     monitor_frame_label = ctk.CTkLabel(monitor_frame, text="Přepnutí rozhraní do monitorovacího módu", font=('Open Sans', 16, 'bold'))
     monitor_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
@@ -490,6 +496,10 @@ def draw_reco(window):      # def draw_reco(frame_t1, btn_next):
     monitor_off_button = ctk.CTkButton(monitor_frame, text="Vypnout monitorovací mód", width=200, state=DISABLED, command=stop_monitor_mode)
     monitor_on_button.grid(row=1, column=0, padx=5, pady=5)
     monitor_off_button.grid(row=1, column=1, pady=5)
+
+    # INFO button
+    monitor_info_button = ctk.CTkButton(monitor_frame, text="INFO", width=200, command=infos.info_monitor)
+    monitor_info_button.grid(row=1, column=2, sticky=E, padx=5, pady=5)
 
     # Airodump frame ========================================================================
     global airodump_frame

@@ -1,14 +1,13 @@
 import customtkinter as ctk
 from customtkinter import COMMAND, DISABLED, E, EW, HORIZONTAL, N, NO, NORMAL, ON, S, TOP, W
 import subprocess
-#from tkinter import ttk
-#from tkinter import *
 from threading import Thread
 import time
 import signal
 import os
 from scapy.all import *
 from src import global_names
+from src import infos
 
 # ========================================================================================================================
 # Globální proměnná pro uchování reference na nekončící procesy pro jejich pozdější ukončení
@@ -248,6 +247,11 @@ def draw_arp_spoof(window):
     forwarding_off_button = ctk.CTkButton(forwarding_frame, text="Vypnout", width= 200, state=DISABLED, command=stop_forwarding)
     forwarding_off_button.grid(row=1, column=1, padx=5, pady=5)
 
+    # INFO button
+    forward_info_button = ctk.CTkButton(forwarding_frame, text="INFO", width=200, command=infos.info_forward)
+    forward_info_button.grid(row=1, column=2, sticky=E, padx=5, pady=5)
+    forwarding_frame.grid_columnconfigure(2, weight=1)
+
     # ARP Spoof Frame ===============================================================================================================
     global arp_spoofing_frame
     arp_spoofing_frame = ctk.CTkFrame(window.T4_frame)
@@ -262,6 +266,10 @@ def draw_arp_spoof(window):
 
     arp_spoofing_off_button = ctk.CTkButton(arp_spoofing_frame, text="Vypnout", width= 200, state=DISABLED,command=stop_arp_spoofing)
     arp_spoofing_off_button.grid(row=1, column=1, padx=5, pady=5)
+
+    # INFO button
+    arp_info_button = ctk.CTkButton(arp_spoofing_frame, text="INFO", width=200, command=infos.info_arp)
+    arp_info_button.grid(row=1, column=2, sticky=E, padx=5, pady=5)
 
     global arp_spoofing_progress
     arp_spoofing_progress = ctk.CTkProgressBar(arp_spoofing_frame, orientation=HORIZONTAL, mode='indeterminate')
@@ -284,6 +292,10 @@ def draw_arp_spoof(window):
     capturing_off_button = ctk.CTkButton(capturing_frame, text="Vypnout", width= 200, state=DISABLED, command=stop_capturing)
     capturing_off_button.grid(row=1, column=1, padx=5, pady=5, sticky=W)
     
+    # INFO button
+    capture_info_button = ctk.CTkButton(capturing_frame, text="INFO", width=200, command=infos.info_catch)
+    capture_info_button.grid(row=1, column=2, sticky=E, padx=5, pady=5)
+
     global capturing_label
     capturing_label = ctk.CTkLabel(capturing_frame, text="")
     capturing_label.grid(row=2, column=0, columnspan=3, padx=5, pady=5)

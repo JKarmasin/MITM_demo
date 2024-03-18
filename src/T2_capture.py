@@ -9,6 +9,7 @@ import time
 import signal
 import os
 from src import global_names
+from src import infos
 
 # ========================================================================================================================
 # Globální proměnná pro uchování reference na nekončící procesy pro jejich pozdější ukončení
@@ -231,6 +232,7 @@ def draw_capture(window):
     handshake_catch_frame = ctk.CTkFrame(window.T2_frame)
     handshake_catch_frame.pack(padx=10,pady=5, fill='x')
 
+
     # Postarám se o to, že je zvýrazněný frame ve správný okamžik
     #if global_names.finished_tab == 0:
     handshake_catch_frame.configure(fg_color=global_names.my_color)
@@ -248,6 +250,10 @@ def draw_capture(window):
     handshake_catch_label.grid(row=1, column=0, sticky=W, padx=5, pady=5)
     handshake_catch_on_button.grid(row=1,column=1, pady=5, padx=5)
     handshake_catch_off_button.grid(row=1,column=2, pady=5, padx=5)
+
+    # INFO button
+    handshake_info_button = ctk.CTkButton(handshake_catch_frame, text="INFO", width=200, command=infos.info_handshake)
+    handshake_info_button.grid(row=1, column=3, sticky=E, padx=5, pady=5)
 
     # Progress bar 
     global handshake_catch_progress
@@ -269,6 +275,7 @@ def draw_capture(window):
     deauth_frame = ctk.CTkFrame(window.T2_frame)
     deauth_frame.pack(padx=10,pady=5, fill='x')
 
+
     deauth_frame_label = ctk.CTkLabel(deauth_frame, text="Deauthentifikace target klienta", font=('Open Sans', 16, 'bold'))
     deauth_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
@@ -281,6 +288,10 @@ def draw_capture(window):
     deauth_label.grid(row=1, column=0, sticky=W, padx=5, pady=5)
     deauth_on_button.grid(row=1,column=1, sticky=W, pady=5, padx=5)
     deauth_off_button.grid(row=1,column=2, sticky=W, pady=5, padx=5)
+
+    # INFO button
+    deauth_info_button = ctk.CTkButton(deauth_frame, text="INFO", width=200, command=infos.info_deauth)
+    deauth_info_button.grid(row=1, column=3, sticky=E, padx=5, pady=5)
 
     # Progress bar
     global deauth_progress

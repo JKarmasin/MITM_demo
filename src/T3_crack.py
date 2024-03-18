@@ -5,6 +5,7 @@ import re
 from threading import Thread
 import os
 from src import global_names
+from src import infos
 
 # ========================================================================================================================
 # Globální proměnná pro uchování reference na nekončící procesy pro jejich pozdější ukončení
@@ -284,8 +285,13 @@ def draw_crack(window):
     wl_char_entry.grid(row=3, column=1, sticky=W, padx=5, pady=5)
     wl_name_entry.grid(row=3, column=3, sticky=W, padx=5, pady=5)
 
+    create_wordlist_frame.grid_columnconfigure(4, weight=1)
     create_wl_button = ctk.CTkButton(create_wordlist_frame, text="Vytvořit", width= 200, command=create_wordlist)
     create_wl_button.grid(row=4, column=0, columnspan=4)
+
+    # INFO button
+    wl_info_button = ctk.CTkButton(create_wordlist_frame, text="INFO", width=200, command=infos.info_pw)
+    wl_info_button.grid(row=4, column=4, sticky=E, padx=5, pady=5)
 
     # WTF s progress barem u vytváření slovníku? TODO test, jestli je potřeba
     global create_wl_progress
@@ -303,14 +309,14 @@ def draw_crack(window):
     #load_wordlist_frame.pack(padx=10,pady=5, fill='x')
 
     load_wl_button = ctk.CTkButton(load_wordlist_frame, text="Načíst slovník hesel", width= 200, command=lambda: load_wordlist(window))
-    load_wl_button.grid(row=1, column=0, padx=5, pady=5)
+    load_wl_button.grid(row=1, column=0, padx=5, pady=5, sticky=W)
 
     # Crack the password Frame ========================================================================================================================
     global crack_pw_frame
     crack_pw_frame = ctk.CTkFrame(window.T3_frame)
     crack_pw_frame.pack(padx=10,pady=5, fill='x')
     crack_pw_frame_label = ctk.CTkLabel(crack_pw_frame, text="Prolomit heslo sítě hrubou silou", font=('Open Sans', 16, 'bold'))
-    crack_pw_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)  
+    crack_pw_frame_label.grid(row=0, column=0, columnspan=2, sticky=W, padx=5, pady=5)  
 
 
     global wordlist_name_label
@@ -322,6 +328,10 @@ def draw_crack(window):
 
     crack_pw_button = ctk.CTkButton(crack_pw_frame, text="Prolomit heslo", width= 200, command=crack_pw)
     crack_pw_button.grid(row=2, column=0, columnspan=2, sticky=W, padx=5, pady=5)
+
+    # INFO button
+    crack_info_button = ctk.CTkButton(crack_pw_frame, text="INFO", width=200, command=infos.info_crack)
+    crack_info_button.grid(row=2, column=2, sticky=E, padx=5, pady=5)
 
     #crack_pw_progress = ctk.CTkProgressbar(crack_pw_frame, orient=HORIZONTAL, length=800, mode='determinate')
     global crack_pw_progress
@@ -349,5 +359,5 @@ def draw_crack(window):
 
     global connect_button
     connect_button = ctk.CTkButton(connect_frame, text="Připojit se k síti", width= 200, command=connect_to_wifi)
-    connect_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
+    connect_button.grid(row=2, column=0, columnspan=2, sticky=W, padx=5, pady=5)
 

@@ -1,9 +1,10 @@
 import customtkinter as ctk
-from customtkinter import E, END, N, NS, S, Y, EW
+from customtkinter import E, EW, W
 import tkinter as tk
 import pyshark
 import os
 from src import global_names
+from src import infos
 import sys
 sys.path.append('/usr/local/lib/python3.11/dist-packages')
 from CTkListbox import *
@@ -62,17 +63,22 @@ def draw_dns(window):
     dns_frame = ctk.CTkFrame(window.T5_frame)
     dns_frame.pack(padx=10,pady=5, fill='x')
     dns_frame_label = ctk.CTkLabel(dns_frame, text="DNS dotazy", font=('Open Sans', 16, 'bold'))
-    dns_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
+    dns_frame_label.grid(row=0, column=0, columnspan=2, sticky=W, padx=5, pady=5)
 
     dns_label = ctk.CTkLabel(dns_frame, text="Navštívené weby:", font=('Helvetica', 16))
     #dns_field = tk.Listbox(dns_frame, width=100, height=32)
-    dns_field = CTkListbox(dns_frame, width=1200 , height=600, text_color=("black","white"))
+    dns_field = CTkListbox(dns_frame, width=1250 , height=600, text_color=("black","white"))
 
     dns_reload_button = ctk.CTkButton(dns_frame, text="Načíst", width=200, command=lambda: reload_dns(dns_field))
 
     dns_label.grid(row=1, column=0, padx=5, pady=5)
-    dns_field.grid(row=2, column=0, padx=5, pady=5, sticky=EW)
-    dns_reload_button.grid(row=3, column=0, padx=5, pady=10)
+    dns_field.grid(row=2, column=0, padx=5, pady=5, sticky=EW, columnspan=2)
+    dns_reload_button.grid(row=3, column=0, padx=5, pady=10, sticky=W)
+
+    # INFO button
+    dns_info_button = ctk.CTkButton(dns_frame, text="INFO", width=200, command=infos.info_dns)
+    dns_info_button.grid(row=3, column=1, sticky=ctk.E, padx=5, pady=5)
+    #dns_frame.grid_columnconfigure(2, weight=1)
 
     global pcap_file
 
