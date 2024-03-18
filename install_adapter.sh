@@ -8,8 +8,8 @@ echo "\n
         =   xxx   xxxx  x   x  x    x    x   x   xxx    =
         =                                               =
         =================================================
-Tento skript nainstaluje ovladače pro Wi-Fi adapté s čipem Realtek 8812au.
-Ovladače budoub staženy z úložiště fithub.com/aicrack-ng a umožňují adaptéru
+Tento skript nainstaluje ovladače pro Wi-Fi adaptér s čipem Realtek 8812au.
+Ovladače budou staženy z úložiště github.com/aicrack-ng a umožňují adaptéru
 spustit monitorovací mód. Tento příkaz vyžaduje k instalaci root oprávnění a 
 restart počítače.
 Budou také staženy potřebné balíky dkms, pythíon3.11-venv a linux-headers-6.6.9-amd64
@@ -32,23 +32,26 @@ case $answer in
         sudo apt -y install python3.11-venv dkms linux-headers-6.6.9-amd64
 
         # Stahuji balíček s ovladači
-        echo "\nStahuji ovladače do adresáře 'tmp'..."
+        echo ""
+        echo "Stahuji ovladače do adresáře 'tmp'..."
         cd tmp
         git clone https://github.com/aircrack-ng/rtl8812au
 
         # Instalace
-        echo "\nÚspěšně staženo. Instaluji..."
+        echo ""
+        echo "Úspěšně staženo. Instaluji..."
         cd rtl8812au
         sudo make dkms_install
 
         # Resrart?
-        read -p "\nJe třeba restartovat stanici. Restarotvat ihned? (a/n)?: " answer2
+        echo ""
+        read -p "Je třeba restartovat stanici. Restarotvat ihned? (a/n)?: " answer2
         case $answer2 in
             [aA]* )
                 sudo reboot
                 ;;
             * )
-                echo "\nUkončuji skript. Před používáním Wi-Fi adaptéru je třeba restartovat stanici."
+                echo "Ukončuji skript. Před používáním Wi-Fi adaptéru je třeba restartovat stanici."
                 exit
                 ;;
         esac
@@ -61,20 +64,22 @@ case $answer in
         fi
 
         # Stahuji balíček s ovladači
-        echo "\nStahuji ovladače do adresáře 'tmp'..."
+        echo ""
+        echo "Stahuji ovladače do adresáře 'tmp'..."
         cd tmp
         git clone https://github.com/aircrack-ng/rtl8812au
-        echo "\nOvladače jsou staženy. Ukončuji skript."
+        echo "Ovladače jsou staženy. Ukončuji skript."
         exit
         ;;
     [3]* )
-        echo "\nUkončuji skript."
+        echo "Ukončuji skript."
         exit
         ;;
     * )
-        echo "\nNeplatný vstup. Ukončuji skript."
+        echo "Neplatný vstup. Ukončuji skript."
         exit
         ;;
+esac
 
 
 

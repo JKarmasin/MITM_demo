@@ -81,10 +81,10 @@ def interfaces_on_select(event):
     monitor_on_button.configure(state=NORMAL)
 
     # Nastavím zvýraznění udělaných rámců činností
-    #global interface_frame
-    #global monitor_frame
-    #interface_frame.configure(highlightthickness=0)     
-    #monitor_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+    global interface_frame
+    global monitor_frame
+    interface_frame.configure(fg_color='transparent')     
+    monitor_frame.configure(fg_color=global_names.my_color)
 # ========================================================================================================================
 # ========================================================================================================================
 
@@ -109,10 +109,10 @@ def start_monitor_mode():
         airodump_on_button.configure(state=NORMAL) 
 
         # Nastavím zvýraznění udělaných rámců činností
-        #global airodump_frame
-        #global monitor_frame
-        #monitor_frame.configure(highlightthickness=0) 
-        #airodump_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color)
+        global airodump_frame
+        global monitor_frame
+        monitor_frame.configure(fg_color='transparent') 
+        airodump_frame.configure(fg_color=global_names.my_color)
 
     except subprocess.CalledProcessError as e:
         #status.configure(text=f"Chyba při nastavování monitorovacího módu: {e}")
@@ -121,23 +121,38 @@ def start_monitor_mode():
 def stop_monitor_mode():
     print("===== STOP MONITOR MODE =================================")
     #print(f"=== DEBUG: Interface v airmonu_off: {interface} ===")
+    is_monitor = False
     try:
-        # Deaktivujte rozhraní
-        subprocess.run(['ifconfig', interface, 'down'], check=True)
-        # Nastavte monitorovací mód
-        subprocess.run(['airmon-ng', 'stop', interface], check=True)
-        # Restartuji službu NetworkManager
-        subprocess.run(['service', 'NetworkManager', 'restart'], check=True)
-        
-        #status.configure(text=f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
-        print(f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
-
-        monitor_on_button.configure(state=NORMAL) 
-        monitor_off_button.configure(state=DISABLED) 
+        # Spustí příkaz `iw` a získá informace o rozhraní
+        vystup = subprocess.check_output(["iw", interface, "info"], text=True)
+       
+        # Zkontroluje, zda je výstup obsahuje "type monitor"
+        if "type monitor" in vystup:
+            is_monitor = True
 
     except subprocess.CalledProcessError as e:
-        #status.configure(text=f"Chyba při nastavování normálního módu: {e}")
-        print(f"Chyba při nastavování normálního módu rozhraní: {e}")
+        print("     -- Nastala chyba při spouštění příkazu:", e)
+    except Exception as e:
+        print("     -- Nastala neočekávaná chyba:", e)
+        
+    monitor_on_button.configure(state=NORMAL) 
+    monitor_off_button.configure(state=DISABLED)
+
+    if is_monitor:
+        try:
+            # Deaktivujte rozhraní
+            subprocess.run(['ifconfig', interface, 'down'], check=True)
+            # Nastavte monitorovací mód
+            subprocess.run(['airmon-ng', 'stop', interface], check=True)
+            # Restartuji službu NetworkManager
+            subprocess.run(['service', 'NetworkManager', 'restart'], check=True)
+        
+            #status.configure(text=f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
+            print(f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
+
+        except subprocess.CalledProcessError as e:
+            #status.configure(text=f"Chyba při nastavování normálního módu: {e}")
+            print(f"Chyba při nastavování normálního módu rozhraní: {e}")
 # ========================================================================================================================
 def get_mac_address(iface):
 
@@ -404,16 +419,19 @@ def tree_cl_selected(Event):
     target_ch.configure(text=ch)
 
     # Nastavím zvýraznění udělaných rámců činností
-    #global airodump_frame
-    #global target_frame
-    #airodump_frame.configure(highlightthickness=0) 
-    #target_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+    global airodump_frame
+    global target_frame
+    airodump_frame.configure(fg_color='transparent') 
+    target_frame.configure(fg_color=global_names.my_color)
     global_names.finished_tab = 0
     
     menu_button.configure(fg_color="transparent", text_color=("green", "green"))
-    #on_tab_change()
-    #global button_next
-    #button_next.configure(bg=global_names.my_color) 
+
+# ===========================================================
+def finish():
+    # Funkce vrátí všechny činnosti z tohoto tabu do původního stavu
+    stop_airodump_full()
+    stop_monitor_mode()
 
 # ===========================================================
 def draw_reco(frame_t1, frame_1_button):      # def draw_reco(frame_t1, btn_next):
@@ -426,7 +444,8 @@ def draw_reco(frame_t1, frame_1_button):      # def draw_reco(frame_t1, btn_next
     interface_frame = ctk.CTkFrame(frame_t1)
     interface_frame.pack_propagate(0)
     interface_frame.pack(padx=10,pady=5, fill=X, expand=True, side=TOP)
-    #interface_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+    
+    interface_frame.configure(fg_color=global_names.my_color)
     
     interface_frame_label = ctk.CTkLabel(interface_frame, text="Vyhledání a výběr požadovaného rozhraní")
     interface_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
@@ -482,10 +501,6 @@ def draw_reco(frame_t1, frame_1_button):      # def draw_reco(frame_t1, btn_next
     tree_ap.bind('<<TreeviewSelect>>', tree_ap_selected)
     tree_ap.grid(row=3, column=0, columnspan=3, sticky=EW, padx=5, pady=5)
 
-    #scrollbarv_ap = ctk.CTkScrollbar(airodump_frame, orient="vertical", command=tree_ap.yview)
-    #scrollbarv_ap.grid(row=2, column=3,sticky=NS, pady=5)
-    #tree_ap.configure(yscrollcommand=scrollbarv_ap.set)
-
     # Treeview pro Clienty
     tree_cl_label = ctk.CTkLabel(airodump_frame, text="Seznam klientů")
     tree_cl_label.grid(row=4, column=0, columnspan=4)
@@ -495,10 +510,6 @@ def draw_reco(frame_t1, frame_1_button):      # def draw_reco(frame_t1, btn_next
     tree_cl = ttk.Treeview(airodump_frame, selectmode='browse')
     tree_cl.bind('<<TreeviewSelect>>', tree_cl_selected)
     tree_cl.grid(row=5, column=0, columnspan=3, sticky=EW, padx=5, pady=5)
-
-    #scrollbarv_cl = ctk.CTkScrollbar(airodump_frame, orient="vertical", command=tree_cl.yview)
-    #scrollbarv_cl.grid(row=4, column=3,sticky=NS, pady=5)
-    #tree_cl.configure(yscrollcommand=scrollbarv_cl.set)
 
     airodump_frame.grid_columnconfigure(2, weight=1)
 

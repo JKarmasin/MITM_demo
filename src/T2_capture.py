@@ -78,10 +78,11 @@ def start_handshake_catch():
     #global parse_handshake_cap_thread
     Thread(target=parse_handshake_cap, daemon=True).start() #================= TODO
     #print(" - Thread s parsováním byl spuštěn")
-    #global deauth_frame
-    #global handshake_catch_frame
-    #handshake_catch_frame.configure(highlightthickness=0)
-    #deauth_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+    
+    global deauth_frame
+    global handshake_catch_frame
+    handshake_catch_frame.configure(fg_color='transparent')
+    deauth_frame.configure(fg_color=global_names.my_color)
 
 # ========================================================================================================================
 def stop_handshake_catch():
@@ -102,8 +103,8 @@ def stop_handshake_catch():
     # Nastavuji správně tlačítka
     handshake_catch_on_button.configure(state=NORMAL) 
     handshake_catch_off_button.configure(state=DISABLED)
-    #global handshake_catch_frame
-    #handshake_catch_frame.configure(highlightthickness=0)
+    global handshake_catch_frame
+    handshake_catch_frame.configure(fg_color='transparent')
 
 
 # ========================================================================================================================
@@ -194,11 +195,10 @@ def parse_handshake_cap():
                 menu_button.configure(fg_color="transparent", text_color=("green", "green"))
                 
                 #global button_next
-                #button_next.configure(bg=global_names.my_color)
-                #global deauth_frame
-                #global handshake_catch_frame
-                #handshake_catch_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
-                #deauth_frame.configure(highlightthickness=0)
+                global deauth_frame
+                global handshake_catch_frame
+                handshake_catch_frame.configure(fg_color=global_names.my_color)
+                deauth_frame.configure(fg_color='transparent')
 
                 # TODO Zezelenat tlačítko!
 
@@ -207,7 +207,12 @@ def parse_handshake_cap():
             print("     -- No file to read...")
         # Kontroluji soubor každou sekundu
     print("=== DEBUG: Zachycen handshake, ukončuji vlakno ===")
- 
+
+# ===========================================================
+def finish():
+    # Funkce vrátí všechny činnosti z tohoto tabu do původního stavu
+    stop_handshake_catch()
+    stop_deauthentification() 
 
 # ========================================================================================================================================
 # Tab "Záchyt handshaku" =================================================================================================================
@@ -221,8 +226,8 @@ def draw_capture(frame_t2, frame_2_button):
     handshake_catch_frame.pack(padx=10,pady=5, fill='x')
 
     # Postarám se o to, že je zvýrazněný frame ve správný okamžik
-    #if global_names.finished_tab == 0:
-    #handshake_catch_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+    if global_names.finished_tab == 0:
+        handshake_catch_frame.configure(fg_color=global_names.my_color)
 
     interface_frame_label = ctk.CTkLabel(handshake_catch_frame, text="Záchyt WPA handshaku")
     interface_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)

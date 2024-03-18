@@ -34,14 +34,20 @@ class App(customtkinter.CTk):
 
         # load images with light and dark mode image
         self.logo_image = customtkinter.CTkImage(Image.open(images_path + "sword.png"), size=(26, 26))
-        self.large_test_image = customtkinter.CTkImage(Image.open(images_path + "large_test_image.png"), size=(500, 150))
-        self.image_icon_image = customtkinter.CTkImage(Image.open(images_path + "image_icon_light.png"), size=(20, 20))
-        self.home_image = customtkinter.CTkImage(light_image=Image.open(images_path + "home_dark.png"),
-                                                 dark_image=Image.open(images_path + "home_light.png"), size=(20, 20))
-        self.chat_image = customtkinter.CTkImage(light_image=Image.open(images_path + "chat_dark.png"),
-                                                 dark_image=Image.open(images_path + "chat_light.png"), size=(20, 20))
-        self.add_user_image = customtkinter.CTkImage(light_image=Image.open(images_path + "add_user_dark.png"),
-                                                     dark_image=Image.open(images_path + "add_user_light.png"), size=(20, 20))
+        #self.large_test_image = customtkinter.CTkImage(Image.open(images_path + "large_test_image.png"), size=(500, 150))
+        #self.image_icon_image = customtkinter.CTkImage(Image.open(images_path + "image_icon_light.png"), size=(20, 20))
+        self.reco_image = customtkinter.CTkImage(light_image=Image.open(images_path + "icons/reco_dark.png"),
+                                                 dark_image=Image.open(images_path + "icons/reco_light.png"), size=(20, 20))
+        self.catch_image = customtkinter.CTkImage(light_image=Image.open(images_path + "icons/catch_dark.png"),
+                                                 dark_image=Image.open(images_path + "icons/catch_light.png"), size=(20, 20))
+        self.crack_image = customtkinter.CTkImage(light_image=Image.open(images_path + "icons/cracking_dark.png"),
+                                                     dark_image=Image.open(images_path + "icons/cracking_light.png"), size=(20, 20))
+        self.mitm_image = customtkinter.CTkImage(light_image=Image.open(images_path + "icons/mitm2_dark.png"),
+                                                     dark_image=Image.open(images_path + "icons/mitm2_light.png"), size=(20, 20))
+        self.dns_image = customtkinter.CTkImage(light_image=Image.open(images_path + "icons/dns_dark.png"),
+                                                     dark_image=Image.open(images_path + "icons/dns_light.png"), size=(20, 20))
+        self.finish_image = customtkinter.CTkImage(light_image=Image.open(images_path + "icons/finish_dark.png"),
+                                                     dark_image=Image.open(images_path + "icons/finish_light.png"), size=(20, 20))
         
         
         #===================================================================================================================================
@@ -57,33 +63,33 @@ class App(customtkinter.CTk):
         #============================================
         self.frame_1_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Vyhledání cílů",
                                                    fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
-                                                   image=self.home_image, anchor="w", command=self.frame_1_button_event)
+                                                   image=self.reco_image, anchor="w", command=self.frame_1_button_event)
         self.frame_1_button.grid(row=1, column=0, sticky="ew")
 
         self.frame_2_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Záchyt handshaku",
                                                       fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
-                                                      image=self.chat_image, anchor="w", command=self.frame_2_button_event)
+                                                      image=self.catch_image, anchor="w", command=self.frame_2_button_event)
         self.frame_2_button.grid(row=2, column=0, sticky="ew")
 
         self.frame_3_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Prolomení hesla",
                                                       fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
-                                                      image=self.add_user_image, anchor="w", command=self.frame_3_button_event)
+                                                      image=self.crack_image, anchor="w", command=self.frame_3_button_event)
         self.frame_3_button.grid(row=3, column=0, sticky="ew")
 
         self.frame_4_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Man-in-the-middle",
                                                       fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
-                                                      image=self.add_user_image, anchor="w", command=self.frame_4_button_event)
+                                                      image=self.mitm_image, anchor="w", command=self.frame_4_button_event)
         self.frame_4_button.grid(row=4, column=0, sticky="ew")
 
         self.frame_5_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Záchyt DNS dotazů",
                                                       fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
-                                                      image=self.add_user_image, anchor="w", command=self.frame_5_button_event)
+                                                      image=self.dns_image, anchor="w", command=self.frame_5_button_event)
         self.frame_5_button.grid(row=5, column=0, sticky="ew")
 
         # Finish button
         self.finish_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Ukončit",
                                                       fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
-                                                      image=self.add_user_image, anchor="w", command=self.finish_button_event)
+                                                      image=self.finish_image, anchor="w", command=self.finish_button_event)
         self.finish_button.grid(row=7, column=0, sticky="ew")
 
         # Appearence menu
@@ -164,7 +170,14 @@ class App(customtkinter.CTk):
         self.select_frame_by_name("frame_5")
 
     def finish_button_event(self):
-        print("ukončuji")
+        print("======== VRACÍM VŠE DO PŮVODNÍHO STAVU =========")
+        T4_arp_spoof.finish()
+        T3_crack.finish()
+        T2_capture.finish()
+        T1_reco.finish()
+        print("================== SUCCESS =====================")
+        print("=================== KONEC ======================")
+        self.quit()
 
     def change_appearance_mode_event(self, new_appearance_mode):
         customtkinter.set_appearance_mode(new_appearance_mode)

@@ -53,7 +53,7 @@ def create_wordlist():
     thr.join()
     create_wl_progress.stop()
     create_wl_progress.grid_forget()
-    #status.configure(text="Slovník hesel byl úspěšně vytvořen!")
+
     wordlist_name_label.configure(text=os.getcwd()+"/"+output)
     global create_wordlist_frame
     create_wordlist_frame.configure(highlightthickness=0)
@@ -66,12 +66,12 @@ def load_wordlist(root):
     #print("Wordlist: "+wordlist_name) 
     wordlist_name_label.configure(text=wordlist_name)
 
-    #global crack_pw_frame
-    #global load_wordlist_frame
-    #global create_wordlist_frame
-    #crack_pw_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color) 
-    #load_wordlist_frame.configure(highlightthickness=0)
-    #create_wordlist_frame.configure(highlightthickness=0)
+    global crack_pw_frame
+    global load_wordlist_frame
+    global create_wordlist_frame
+    crack_pw_frame.configure(fg_color=global_names.my_color) 
+    load_wordlist_frame.configure(fg_color='transparent')
+    create_wordlist_frame.configure(fg_color='transparent')
 
 # ========================================================================================================================
 def secs_to_str(seconds):
@@ -136,8 +136,8 @@ def grep_aircrack_process():
         print("     -- HESLO NEBYLO PROLOMENO --")
         print("     ----------------------------")
 
-        #load_wordlist_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color) 
-        #create_wordlist_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color) 
+        load_wordlist_frame.configure(fg_color=global_names.my_color) 
+        create_wordlist_frame.configure(fg_color=global_names.my_color) 
         return
 
     # Vypíšu nalezené heslo do odpovídajícího labelu
@@ -151,9 +151,9 @@ def grep_aircrack_process():
             print("     -- HESLO BYLO ÚSPĚŠNĚ PROLOMENO --")
             print("     ----------------------------------")
 
-            #crack_pw_frame.configure(highlightthickness=0)
-            #load_wordlist_frame.configure(highlightthickness=0)
-            #connect_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color)
+            crack_pw_frame.configure(fg_color='transparent')
+            load_wordlist_frame.configure(fg_color='transparent')
+            connect_frame.configure(fg_color=global_names.my_color)
 
     # Ukončím běhání progress baru
     print("     -- Konec lámání hesla!")
@@ -182,17 +182,29 @@ def connect_to_wifi():
         net = global_names.net
         password = global_names.password
 
-        # TODO ==== Když není interface v monitor modu, tak to hodi terrible idea chybu
-        # TODO Otestovat montor mod na zvolenem rozhrani. HOW?
+        is_monitor = False
+        try:
+            # Spustí příkaz `iw` a získá informace o rozhraní
+            vystup = subprocess.check_output(["iw", interface, "info"], text=True)
+       
+            # Zkontroluje, zda je výstup obsahuje "type monitor"
+            if "type monitor" in vystup:
+                is_monitor = True
 
-        # Deaktivujte rozhraní
-        subprocess.run(['ifconfig', interface, 'down'], check=True)
-        # Zastavit monitorovací mód
-        subprocess.run(['airmon-ng', 'stop', interface], check=True)
-        # Restartuji službu NetworkManager
-        subprocess.run(['service', 'NetworkManager', 'restart'], check=True)
+        except subprocess.CalledProcessError as e:
+            print("     -- Nastala chyba při spouštění příkazu:", e)
+        except Exception as e:
+            print("     -- Nastala neočekávaná chyba:", e)
         
-        print(f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
+        if is_monitor:
+            # Deaktivujte rozhraní
+            subprocess.run(['ifconfig', interface, 'down'], check=True)
+            # Zastavit monitorovací mód
+            subprocess.run(['airmon-ng', 'stop', interface], check=True)
+            # Restartuji službu NetworkManager
+            subprocess.run(['service', 'NetworkManager', 'restart'], check=True)
+        
+            print(f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
 
         command = f"nmcli wifi connect {net} password {password} ifname {interface}"
         print("COMMAND: " + command)
@@ -216,6 +228,17 @@ def connect_to_wifi():
         #status.configure(text=f"Chyba při připojování k síti: {e}")
         print(f"Chyba při připojování k síti: {e}")
 
+# ===========================================================
+def disconnect_from_wifi():
+    command = f"nmcli con donw id {global_names.net}"
+    print("COMMAND: " + command)    
+    subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+    print(f"Úspěšně odpojeno od sítě {global_names.net}")
+
+# ===========================================================
+def finish():
+    # Funkce vrátí všechny činnosti z tohoto tabu do původního stavu
+    disconnect_from_wifi()
 
 # ========================================================================================================================================
 # Tab "Prolomení hesla" ==================================================================================================================
@@ -230,8 +253,9 @@ def draw_crack(frame_t3, root, frame_3_button):
 
     create_wordlist_frame_label = ctk.CTkLabel(create_wordlist_frame, text="Vytvořit slovník hesel")
     create_wordlist_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
-    #if global_names.finished_tab == 1:
-    #create_wordlist_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3,highlightcolor=global_names.my_color)
+    
+    if global_names.finished_tab == 1:
+        create_wordlist_frame.configure(fg_color=global_names.my_color)
 
     global wl_char_entry
     global wl_min_entry

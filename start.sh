@@ -4,5 +4,5 @@ echo "
 =============
 "
 source venv/bin/activate
-sudo /venv/bin/python3 DeMITMo.py
+sudo venv/bin/python3 DeMITMo.py
 deactivate

@@ -20,8 +20,8 @@ output_traffic = global_names.output_traffic
 capturing = True
 
 # Uklidím případný soubor output po předešlém spuštění
-#if os.path.isfile(output_traffic):
-#    os.remove(output_traffic)
+if os.path.isfile(output_traffic):
+    os.remove(output_traffic)
 
 # ========================================================================================================================
 # ========================================================================================================================
@@ -40,10 +40,10 @@ def start_forwarding():
         forwarding_on_button.configure(state=DISABLED) 
         forwarding_off_button.configure(state=NORMAL)
 
-        #global arp_spoofing_frame
-        #global forwarding_frame
-        #forwarding_frame.configure(highlightthickness=0)
-        #arp_spoofing_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color) 
+        global arp_spoofing_frame
+        global forwarding_frame
+        forwarding_frame.configure(fg_color='transparent')
+        arp_spoofing_frame.configure(fg_color=global_names.my_color) 
 
     except subprocess.CalledProcessError as e:
         print(f"Chyba při zapínání přeposílání paketů: {e}")
@@ -126,10 +126,10 @@ def start_arp_spoofing(interface, cl):
         arp_spoofing_progress.grid(row=2,column=0,columnspan=3, sticky=EW, padx=5, pady=5)
         arp_spoofing_progress.start()
 
-        #global capturing_frame
-        #global arp_spoofing_frame
-        #arp_spoofing_frame.configure(highlightthickness=0)
-        #capturing_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color) 
+        global capturing_frame
+        global arp_spoofing_frame
+        arp_spoofing_frame.configure(fg_color='transparent')
+        capturing_frame.configure(fg_color=global_names.my_color) 
 
 
         print(f"        -- ARP spoofing byl úspěšně spuštěn.")
@@ -211,6 +211,13 @@ def stop_capturing():
     capturing_off_button.configure(state=DISABLED) 
     capturing_on_button.configure(state=NORMAL)
 
+# ===========================================================
+def finish():
+    # Funkce vrátí všechny činnosti z tohoto tabu do původního stavu
+    stop_capturing()
+    stop_arp_spoofing()
+    stop_forwarding()
+
 # ========================================================================================================================================
 # Tab "Man-in-the-middle" ================================================================================================================
 def draw_arp_spoof(frame_t4, frame_4_button):
@@ -223,8 +230,9 @@ def draw_arp_spoof(frame_t4, frame_4_button):
     forwarding_frame.pack(padx=10,pady=5, fill='x')
     forwarding_frame_label = ctk.CTkLabel(forwarding_frame, text="Přeposílání paketů")
     forwarding_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
-    #if global_names.finished_tab == 2:
-    #forwarding_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color) 
+    
+    if global_names.finished_tab == 2:
+        forwarding_frame.configure(fg_color=global_names.my_color) 
     
 
     global forwarding_on_button

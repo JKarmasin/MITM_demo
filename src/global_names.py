@@ -45,7 +45,8 @@ aircrack_process = None
 arpspoof_cl_process = None
 arpspoof_ap_process = None
 
-my_color = "#58b74d"
+#my_color = "#58b74d"
+my_color = "#a3c9b0"
 
 # Proměnná, ve které je číslo tabu, kde již byly splněny všechny potřebné kroky. Čísluje se od 0. Je potřeba ke správnému zvýrazňování framů.
 finished_tab = -2

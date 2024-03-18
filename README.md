@@ -46,17 +46,17 @@ Cílem práce je navrhnout a implementovat demonstrační nástroj k popisu a  v
 - [x] 22.10.2023 – Cíl a název práce, (předběžný) Úvod
 - [x] 12.11.2023 – Dokončení rešerše a studování zdrojů
 - [x] 26.11.2023 – Návrh jedné kompletní kapitoly z teoretické části včetně správných citací
-- [ ] 10.12.2023 – Kompletní analýza vektorů útoku
-- [ ] 24.12.2023 – Návrh abstraktu, hotová první verze teoretické části BP  
+- [x] 10.12.2023 – Kompletní analýza vektorů útoku
+- [x] 24.12.2023 – Návrh abstraktu, hotová první verze teoretické části BP  
 
-- [ ] 07.01.2024 – Osvěžení si vývojového jazyku a první funkcionality konzolové verze aplikace
-- [ ] 21.01.2024 – Dokončení MITM útoku
+- [x] 07.01.2024 – Osvěžení si vývojového jazyku a první funkcionality konzolové verze aplikace
+- [x] 21.01.2024 – Dokončení MITM útoku
 
 - [ ] 04.02.2024 – Dokončení SSLsplit funkcionality
-- [ ] 18.02.2024 – První funkční konzolová verze aplikace
+- [x] 18.02.2024 – První funkční konzolová verze aplikace
 
-- [ ] 03.03.2024 – Doladění konzolové verze, začátek práce na GUI
-- [ ] 17.03.2024 – Dokončení uživatelského rozhraní
+- [x] 03.03.2024 – Doladění konzolové verze, začátek práce na GUI
+- [x] 17.03.2024 – Dokončení uživatelského rozhraní
 - [ ] 24.03.2024 – Návrh testů, Dopsání praktické části práce
 - [ ] 31.03.2024 – Korektura textu, finální úpravy, zadání BP k tisku
 
@@ -180,21 +180,21 @@ sudo ettercap -G
 ```
 - GUI aplikace :check:
 - bez doprovodn0ho infa a bez vysvětlivek :x:
-    ![Alt text](images/image.png)
+    ![Alt text](images/docs/image.png)
 
-    ![Alt text](images/image-1.png)
+    ![Alt text](images/docs/image-1.png)
 
 ### 2. bettercap
 https://www.hackers-arise.com/post/wi-fi-hacking-part-17-wi-fi-hacking-with-bettercap
 - Mocný nástroj splňující všechny požadavky
 - Konzolový bez GUI :x:
-    ![Alt text](images/bettercap.png)
+    ![Alt text](images/docs/bettercap.png)
 
 ### 3. Wifiphisher
 https://www.youtube.com/watch?v=ay-77C9ZZQM
 - tool pro tvorbu předdefinovaných phishingových útoků na WiFi sítě. 
 - neukazuje MITM a lámání hesel :x:
-![Alt text](images/Wifiphisher.png)
+![Alt text](images/docs/Wifiphisher.png)
 
 ### Další nástroje _**TODO**_ :x:
 - hostapd
@@ -218,7 +218,7 @@ https://www.youtube.com/watch?v=ay-77C9ZZQM
 # Hrubý popis kompletníhop MITM útoku:
 ## 0. Originální situace
 Klient je připojen k AP pomocí heslem zabezpečeného připojení (WEP) a komunikuje
-![Alt text](images/MITM_begin.png)
+![Alt text](images/docs/MITM_begin.png)
 ## 1. Fáze útoku - přístup do zabezpečené sítě
 - Rekonoskace: Útočník pomocí adaptéru v monitorovacím módu zachytává rámce a zjišťuje dostupné bezdrátové sítě a k nim připojené klienty.
 - Deautentifikuje vybraného klienta na vybrané síti, aby zachytil 4-way handshake ráme při opkusu o opětovné připojení klienta k síti
@@ -233,7 +233,7 @@ Klient je připojen k AP pomocí heslem zabezpečeného připojení (WEP) a komu
 - Zachytávání DNS dotazů
 - přesměrování na jinou adresu (DNS spoof)
 - SSLsplit  
-![Alt text](images/MITM_end.png)
+![Alt text](images/docs/MITM_end.png)
 ## 4. Fáze útoku - Exfiltration
 - navrácení původních ARP záznamů klienta a AP
 - odpojení od sítě
