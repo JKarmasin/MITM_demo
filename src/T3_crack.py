@@ -70,8 +70,8 @@ def load_wordlist(root):
     global load_wordlist_frame
     global create_wordlist_frame
     crack_pw_frame.configure(fg_color=global_names.my_color) 
-    load_wordlist_frame.configure(fg_color='transparent')
-    create_wordlist_frame.configure(fg_color='transparent')
+    load_wordlist_frame.configure(fg_color=("gray75", "gray25"))
+    create_wordlist_frame.configure(fg_color=("gray75", "gray25"))
 
 # ========================================================================================================================
 def secs_to_str(seconds):
@@ -151,8 +151,8 @@ def grep_aircrack_process():
             print("     -- HESLO BYLO ÚSPĚŠNĚ PROLOMENO --")
             print("     ----------------------------------")
 
-            crack_pw_frame.configure(fg_color='transparent')
-            load_wordlist_frame.configure(fg_color='transparent')
+            crack_pw_frame.configure(fg_color=("gray75", "gray25"))
+            load_wordlist_frame.configure(fg_color=("gray75", "gray25"))
             connect_frame.configure(fg_color=global_names.my_color)
 
     # Ukončím běhání progress baru
@@ -222,7 +222,9 @@ def connect_to_wifi():
         #connect_frame.configure(highlightthickness=0)
         global_names.finished_tab = 2
         global menu_button
-        menu_button.configure(fg_color="transparent", text_color=("green", "green"))
+        menu_button.configure(fg_color="transparent", text_color=("green", "green"), image=check_image)
+        next_menu_button.configure(state=ctk.NORMAL)
+        connect_frame.configure(fg_color=("gray75", "gray25"))
 
     except subprocess.CalledProcessError as e:
         #status.configure(text=f"Chyba při připojování k síti: {e}")
@@ -242,20 +244,24 @@ def finish():
 
 # ========================================================================================================================================
 # Tab "Prolomení hesla" ==================================================================================================================
-def draw_crack(frame_t3, root, frame_3_button):
+def draw_crack(window):
     global menu_button
-    menu_button = frame_3_button
+    global check_image
+    global next_menu_button
+    menu_button = window.frame_3_button
+    check_image = window.done_image
+    next_menu_button = window.frame_4_button
 
     # Create Wordlist Frame ==============================================================================================================
     global create_wordlist_frame
-    create_wordlist_frame = ctk.CTkFrame(frame_t3)
+    create_wordlist_frame = ctk.CTkFrame(window.T3_frame)
     create_wordlist_frame.pack(padx=10,pady=5, fill='x')
 
     create_wordlist_frame_label = ctk.CTkLabel(create_wordlist_frame, text="Vytvořit slovník hesel")
     create_wordlist_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
     
-    if global_names.finished_tab == 1:
-        create_wordlist_frame.configure(fg_color=global_names.my_color)
+    #if global_names.finished_tab == 1:
+    create_wordlist_frame.configure(fg_color=global_names.my_color)
 
     global wl_char_entry
     global wl_min_entry
@@ -291,7 +297,7 @@ def draw_crack(frame_t3, root, frame_3_button):
 
     # Load Wordlist Frame ==================================================================================================================
     global load_wordlist_frame
-    load_wordlist_frame = ctk.CTkFrame(frame_t3)
+    load_wordlist_frame = ctk.CTkFrame(window.T3_frame)
     load_wordlist_frame.pack(padx=10,pady=5, fill='x')
     load_wordlist_frame_label = ctk.CTkLabel(load_wordlist_frame, text="Načíst hotový slovník hesel")
     load_wordlist_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)  
@@ -299,12 +305,12 @@ def draw_crack(frame_t3, root, frame_3_button):
     #load_wordlist_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color)
     #load_wordlist_frame.pack(padx=10,pady=5, fill='x')
 
-    load_wl_button = ctk.CTkButton(load_wordlist_frame, text="Načíst slovník hesel", width= 200, command=lambda: load_wordlist(root))
+    load_wl_button = ctk.CTkButton(load_wordlist_frame, text="Načíst slovník hesel", width= 200, command=lambda: load_wordlist(window))
     load_wl_button.grid(row=1, column=0, padx=5, pady=5)
 
     # Crack the password Frame ========================================================================================================================
     global crack_pw_frame
-    crack_pw_frame = ctk.CTkFrame(frame_t3)
+    crack_pw_frame = ctk.CTkFrame(window.T3_frame)
     crack_pw_frame.pack(padx=10,pady=5, fill='x')
     crack_pw_frame_label = ctk.CTkLabel(crack_pw_frame, text="Prolomit heslo sítě hrubou silou")
     crack_pw_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)  
@@ -333,7 +339,7 @@ def draw_crack(frame_t3, root, frame_3_button):
 
     # Network Connection Frame ===============================================================================================================
     global connect_frame
-    connect_frame = ctk.CTkFrame(frame_t3)
+    connect_frame = ctk.CTkFrame(window.T3_frame)
     connect_frame.pack(padx=10,pady=5, fill='x')
     connect_frame_label = ctk.CTkLabel(connect_frame, text="Připojit se k cílové Wi-Fi síti")
     connect_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5) 

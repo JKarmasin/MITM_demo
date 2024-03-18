@@ -81,7 +81,7 @@ def start_handshake_catch():
     
     global deauth_frame
     global handshake_catch_frame
-    handshake_catch_frame.configure(fg_color='transparent')
+    handshake_catch_frame.configure(fg_color=("gray75", "gray25"))
     deauth_frame.configure(fg_color=global_names.my_color)
 
 # ========================================================================================================================
@@ -104,7 +104,7 @@ def stop_handshake_catch():
     handshake_catch_on_button.configure(state=NORMAL) 
     handshake_catch_off_button.configure(state=DISABLED)
     global handshake_catch_frame
-    handshake_catch_frame.configure(fg_color='transparent')
+    handshake_catch_frame.configure(fg_color=("gray75", "gray25"))
 
 
 # ========================================================================================================================
@@ -193,14 +193,14 @@ def parse_handshake_cap():
                 global_names.finished_tab = 1
 
                 menu_button.configure(fg_color="transparent", text_color=("green", "green"))
+                menu_button.configure(fg_color="transparent", text_color=("green", "green"), image=check_image)
+                next_menu_button.configure(state=NORMAL)
                 
                 #global button_next
                 global deauth_frame
                 global handshake_catch_frame
                 handshake_catch_frame.configure(fg_color=global_names.my_color)
-                deauth_frame.configure(fg_color='transparent')
-
-                # TODO Zezelenat tlačítko!
+                deauth_frame.configure(fg_color=("gray75", "gray25"))
 
         except FileNotFoundError:
             #status.configure(text="File not found. Waiting...")
@@ -216,18 +216,21 @@ def finish():
 
 # ========================================================================================================================================
 # Tab "Záchyt handshaku" =================================================================================================================
-def draw_capture(frame_t2, frame_2_button):
+def draw_capture(window):
     global menu_button
-    menu_button = frame_2_button
-
+    global check_image
+    global next_menu_button
+    menu_button = window.frame_2_button
+    check_image = window.done_image
+    next_menu_button = window.frame_3_button
     # WPA Catch Frame ========================================================================================================================
     global handshake_catch_frame
-    handshake_catch_frame = ctk.CTkFrame(frame_t2)
+    handshake_catch_frame = ctk.CTkFrame(window.T2_frame)
     handshake_catch_frame.pack(padx=10,pady=5, fill='x')
 
     # Postarám se o to, že je zvýrazněný frame ve správný okamžik
-    if global_names.finished_tab == 0:
-        handshake_catch_frame.configure(fg_color=global_names.my_color)
+    #if global_names.finished_tab == 0:
+    handshake_catch_frame.configure(fg_color=global_names.my_color)
 
     interface_frame_label = ctk.CTkLabel(handshake_catch_frame, text="Záchyt WPA handshaku")
     interface_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
@@ -260,7 +263,7 @@ def draw_capture(frame_t2, frame_2_button):
 
     # Deauthificate Frame ========================================================================================================================
     global deauth_frame
-    deauth_frame = ctk.CTkFrame(frame_t2)
+    deauth_frame = ctk.CTkFrame(window.T2_frame)
     deauth_frame.pack(padx=10,pady=5, fill='x')
 
     deauth_frame_label = ctk.CTkLabel(deauth_frame, text="Deauthentifikace target klienta")

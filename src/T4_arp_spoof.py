@@ -42,7 +42,7 @@ def start_forwarding():
 
         global arp_spoofing_frame
         global forwarding_frame
-        forwarding_frame.configure(fg_color='transparent')
+        forwarding_frame.configure(fg_color=("gray75", "gray25"))
         arp_spoofing_frame.configure(fg_color=global_names.my_color) 
 
     except subprocess.CalledProcessError as e:
@@ -128,7 +128,7 @@ def start_arp_spoofing(interface, cl):
 
         global capturing_frame
         global arp_spoofing_frame
-        arp_spoofing_frame.configure(fg_color='transparent')
+        arp_spoofing_frame.configure(fg_color=("gray75", "gray25"))
         capturing_frame.configure(fg_color=global_names.my_color) 
 
 
@@ -194,7 +194,8 @@ def start_capturing():
 
         global_names.finished_tab = 3
         global menu_button
-        menu_button.configure(fg_color="transparent", text_color=("green", "green"))
+        menu_button.configure(fg_color="transparent", text_color=("green", "green"), image=check_image)
+        next_menu_button.configure(state=NORMAL)
         
     except subprocess.CalledProcessError as e:
         print(f"Chyba při zapínání zachytávání paketů: {e}")
@@ -220,19 +221,23 @@ def finish():
 
 # ========================================================================================================================================
 # Tab "Man-in-the-middle" ================================================================================================================
-def draw_arp_spoof(frame_t4, frame_4_button):
+def draw_arp_spoof(window):
     global menu_button
-    menu_button = frame_4_button
+    global check_image
+    global next_menu_button
+    menu_button = window.frame_4_button
+    check_image = window.done_image
+    next_menu_button = window.frame_5_button
 
     # Forwarding Frame ===============================================================================================================
     global forwarding_frame
-    forwarding_frame = ctk.CTkFrame(frame_t4)
+    forwarding_frame = ctk.CTkFrame(window.T4_frame)
     forwarding_frame.pack(padx=10,pady=5, fill='x')
     forwarding_frame_label = ctk.CTkLabel(forwarding_frame, text="Přeposílání paketů")
     forwarding_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
     
-    if global_names.finished_tab == 2:
-        forwarding_frame.configure(fg_color=global_names.my_color) 
+    #if global_names.finished_tab == 2:
+    forwarding_frame.configure(fg_color=global_names.my_color) 
     
 
     global forwarding_on_button
@@ -245,7 +250,7 @@ def draw_arp_spoof(frame_t4, frame_4_button):
 
     # ARP Spoof Frame ===============================================================================================================
     global arp_spoofing_frame
-    arp_spoofing_frame = ctk.CTkFrame(frame_t4)
+    arp_spoofing_frame = ctk.CTkFrame(window.T4_frame)
     arp_spoofing_frame.pack(padx=10,pady=5, fill='x')
     arp_spoofing_frame_label = ctk.CTkLabel(arp_spoofing_frame, text="ARP Spoofing")
     arp_spoofing_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
@@ -265,7 +270,7 @@ def draw_arp_spoof(frame_t4, frame_4_button):
     arp_spoofing_frame.grid_columnconfigure(2, weight=1)
     # Capturing Frame ===============================================================================================================
     global capturing_frame
-    capturing_frame = ctk.CTkFrame(frame_t4)
+    capturing_frame = ctk.CTkFrame(window.T4_frame)
     capturing_frame.pack(padx=10,pady=5, fill='x')
     capturing_frame_label = ctk.CTkLabel(capturing_frame, text="Zachytávání paketů")
     capturing_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)

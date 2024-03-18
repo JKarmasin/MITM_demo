@@ -1,7 +1,9 @@
 import customtkinter as ctk
-from customtkinter import ANCHOR, COMMAND, DISABLED, E, END, EW, N, NO, NORMAL, NS, ON, S, TOP, W, X
+from customtkinter import DISABLED, EW, N, NORMAL, TOP, W, X
 import subprocess
 import tkinter as tk
+#from PIL import Image
+#from PIL import *
 from tkinter import ttk
 from tkinter import *
 import re
@@ -11,6 +13,7 @@ import signal
 import os
 import csv
 from src import global_names
+
 
 # ========================================================================================================================
 # Globální proměnná s názvem interface pro monitorovací mód
@@ -83,7 +86,7 @@ def interfaces_on_select(event):
     # Nastavím zvýraznění udělaných rámců činností
     global interface_frame
     global monitor_frame
-    interface_frame.configure(fg_color='transparent')     
+    interface_frame.configure(fg_color=("gray75", "gray25"))     
     monitor_frame.configure(fg_color=global_names.my_color)
 # ========================================================================================================================
 # ========================================================================================================================
@@ -111,7 +114,7 @@ def start_monitor_mode():
         # Nastavím zvýraznění udělaných rámců činností
         global airodump_frame
         global monitor_frame
-        monitor_frame.configure(fg_color='transparent') 
+        monitor_frame.configure(fg_color=("gray75", "gray25")) 
         airodump_frame.configure(fg_color=global_names.my_color)
 
     except subprocess.CalledProcessError as e:
@@ -421,11 +424,14 @@ def tree_cl_selected(Event):
     # Nastavím zvýraznění udělaných rámců činností
     global airodump_frame
     global target_frame
-    airodump_frame.configure(fg_color='transparent') 
+    airodump_frame.configure(fg_color=("gray75", "gray25")) 
     target_frame.configure(fg_color=global_names.my_color)
     global_names.finished_tab = 0
     
-    menu_button.configure(fg_color="transparent", text_color=("green", "green"))
+    # Změním obrázek
+    #done_image = ctk.CTkImage(light_image=Image.open("images/icons/done.png"),dark_image=Image.open("images/icons/done.png"), size=(20, 20))
+    menu_button.configure(fg_color="transparent", text_color=("green", "green"), image=check_image)
+    next_menu_button.configure(state=NORMAL)
 
 # ===========================================================
 def finish():
@@ -434,17 +440,22 @@ def finish():
     stop_monitor_mode()
 
 # ===========================================================
-def draw_reco(frame_t1, frame_1_button):      # def draw_reco(frame_t1, btn_next):
+def draw_reco(window):      # def draw_reco(frame_t1, btn_next):
     global menu_button
-    menu_button = frame_1_button
-    
+    global check_image
+    global next_menu_button
+    menu_button = window.frame_1_button
+    check_image = window.done_image
+    next_menu_button = window.frame_2_button
+
     # Tab "Vyhledání cílů" ==================================================================================================================
     # Interface frame ========================================================================
     global interface_frame
-    interface_frame = ctk.CTkFrame(frame_t1)
+    interface_frame = ctk.CTkFrame(window.T1_frame)
     interface_frame.pack_propagate(0)
     interface_frame.pack(padx=10,pady=5, fill=X, expand=True, side=TOP)
     
+    # Defaultně zvýrazním první tab
     interface_frame.configure(fg_color=global_names.my_color)
     
     interface_frame_label = ctk.CTkLabel(interface_frame, text="Vyhledání a výběr požadovaného rozhraní")
@@ -463,7 +474,7 @@ def draw_reco(frame_t1, frame_1_button):      # def draw_reco(frame_t1, btn_next
 
     # Monitor mode frame ========================================================================
     global monitor_frame
-    monitor_frame = ctk.CTkFrame(frame_t1)
+    monitor_frame = ctk.CTkFrame(window.T1_frame)
     monitor_frame.pack(padx=10,pady=5, fill='x')
 
     monitor_frame_label = ctk.CTkLabel(monitor_frame, text="Přepnutí rozhraní do monitorovacího módu")
@@ -478,7 +489,7 @@ def draw_reco(frame_t1, frame_1_button):      # def draw_reco(frame_t1, btn_next
 
     # Airodump frame ========================================================================
     global airodump_frame
-    airodump_frame = ctk.CTkFrame(frame_t1)
+    airodump_frame = ctk.CTkFrame(window.T1_frame)
     airodump_frame.pack(padx=10,pady=5, fill='x', expand=True)
 
     airodump_frame_label = ctk.CTkLabel(airodump_frame, text="Záchyt komunikace v okolí")
@@ -515,7 +526,7 @@ def draw_reco(frame_t1, frame_1_button):      # def draw_reco(frame_t1, btn_next
 
     # Target frame ========================================================================
     global target_frame
-    target_frame = ctk.CTkFrame(frame_t1)
+    target_frame = ctk.CTkFrame(window.T1_frame)
     target_frame.pack(padx=10,pady=5, fill='x', expand=True)
 
     target_frame_label = ctk.CTkLabel(target_frame, text="Cíl MITM útoku")
@@ -525,14 +536,14 @@ def draw_reco(frame_t1, frame_1_button):      # def draw_reco(frame_t1, btn_next
     global target_ap
     global target_cl
     global target_ch
-    target_net_label = ctk.CTkLabel(target_frame, text="Cílová síť:", font=('Helvetica', 16))
-    target_ap_label = ctk.CTkLabel(target_frame, text="Cílový Access Point:", font=('Helvetica', 16))
-    target_cl_label = ctk.CTkLabel(target_frame, text="Cílové zařízení:", font=('Helvetica', 16))
-    target_ch_label = ctk.CTkLabel(target_frame, text="Kanál komunikace:", font=('Helvetica', 16))
-    target_net = ctk.CTkLabel(target_frame, text="", font=('Helvetica', 16), text_color='green')
-    target_ap = ctk.CTkLabel(target_frame, text="", font=('Helvetica', 16), text_color='green')
-    target_cl = ctk.CTkLabel(target_frame, text="", font=('Helvetica', 16), text_color='green')
-    target_ch = ctk.CTkLabel(target_frame, text="", font=('Helvetica', 16), text_color='green')
+    target_net_label = ctk.CTkLabel(target_frame, text="Cílová síť:")
+    target_ap_label = ctk.CTkLabel(target_frame, text="Cílový Access Point:")
+    target_cl_label = ctk.CTkLabel(target_frame, text="Cílové zařízení:")
+    target_ch_label = ctk.CTkLabel(target_frame, text="Kanál komunikace:")
+    target_net = ctk.CTkLabel(target_frame, text="", text_color='green')
+    target_ap = ctk.CTkLabel(target_frame, text="", text_color='green')
+    target_cl = ctk.CTkLabel(target_frame, text="", text_color='green')
+    target_ch = ctk.CTkLabel(target_frame, text="", text_color='green')
     target_net_label.grid(row=6, column=0, sticky=W, padx=5, pady=5)
     target_ap_label.grid(row=7, column=0, sticky=W, padx=5, pady=5)
     target_cl_label.grid(row=8, column=0, sticky=W, padx=5, pady=5)
