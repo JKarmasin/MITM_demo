@@ -136,7 +136,7 @@ def stop_monitor_mode():
     except subprocess.CalledProcessError as e:
         print("     -- Nastala chyba při spouštění příkazu:", e)
     except Exception as e:
-        print("     -- Nastala neočekávaná chyba:", e)
+        print("     -- Interface nebyl zvolen", e)
         
     monitor_on_button.configure(state=NORMAL) 
     monitor_off_button.configure(state=DISABLED)
@@ -437,7 +437,11 @@ def tree_cl_selected(Event):
 def finish():
     # Funkce vrátí všechny činnosti z tohoto tabu do původního stavu
     stop_airodump_full()
-    stop_monitor_mode()
+    try:
+        stop_monitor_mode()
+    except Exception as e:
+        print("     -- Nebyl zapnutý monitoring...")
+    
 
 # ===========================================================
 def draw_reco(window):      # def draw_reco(frame_t1, btn_next):
@@ -458,7 +462,7 @@ def draw_reco(window):      # def draw_reco(frame_t1, btn_next):
     # Defaultně zvýrazním první tab
     interface_frame.configure(fg_color=global_names.my_color)
     
-    interface_frame_label = ctk.CTkLabel(interface_frame, text="Vyhledání a výběr požadovaného rozhraní")
+    interface_frame_label = ctk.CTkLabel(interface_frame, text="Vyhledání a výběr požadovaného rozhraní", font=('Open Sans', 16, 'bold'))
     interface_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
     # Create a button to run iwconfig command
@@ -477,7 +481,7 @@ def draw_reco(window):      # def draw_reco(frame_t1, btn_next):
     monitor_frame = ctk.CTkFrame(window.T1_frame)
     monitor_frame.pack(padx=10,pady=5, fill='x')
 
-    monitor_frame_label = ctk.CTkLabel(monitor_frame, text="Přepnutí rozhraní do monitorovacího módu")
+    monitor_frame_label = ctk.CTkLabel(monitor_frame, text="Přepnutí rozhraní do monitorovacího módu", font=('Open Sans', 16, 'bold'))
     monitor_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
     global monitor_on_button
@@ -492,7 +496,7 @@ def draw_reco(window):      # def draw_reco(frame_t1, btn_next):
     airodump_frame = ctk.CTkFrame(window.T1_frame)
     airodump_frame.pack(padx=10,pady=5, fill='x', expand=True)
 
-    airodump_frame_label = ctk.CTkLabel(airodump_frame, text="Záchyt komunikace v okolí")
+    airodump_frame_label = ctk.CTkLabel(airodump_frame, text="Záchyt komunikace v okolí", font=('Open Sans', 16, 'bold'))
     airodump_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
     global airodump_off_button
@@ -503,7 +507,7 @@ def draw_reco(window):      # def draw_reco(frame_t1, btn_next):
     airodump_off_button.grid(row=1, column=1, sticky=W, pady=5)
 
     # Treeview pro Access Pointy
-    tree_ap_label = ctk.CTkLabel(airodump_frame, text="Seznam Access Pointů")
+    tree_ap_label = ctk.CTkLabel(airodump_frame, text="Seznam Access Pointů", font=('Open Sans', 16, 'bold'))
     tree_ap_label.grid(row=2, column=0, columnspan=4)
 
     global tree_ap
@@ -513,7 +517,7 @@ def draw_reco(window):      # def draw_reco(frame_t1, btn_next):
     tree_ap.grid(row=3, column=0, columnspan=3, sticky=EW, padx=5, pady=5)
 
     # Treeview pro Clienty
-    tree_cl_label = ctk.CTkLabel(airodump_frame, text="Seznam klientů")
+    tree_cl_label = ctk.CTkLabel(airodump_frame, text="Seznam klientů", font=('Open Sans', 16, 'bold'))
     tree_cl_label.grid(row=4, column=0, columnspan=4)
 
     global tree_cl
@@ -529,7 +533,7 @@ def draw_reco(window):      # def draw_reco(frame_t1, btn_next):
     target_frame = ctk.CTkFrame(window.T1_frame)
     target_frame.pack(padx=10,pady=5, fill='x', expand=True)
 
-    target_frame_label = ctk.CTkLabel(target_frame, text="Cíl MITM útoku")
+    target_frame_label = ctk.CTkLabel(target_frame, text="Cíl MITM útoku", font=('Open Sans', 16, 'bold'))
     target_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
     global target_net

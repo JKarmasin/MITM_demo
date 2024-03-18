@@ -61,7 +61,7 @@ def reload_dns(dns_field):
 def draw_dns(window):
     dns_frame = ctk.CTkFrame(window.T5_frame)
     dns_frame.pack(padx=10,pady=5, fill='x')
-    dns_frame_label = ctk.CTkLabel(dns_frame, text="DNS dotazy")
+    dns_frame_label = ctk.CTkLabel(dns_frame, text="DNS dotazy", font=('Open Sans', 16, 'bold'))
     dns_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
     dns_label = ctk.CTkLabel(dns_frame, text="Navštívené weby:", font=('Helvetica', 16))

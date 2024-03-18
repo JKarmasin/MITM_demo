@@ -1,9 +1,6 @@
 import customtkinter as ctk
 from customtkinter import COMMAND, DISABLED, E, EW, HORIZONTAL, N, NE, NO, ON, S, SW, W, WORD, Y
 import subprocess
-#from tkinter import ttk
-#from tkinter import *
-from tkinter import filedialog
 import re
 from threading import Thread
 import os
@@ -60,7 +57,7 @@ def create_wordlist():
 
 # ========================================================================================================================
 def load_wordlist(root):
-    root.filename = filedialog.askopenfilename(title="Zvol textový soubor se slovníkem hesel")  
+    root.filename = ctk.filedialog.askopenfilename(title="Zvol textový soubor se slovníkem hesel")  
     global wordlist_name
     wordlist_name = root.filename
     #print("Wordlist: "+wordlist_name) 
@@ -235,7 +232,7 @@ def disconnect_from_wifi():
     command = f"nmcli con donw id {global_names.net}"
     print("COMMAND: " + command)    
     subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
-    print(f"Úspěšně odpojeno od sítě {global_names.net}")
+    print(f"        -- Úspěšně odpojeno od sítě {global_names.net}")
 
 # ===========================================================
 def finish():
@@ -257,7 +254,7 @@ def draw_crack(window):
     create_wordlist_frame = ctk.CTkFrame(window.T3_frame)
     create_wordlist_frame.pack(padx=10,pady=5, fill='x')
 
-    create_wordlist_frame_label = ctk.CTkLabel(create_wordlist_frame, text="Vytvořit slovník hesel")
+    create_wordlist_frame_label = ctk.CTkLabel(create_wordlist_frame, text="Vytvořit slovník hesel", font=('Open Sans', 16, 'bold'))
     create_wordlist_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
     
     #if global_names.finished_tab == 1:
@@ -299,7 +296,7 @@ def draw_crack(window):
     global load_wordlist_frame
     load_wordlist_frame = ctk.CTkFrame(window.T3_frame)
     load_wordlist_frame.pack(padx=10,pady=5, fill='x')
-    load_wordlist_frame_label = ctk.CTkLabel(load_wordlist_frame, text="Načíst hotový slovník hesel")
+    load_wordlist_frame_label = ctk.CTkLabel(load_wordlist_frame, text="Načíst hotový slovník hesel", font=('Open Sans', 16, 'bold'))
     load_wordlist_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)  
     #if global_names.finished_tab == 1:
     #load_wordlist_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color)
@@ -312,7 +309,7 @@ def draw_crack(window):
     global crack_pw_frame
     crack_pw_frame = ctk.CTkFrame(window.T3_frame)
     crack_pw_frame.pack(padx=10,pady=5, fill='x')
-    crack_pw_frame_label = ctk.CTkLabel(crack_pw_frame, text="Prolomit heslo sítě hrubou silou")
+    crack_pw_frame_label = ctk.CTkLabel(crack_pw_frame, text="Prolomit heslo sítě hrubou silou", font=('Open Sans', 16, 'bold'))
     crack_pw_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)  
 
 
@@ -341,7 +338,7 @@ def draw_crack(window):
     global connect_frame
     connect_frame = ctk.CTkFrame(window.T3_frame)
     connect_frame.pack(padx=10,pady=5, fill='x')
-    connect_frame_label = ctk.CTkLabel(connect_frame, text="Připojit se k cílové Wi-Fi síti")
+    connect_frame_label = ctk.CTkLabel(connect_frame, text="Připojit se k cílové Wi-Fi síti", font=('Open Sans', 16, 'bold'))
     connect_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5) 
 
     password_info_label = ctk.CTkLabel(connect_frame, text="Heslo k Wi-fi síti: ")

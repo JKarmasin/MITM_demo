@@ -211,7 +211,10 @@ def parse_handshake_cap():
 # ===========================================================
 def finish():
     # Funkce vrátí všechny činnosti z tohoto tabu do původního stavu
-    stop_handshake_catch()
+    try:
+        stop_handshake_catch()
+    except Exception as e:
+        print("     -- Handshake se nezachycuje...")
     stop_deauthentification() 
 
 # ========================================================================================================================================
@@ -232,7 +235,7 @@ def draw_capture(window):
     #if global_names.finished_tab == 0:
     handshake_catch_frame.configure(fg_color=global_names.my_color)
 
-    interface_frame_label = ctk.CTkLabel(handshake_catch_frame, text="Záchyt WPA handshaku")
+    interface_frame_label = ctk.CTkLabel(handshake_catch_frame, text="Záchyt WPA handshaku", font=('Open Sans', 16, 'bold'))
     interface_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
 
@@ -256,7 +259,7 @@ def draw_capture(window):
     handshake_command.grid(row=3, column=0, columnspan=4, pady=5)
 
     global handshake_finished_label
-    handshake_finished_label = ctk.CTkLabel(handshake_catch_frame, text="Spusťte zachytávání handshaku!", font=('Helvetica', 16))
+    handshake_finished_label = ctk.CTkLabel(handshake_catch_frame, text="Spusťte zachytávání handshaku!")
     handshake_finished_label.grid(row=4, column=0, columnspan=4, padx=5, pady=5)
 
     handshake_catch_frame.grid_columnconfigure(3, weight=1)
@@ -266,7 +269,7 @@ def draw_capture(window):
     deauth_frame = ctk.CTkFrame(window.T2_frame)
     deauth_frame.pack(padx=10,pady=5, fill='x')
 
-    deauth_frame_label = ctk.CTkLabel(deauth_frame, text="Deauthentifikace target klienta")
+    deauth_frame_label = ctk.CTkLabel(deauth_frame, text="Deauthentifikace target klienta", font=('Open Sans', 16, 'bold'))
     deauth_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
     deauth_label = ctk.CTkLabel(deauth_frame, text="Spustit proces odpojování komunikace Clienta s AP pro opětovné zaslání handshake:     ")

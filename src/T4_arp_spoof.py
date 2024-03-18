@@ -233,7 +233,7 @@ def draw_arp_spoof(window):
     global forwarding_frame
     forwarding_frame = ctk.CTkFrame(window.T4_frame)
     forwarding_frame.pack(padx=10,pady=5, fill='x')
-    forwarding_frame_label = ctk.CTkLabel(forwarding_frame, text="Přeposílání paketů")
+    forwarding_frame_label = ctk.CTkLabel(forwarding_frame, text="Přeposílání paketů", font=('Open Sans', 16, 'bold'))
     forwarding_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
     
     #if global_names.finished_tab == 2:
@@ -252,7 +252,7 @@ def draw_arp_spoof(window):
     global arp_spoofing_frame
     arp_spoofing_frame = ctk.CTkFrame(window.T4_frame)
     arp_spoofing_frame.pack(padx=10,pady=5, fill='x')
-    arp_spoofing_frame_label = ctk.CTkLabel(arp_spoofing_frame, text="ARP Spoofing")
+    arp_spoofing_frame_label = ctk.CTkLabel(arp_spoofing_frame, text="ARP Spoofing", font=('Open Sans', 16, 'bold'))
     arp_spoofing_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
     global arp_spoofing_on_button
@@ -272,7 +272,7 @@ def draw_arp_spoof(window):
     global capturing_frame
     capturing_frame = ctk.CTkFrame(window.T4_frame)
     capturing_frame.pack(padx=10,pady=5, fill='x')
-    capturing_frame_label = ctk.CTkLabel(capturing_frame, text="Zachytávání paketů")
+    capturing_frame_label = ctk.CTkLabel(capturing_frame, text="Zachytávání paketů", font=('Open Sans', 16, 'bold'))
     capturing_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
     global capturing_on_button
