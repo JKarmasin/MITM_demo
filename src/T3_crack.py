@@ -54,7 +54,7 @@ def create_wordlist():
 
     wordlist_name_label.configure(text=os.getcwd()+"/"+output)
     global create_wordlist_frame
-    create_wordlist_frame.configure(highlightthickness=0)
+    create_wordlist_frame.configure(fg_color=("gray75", "gray25"))
 
 # ========================================================================================================================
 def load_wordlist(root):

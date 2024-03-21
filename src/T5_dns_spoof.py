@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from customtkinter import E, EW, W
-import tkinter as tk
+#import tkinter as tk
 import pyshark
 import os
 from src import global_names
