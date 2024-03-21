@@ -204,7 +204,7 @@ def connect_to_wifi():
         
             print(f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
 
-        command = f"nmcli wifi connect {net} password {password} ifname {interface}"
+        command = f"nmcli device wifi connect {net} password {password} ifname {interface}"
         print("COMMAND: " + command)
 
         # Připojení se k Wi-Fi síti
@@ -353,7 +353,7 @@ def draw_crack(window):
 
     password_info_label = ctk.CTkLabel(connect_frame, text="Heslo k Wi-fi síti: ")
     global password_label
-    password_label = ctk.CTkLabel(connect_frame, text="", font=('Helvetica', 16), text_color='green')
+    password_label = ctk.CTkLabel(connect_frame, text="", font=('Helvetica', 16), text_color='orange')
     password_info_label.grid(row=1, column=0, padx=5, pady=5, sticky=W)
     password_label.grid(row=1, column=1, padx=5, pady=5)
 

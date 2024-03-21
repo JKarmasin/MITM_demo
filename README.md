@@ -475,3 +475,5 @@ make && make install
 pip3 install customtkinter
 
 /usr/local/lib/python3.11/dist-packages/... --> /usr/lib/python3/dist-packages/...
+
+https://youtu.be/rZfnH3pc5eo

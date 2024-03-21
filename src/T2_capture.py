@@ -189,7 +189,7 @@ def parse_handshake_cap():
                 print("     ------------------------------------------------------")
                 print("     -- HANDSHAKE BYL ZACHYCEN (Captured Message 4 of 4) --")
                 print("     ------------------------------------------------------")
-                handshake_finished_label.configure(text="Handshake byl zachycen!", text_color='green')
+                handshake_finished_label.configure(text="Handshake byl zachycen!", text_color='orange')
                 captured = True
                 global_names.finished_tab = 1
 
