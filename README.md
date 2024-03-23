@@ -477,3 +477,9 @@ pip3 install customtkinter
 /usr/local/lib/python3.11/dist-packages/... --> /usr/lib/python3/dist-packages/...
 
 https://youtu.be/rZfnH3pc5eo
+
+## Otázky:
+- vynechat části, co jsem neimplementovat kompletně? Nebo zdůvodnit vypuštění a v teoretické části je nechat?
+- zdrojový kód bude někdo zkoumat? Mám ho okomentovávat? Dávat do textu BP nějaké zajímavé části zdrojového kódu anebo architekturu?
+- co do textu ještě doplnit?
+- uživatelská dokumentace bude. Programátorská má být? 
