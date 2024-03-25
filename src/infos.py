@@ -11,19 +11,24 @@ def info_interface():
     icon = PhotoImage(master=iface_w,file='images/sword.png')     
     iface_w.tk.call('wm', 'iconphoto', iface_w._w, icon)
 
-    text = "Rozhraní je adaptér pro připojení k Wi-fi sítím. V našem případě je to Archer AU1200 v2 s čipsetem Realtek 8812AU, \n\
-         ke kterému je možné stáhnout ovladače, které umožňují monitorovací mód.\n\
-             To u většiny moderních ovladačů není možné kvůli potenciálnímu zneužití - viz tato demonstrace."
+    text = "\n\
+Rozhraní je adaptér pro připojení k datovým sítím - bezdrátovým nebo ethernetovým.\n\
+V této demonstaci je to Archer AU1200 v2 s čipsetem Realtek 8812AU.\n\
+K tomu je možné stáhnout ovladače, které umožňují přepnutí do monitorovacího módu.\n\
+To u většiny moderních ovladačů není možné kvůli potenciálnímu zneužití?\n\
+\n    Jakému?\n\n\
+Viz tato demonstrace.\n\n\
+(MAC adresa tohoto adaptéru není konstantní a mění se)"
 
     image = ctk.CTkImage(Image.open('images/infos/archer.jpg'), size=(250,250)) 
     image_label = ctk.CTkLabel(master=iface_w, text="", image=image)
 
     title_main = ctk.CTkLabel(iface_w, text="Rozhraní", font=('Open Sans', 30, "bold"))
-    title_sub = ctk.CTkLabel(iface_w, text=text, font=('Open Sans', 16))
+    title_sub = ctk.CTkLabel(iface_w, text=text, justify="left", font=('Open Sans', 16))
 
     image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
     title_main.grid(row=0 ,column=1, padx=5, pady=5, sticky="S")
-    title_sub.grid(row=1 ,column=1, padx=10, pady=5, sticky ="N")
+    title_sub.grid(row=1 ,column=1, padx=10, pady=5, sticky="NW")
     
     iface_w.mainloop()
 
@@ -34,17 +39,23 @@ def info_monitor():
     icon = PhotoImage(master=monitor_w,file='images/sword.png')     
     monitor_w.tk.call('wm', 'iconphoto', monitor_w._w, icon)
 
-    text = "Monitorovací mód (také promiskuitní mód) je schopnost bezdrátového adaptéru přijímat\n\
-        všechny rámce v dosahu bez ohledu na to, komu jsou určeny. Standardně adaptér každý zachycený\n\
-            rámec analyzuje a pokud není určen pro něj - jako cílová MAC adresa není adresa adaptéru,\n\
-                tento rámec zahazuje. V monitorovacím módu ovšem všechny zachycené pakety přijímá k dalšímu\n\
-                    zpracování."
+    text = "\n\
+Monitorovací mód (také RFMON - Radio Frequency MONitor) je schopnost bezdrátového adaptéru přijímat\n\
+všechny rámce v dosahu bez ohledu na to, komu jsou určeny. Standardně adaptér každý zachycený\n\
+rámec analyzuje a pokud není určen pro něj (jako cílová MAC adresa není adresa tohoto adaptéru)\n\
+tento rámec zahazuje. To je prováděno příslušným nastavením RX filtru v adaptéru. V monitorovacím módu\n\
+ovšem všechny zachycené pakety adaptér přijímá k dalšímu zpracování.\n\
+\nObdobou je tzv. promiskuitní mód, který může kromě Wi-Fi sítí fungovat i na Ethernetu. K dalšímu zpracování\n\
+pouští všechny pakety, které k němu po kabelu dorazí. Proto už se nepoužívají zastaralé huby, ale switche,\n\
+které rámce samy přeposílají pouze správným příjemcům.\n\n\
+Obranou je používání šifrování v komunikaci. Přestože nezabrání odposlechu, zajistí, že útočník ze zachycených\n\
+rámců nepřečte žádné informace."
 
-    image = ctk.CTkImage(Image.open('images/infos/monitor.png'), size=(250,250)) 
+    image = ctk.CTkImage(Image.open('images/infos/monitor2.png'), size=(600,500)) 
     image_label = ctk.CTkLabel(master=monitor_w, text="", image=image)
 
     title_main = ctk.CTkLabel(monitor_w, text="Monitorovací mód", font=('Open Sans', 30, "bold"))
-    title_sub = ctk.CTkLabel(monitor_w, text=text, font=('Open Sans', 16))
+    title_sub = ctk.CTkLabel(monitor_w, text=text, justify="left", font=('Open Sans', 16))
 
     image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
     title_main.grid(row=0 ,column=1, padx=5, pady=5, sticky="S")
