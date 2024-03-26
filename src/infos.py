@@ -69,17 +69,33 @@ def info_handshake():
     icon = PhotoImage(master=handshake_w,file='images/sword.png')     
     handshake_w.tk.call('wm', 'iconphoto', handshake_w._w, icon)
 
-    text = "4-way Handshake je způsob, jak si klient a AP navzájem vymění informace\n\
-        s heslem k síti, aniž by toto heslo bylo přímo odesláno. Vychází z úvahy, že i klient\n\
-            i AP heslo znají a dokáží pomocí něj zašifrovat náhodně zvolené číslo a toto zašifrování ověřit.\n\
-                K prolomení tohoto přístupového hesla je třeba zachytit všechny 4 zprávy handshaku a pomocí\n\
-                    speciálních nástrojů se je pokusit dešifrovat například slovníkem hesel."
+    text = "\
+Four-way Handshake je způsob, jak si klient a AP navzájem vymění informace s heslem\n\
+k síti, aniž by toto heslo bylo přímo odesláno. Vychází z úvahy, že i klient i AP\n\
+heslo znají a dokáží pomocí něj zašifrovat náhodně zvolené číslo a shodnost tohoto zašifrování\n\
+ověřit. K prolomení tohoto přístupového hesla je třeba zachytit všechny 4 zprávy handshaku\n\
+a pomocí speciálních nástrojů se je pokusit dešifrovat například hrubou silou (slovníkem hesel).\n\
+\n\
+\n\
+1. zpráva: není nijak šifrovaná. AP vygeneruje náhodné číslo \"ANonce\", které odesílá klientovi.\n\
+                Klient vygeneruje \"SAnonce\" a pomocí něj a ANonce a PMK vygeneruje svůj PTK.\n\n\
+2. zpráva: klient odesílá sebou vygenerovaný \"SNonce\" Access Pointu. Ten ti tak také můžeš vygenerovat\n\
+                stejný PTK ze svého ANonce, PMK a SNonce.\n\n\
+3. zpráva: AP posílá klientovi potvrzení o vytvoření společného šifrovacího kláče PTK a popřípadě posílá GTK.\n\n\
+4. zpráva: Klient oznamuje AP, že má aktivní stejný PTK a popípadě GTK.\n\
+\n\
+HANDSHAKE JE DOKONČEN. AP I KLIENT MAJÍ STEJNÝ ŠIFROVACÍ KLÍČ PRO KOMUNIKACI.\n\
+\n\n\n\
+Legenda:\n\
+- PMK (Private Master Key) = PSK (Pre-shared Key) - \"heslo\" k Wi-Fi síti\n\
+- PTK (Pairwise Temporal Key) - klíč používaný k šifrování unicast komunikace\n\
+- GTK (Group Temporal Key) - klíč používaný k šifrování broadcast/multicast komunikace"
 
-    image = ctk.CTkImage(Image.open('images/infos/handshake.png'), size=(250,250)) 
+    image = ctk.CTkImage(Image.open('images/infos/handshake.png'), size=(700,600)) 
     image_label = ctk.CTkLabel(master=handshake_w, text="", image=image)
 
     title_main = ctk.CTkLabel(handshake_w, text="Handshake", font=('Open Sans', 30, "bold"))
-    title_sub = ctk.CTkLabel(handshake_w, text=text, font=('Open Sans', 16))
+    title_sub = ctk.CTkLabel(handshake_w, text=text, justify="left", font=('Open Sans', 16))
 
     image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
     title_main.grid(row=0 ,column=1, padx=5, pady=5, sticky="S")
@@ -93,19 +109,21 @@ def info_deauth():
     icon = PhotoImage(master=deauth_w,file='images/sword.png')     
     deauth_w.tk.call('wm', 'iconphoto', deauth_w._w, icon)
 
-    text = "Deauthentifikace je zranitelnost v návrhu a funkcionalitě wi-fi protokolu\n\
-        802.11, kdy je možné zaslat AP speciálně vytvořený rámec a MAC adresou zařízení,\n\
-            u kterého požadujeme odpojení od sítě. Tento rámec zpravidla posílá samo zařízení,\n\
-                aby oznámilo AP, že se odpojuje. Nicméně lze tento rámec podvrhnout útočníkem a AP\n\
-                    nemá možnost, jak pravost tohoto rámce ověřit. Pravidelné zasílání těchto rámců\n\
-                        pro všechny zařízení v síti efektivně znefunkční celou Wi-Fi síť. Obranou proti tomu\n\
-                            je ..."
+    text = "\
+Deauthentifikace je zranitelnost v návrhu a funkcionalitě Wi-Fi protokolu\n\
+802.11, kdy je možné zaslat AP speciálně vytvořený rámec s MAC adresou zařízení,\n\
+u kterého požadujeme odpojení od sítě. Tento rámec zpravidla posílá samo zařízení,\n\
+aby oznámilo AP, že se odpojuje. Nicméně lze tento rámec podvrhnout útočníkem a AP\n\
+nemá možnost, jak pravost tohoto rámce ověřit. Pravidelné zasílání těchto rámců\n\
+pro všechny zařízení v síti efektivně znefunkční celou Wi-Fi síť.\n\n\
+Obranou proti tomu je používání takzvaných Protected Management Frames, které byly\n\
+představeny ve standardu šifrování WPA3."
 
-    image = ctk.CTkImage(Image.open('images/infos/deauthentication.png'), size=(250,250)) 
+    image = ctk.CTkImage(Image.open('images/infos/deauthentication.png'), size=(350,400)) 
     image_label = ctk.CTkLabel(master=deauth_w, text="", image=image)
 
     title_main = ctk.CTkLabel(deauth_w, text="Deauthentifikace", font=('Open Sans', 30, "bold"))
-    title_sub = ctk.CTkLabel(deauth_w, text=text, font=('Open Sans', 16))
+    title_sub = ctk.CTkLabel(deauth_w, text=text, justify="left", font=('Open Sans', 16))
 
     image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
     title_main.grid(row=0 ,column=1, padx=5, pady=5, sticky="S")
@@ -129,7 +147,7 @@ def info_pw():
     #image_label = ctk.CTkLabel(master=pw_w, text="", image=image)
 
     title_main = ctk.CTkLabel(pw_w, text="Slovník hesel", font=('Open Sans', 30, "bold"))
-    title_sub = ctk.CTkLabel(pw_w, text=text, font=('Open Sans', 16))
+    title_sub = ctk.CTkLabel(pw_w, text=text, justify="left", font=('Open Sans', 16))
 
     #image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
     title_main.grid(row=0 ,column=1, padx=5, pady=5, sticky="S")
@@ -153,7 +171,7 @@ def info_crack():
     image_label = ctk.CTkLabel(master=crack_w, text="", image=image)
 
     title_main = ctk.CTkLabel(crack_w, text="Hesla", font=('Open Sans', 30, "bold"))
-    title_sub = ctk.CTkLabel(crack_w, text=text, font=('Open Sans', 16))
+    title_sub = ctk.CTkLabel(crack_w, text=text, justify="left", font=('Open Sans', 16))
 
     image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
     title_main.grid(row=0 ,column=1, padx=5, pady=5, sticky="S")
@@ -175,7 +193,7 @@ def info_forward():
     #image_label = ctk.CTkLabel(master=forward_w, text="", image=image)
 
     title_main = ctk.CTkLabel(forward_w, text="Rozhraní", font=('Open Sans', 30, "bold"))
-    title_sub = ctk.CTkLabel(forward_w, text=text, font=('Open Sans', 16))
+    title_sub = ctk.CTkLabel(forward_w, text=text, justify="left", font=('Open Sans', 16))
 
     #image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
     title_main.grid(row=0 ,column=1, padx=5, pady=5, sticky="S")
@@ -195,7 +213,7 @@ def info_arp():
     image_label = ctk.CTkLabel(master=arp_w, text="", image=image)
 
     title_main = ctk.CTkLabel(arp_w, text="ARP spoofing", font=('Open Sans', 30, "bold"))
-    title_sub = ctk.CTkLabel(arp_w, text=text, font=('Open Sans', 16))
+    title_sub = ctk.CTkLabel(arp_w, text=text, justify="left", font=('Open Sans', 16))
 
     image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
     title_main.grid(row=0 ,column=1, padx=5, pady=5, sticky="S")
@@ -218,7 +236,7 @@ def info_catch():
     #image_label = ctk.CTkLabel(master=catch_w, text="", image=image)
 
     title_main = ctk.CTkLabel(catch_w, text="Zachycení datového toku", font=('Open Sans', 30, "bold"))
-    title_sub = ctk.CTkLabel(catch_w, text=text, font=('Open Sans', 16))
+    title_sub = ctk.CTkLabel(catch_w, text=text, justify="left", font=('Open Sans', 16))
 
     #image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
     title_main.grid(row=0 ,column=1, padx=5, pady=5, sticky="S")
@@ -240,7 +258,7 @@ def info_dns():
     image_label = ctk.CTkLabel(master=dns_w, text="", image=image)
 
     title_main = ctk.CTkLabel(dns_w, text="DNS", font=('Open Sans', 30, "bold"))
-    title_sub = ctk.CTkLabel(dns_w, text=text, font=('Open Sans', 16))
+    title_sub = ctk.CTkLabel(dns_w, text=text, justify="left", font=('Open Sans', 16))
 
     image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
     title_main.grid(row=0 ,column=1, padx=5, pady=5, sticky="S")

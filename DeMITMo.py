@@ -20,6 +20,8 @@ splash.title("DeMITMo")
 icon = PhotoImage(file='images/sword.png')     
 splash.tk.call('wm', 'iconphoto', splash._w, icon)
 
+ctk.set_appearance_mode("Light")
+
 icon = ctk.CTkImage(Image.open('images/sword.png'), size=(150,150))  
 #icon = icon.subsample(3, 3)
 image_label = ctk.CTkLabel(splash, text="", image=icon)

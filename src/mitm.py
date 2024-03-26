@@ -30,7 +30,7 @@ class App(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
-        ctk.set_appearance_mode("Dark")
+        #ctk.set_appearance_mode("Dark")
 
         # load images with light and dark mode image
         self.logo_image = ctk.CTkImage(Image.open(images_path + "sword.png"), size=(26, 26))
@@ -69,22 +69,22 @@ class App(ctk.CTk):
 
         self.frame_2_button = ctk.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Záchyt handshaku",
                                                       fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
-                                                      image=self.catch_image, anchor="w", command=self.frame_2_button_event, state=ctk.DISABLED)
+                                                      image=self.catch_image, anchor="w", command=self.frame_2_button_event, state=ctk.NORMAL)
         self.frame_2_button.grid(row=2, column=0, sticky="ew")
 
         self.frame_3_button = ctk.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Prolomení hesla",
                                                       fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
-                                                      image=self.crack_image, anchor="w", command=self.frame_3_button_event, state=ctk.DISABLED)
+                                                      image=self.crack_image, anchor="w", command=self.frame_3_button_event, state=ctk.NORMAL)
         self.frame_3_button.grid(row=3, column=0, sticky="ew")
 
         self.frame_4_button = ctk.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Man-in-the-middle",
                                                       fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
-                                                      image=self.mitm_image, anchor="w", command=self.frame_4_button_event, state=ctk.DISABLED)
+                                                      image=self.mitm_image, anchor="w", command=self.frame_4_button_event, state=ctk.NORMAL)
         self.frame_4_button.grid(row=4, column=0, sticky="ew")
 
         self.frame_5_button = ctk.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Záchyt DNS dotazů",
                                                       fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
-                                                      image=self.dns_image, anchor="w", command=self.frame_5_button_event, state=ctk.DISABLED)
+                                                      image=self.dns_image, anchor="w", command=self.frame_5_button_event, state=ctk.NORMAL)
         self.frame_5_button.grid(row=5, column=0, sticky="ew")
 
         # Finish button
