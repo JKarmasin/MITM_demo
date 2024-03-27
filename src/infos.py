@@ -125,9 +125,9 @@ představeny ve standardu šifrování WPA3."
     title_main = ctk.CTkLabel(deauth_w, text="Deauthentifikace", font=('Open Sans', 30, "bold"))
     title_sub = ctk.CTkLabel(deauth_w, text=text, justify="left", font=('Open Sans', 16))
 
-    image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
+    image_label.grid(row=0,column=0, rowspan=2, padx=30, pady=30)
     title_main.grid(row=0 ,column=1, padx=5, pady=5, sticky="S")
-    title_sub.grid(row=1 ,column=1, padx=10, pady=5, sticky ="N")
+    title_sub.grid(row=1 ,column=1, padx=15, pady=15, sticky ="N")
     
     deauth_w.mainloop()
 # =========================================
@@ -137,21 +137,30 @@ def info_pw():
     icon = PhotoImage(master=pw_w,file='images/sword.png')     
     pw_w.tk.call('wm', 'iconphoto', pw_w._w, icon)
 
-    text = "Při generování všech možných kombinací znaků k vytvoření hesel brzy narazíme\n\
-        na limity paměťvých nároků (slovník má mnoho teravytů) a výpočetních nároků (trvá\n\
-            neúměrně dlouho, než se slovník projde). Je proto lepší používat místo tupě generovaných\n\
-                řetězců na míru vytvořené slovníky - například pomocí informací získaných OSINTem, \n\
-                    nebo slovník nejčastěji používaných hesel (rockyou.txt (13 GB))"
+    text = "\
+Při generování všech možných kombinací znaků k vytvoření hesel brzy narazíme\n\
+na limity paměťvých nároků (slovník bude mít mnoho terabytů) a výpočetních nároků (trvá\n\
+neúměrně dlouho, než se slovník projde). Je proto lepší místo hloupě generovaných\n\
+řetězců používat na míru vytvořené slovníky - například pomocí informací získaných OSINTem, \n\
+nebo slovník nejčastěji používaných hesel (slavný slovník \"rockyou.txt\" s 14 miliony hesly)\n\n\
+\n\
+OSINT (Open Source Intelligence)\n\n\
+- získávání (zpravodajských) informací z otevřených zdrojů, především internetu\n\
+- nejčastěji sociální sítě a blogy, metadata audiovizuálních souborů, geolokace\n\
+- snadno se dají najít jména dětí, domácích mazlíčků, telefonních čísel, datumů narození, adres apod.\n\
+    --> ty jsou často součástí hesel\n\
+- NIKDY SI NEDÁVAT DO HESLA ŽÁDNÉ OSOBNÍ INFORMACE, CO JSOU DOHLEDATELNÉ NA INTERNETU!\n\
+    - včetně oblíbených kapel, filmů, hlášek, sportovních týmů a hráčů..."
 
-    #image = ctk.CTkImage(Image.open('images/infos/archer.jpg'), size=(250,250)) 
-    #image_label = ctk.CTkLabel(master=pw_w, text="", image=image)
+    image = ctk.CTkImage(Image.open('images/infos/digitalfootprint.png'), size=(300,450)) 
+    image_label = ctk.CTkLabel(master=pw_w, text="", image=image)
 
     title_main = ctk.CTkLabel(pw_w, text="Slovník hesel", font=('Open Sans', 30, "bold"))
     title_sub = ctk.CTkLabel(pw_w, text=text, justify="left", font=('Open Sans', 16))
 
-    #image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
+    image_label.grid(row=0,column=0, rowspan=2, padx=30, pady=30)
     title_main.grid(row=0 ,column=1, padx=5, pady=5, sticky="S")
-    title_sub.grid(row=1 ,column=1, padx=10, pady=5, sticky ="N")
+    title_sub.grid(row=1 ,column=1, padx=15, pady=15, sticky ="N")
     
     pw_w.mainloop()
 # =========================================
@@ -161,16 +170,21 @@ def info_crack():
     icon = PhotoImage(master=crack_w,file='images/sword.png')     
     crack_w.tk.call('wm', 'iconphoto', crack_w._w, icon)
 
-    text = "Nejdůležitějším prvkem v bezpečnosti bezdrátových sítí je používání\n\
-        dostatečně složitých hesel. Tato tabulka ukazuje časovou náročnost pro\n\
-            prolomení různě složitých hesel. \n\n\
-                Prioritou je používat hesla dlouhá! obsahujicí vše ze skupin\n\
-                    VELKÝCH, malých, $p€c\ální@h zanků a číslic."
+    text = "\
+Nejdůležitějším prvkem v bezpečnosti bezdrátových sítí je používání\n\
+dostatečně složitých hesel. Tato tabulka ukazuje časovou náročnost pro\n\
+prolomení různě složitých hesel. \n\n\
+Prioritou je používat hesla dlouhá obsahujicí vše ze skupin\n\
+VELKÝCH, malých, $p€c|ální@h zanků a číslic.\n\n\
+Prioritním aspektem by měla být delka hesla. Je bezpečnější delší, ale méně\n\
+složité heslo, než extrémně složité, ale krátké. Méně složité heslo je i \n\
+snadnější na zapamatování a rychlejší na napsání. Složitá hesla mají uživatelé\n\
+tendenci si zapisovat na papírky pod klávesnicí apod."
 
-    image = ctk.CTkImage(Image.open('images/infos/passwords.jpg'), size=(250,250)) 
+    image = ctk.CTkImage(Image.open('images/infos/passwords.jpg'), size=(600,600)) 
     image_label = ctk.CTkLabel(master=crack_w, text="", image=image)
 
-    title_main = ctk.CTkLabel(crack_w, text="Hesla", font=('Open Sans', 30, "bold"))
+    title_main = ctk.CTkLabel(crack_w, text="Lámání hesla", font=('Open Sans', 30, "bold"))
     title_sub = ctk.CTkLabel(crack_w, text=text, justify="left", font=('Open Sans', 16))
 
     image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
@@ -185,17 +199,17 @@ def info_forward():
     icon = PhotoImage(master=forward_w,file='images/sword.png')     
     forward_w.tk.call('wm', 'iconphoto', forward_w._w, icon)
 
-    text = "Ke správné funkcionalitě ARP spoofingu je třeba, aby útočníkův počítač\n\
-        sloužil jako přemostění v komunikaci mezi klientem a AP. To je možné zapnout \n\
-            v systému Linux pomocí příkazu \"sysctl net.ipv4.ip_forward=1\""
+    text = "\
+Ke správné funkcionalitě ARP spoofingu je třeba, aby útočníkův počítač\n\
+sloužil jako přemostění v komunikaci mezi klientem a AP. Tedy aby přeposílal\n\
+pakety od jednoho zařázení k druhému a naopak. Tento tzv. IP forwarding je\n\
+možné zapnout v systému Linux pomocí příkazu \"sysctl net.ipv4.ip_forward=1\"\n\
+Využívá se například pokud počítač slouží jako firewall, NAT nebo router."
 
-    #image = ctk.CTkImage(Image.open('images/infos/archer.jpg'), size=(250,250)) 
-    #image_label = ctk.CTkLabel(master=forward_w, text="", image=image)
 
-    title_main = ctk.CTkLabel(forward_w, text="Rozhraní", font=('Open Sans', 30, "bold"))
+    title_main = ctk.CTkLabel(forward_w, text="Přeposílání paketů", font=('Open Sans', 30, "bold"))
     title_sub = ctk.CTkLabel(forward_w, text=text, justify="left", font=('Open Sans', 16))
 
-    #image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
     title_main.grid(row=0 ,column=1, padx=5, pady=5, sticky="S")
     title_sub.grid(row=1 ,column=1, padx=10, pady=5, sticky ="N")
     
@@ -207,9 +221,21 @@ def info_arp():
     icon = PhotoImage(master=arp_w,file='images/sword.png')     
     arp_w.tk.call('wm', 'iconphoto', arp_w._w, icon)
 
-    text = "ARP poisoning text"
+    text = "\
+ARP spoofing je zneužití zranitelnosti protokolu ARP. Ten slouží k překladu\n\
+IP adres (např. 192.168.105.99) na fyzické MAC adresy (např. A6:FF:13:2B:87:FC) na\n\
+lokální síti, tedy na vrstě L2 OSI modelu.\n\n\n\
+Princip standardního ARP dotazování:\n\n\
+- Pepův počítač (PC1) se všech ptá: \"Jak se jmenuje Frantův počítač? Řekni to mně (PC1)\"\n\
+- Frantův počítač (PC9) odpovídá: \"Teď vím, že Pepův počítač je PC1, já jsem Frantův počítač PC9\"\n\
+\n\
+ARP spoofing:\n\n\
+- Útočník (NTB666) volá: \"Frantův počítači PC9, já jsem Pepův počítač a jsem nově NTB666\"\n\
+- Útočník (NTB666) volá: \"Pepův počítači PC1, já jsem Frantův počítač a jsem nově NTB666\"\n\n\
+Tím obě oběti donutí si přepsat jejich ARP tabulky, kde si uchovávají adresy známých zařízení v okolí,\n\
+a docílí toho, že obě zařízení nevědomky posílají pakety jemu namísto Pepovi nebo Frantovi."
 
-    image = ctk.CTkImage(Image.open('images/infos/arp.png'), size=(250,250)) 
+    image = ctk.CTkImage(Image.open('images/infos/arp.png'), size=(600,400)) 
     image_label = ctk.CTkLabel(master=arp_w, text="", image=image)
 
     title_main = ctk.CTkLabel(arp_w, text="ARP spoofing", font=('Open Sans', 30, "bold"))
@@ -227,18 +253,26 @@ def info_catch():
     icon = PhotoImage(master=catch_w,file='images/sword.png')     
     catch_w.tk.call('wm', 'iconphoto', catch_w._w, icon)
 
-    text = "Do souboru .pcap je zacována všechno kominakce od oběti k AP a naopak. Je zachycen každý paket.\n\
-        Tento datový balík pak může být analyzován. Většina komunikace naštěstí probíhá šifrovaně (HTTPS)\n\
-            a proto není snadné kompletní komunikaci přečíst. I tak z ní lze ale vyčíst mnoho zajímavých informací.\n\
-            Temi mohou být například DNS dotazy."
+    text = "\
+Do souboru full_traffic.pcap je zachycována všechna komunikace od oběti k AP a naopak. Je zachycen každý paket.\n\
+Tento datový balík pak může být analyzován. Většina komunikace naštěstí probíhá šifrovaně (HTTPS),\n\
+a proto není snadné kompletní komunikaci přečíst. I tak z ní lze ale vyčíst mnoho zajímavých informací.\n\
+\n\
+Těmi mohou být například DNS dotazy...\n\n\
+Částečnou ochranou proti zneužití takového zachycení je používání VPN (Virtual Private Network). Jedná se o\n\
+zašifrování kompletní komunikace směrem do internetu, kdy se klient nepřipojuje přímo k jednotlivým serverům, \n\
+ale připojuje se přes prostředníka - VPN server. Ten se stará o zašifrování komunikace. Tato ochrana nezabrání\n\
+zachycení komunikace útočníkem, ale přidává další vrstu ochtrany tím, že všechna data budou pro útočníka nečitelná.\n\n\
+(Pozor na velikost souboru, kam se komunikace zachytává. Při silném datovém provozu oběti, může nabývat\n\
+rychle na objemu!)"
 
-    #image = ctk.CTkImage(Image.open('images/infos/.jpg'), size=(250,250)) 
-    #image_label = ctk.CTkLabel(master=catch_w, text="", image=image)
+    image = ctk.CTkImage(Image.open('images/infos/wireshark.png'), size=(300,300)) 
+    image_label = ctk.CTkLabel(master=catch_w, text="", image=image)
 
     title_main = ctk.CTkLabel(catch_w, text="Zachycení datového toku", font=('Open Sans', 30, "bold"))
     title_sub = ctk.CTkLabel(catch_w, text=text, justify="left", font=('Open Sans', 16))
 
-    #image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
+    image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
     title_main.grid(row=0 ,column=1, padx=5, pady=5, sticky="S")
     title_sub.grid(row=1 ,column=1, padx=10, pady=5, sticky ="N")
     
