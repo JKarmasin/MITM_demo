@@ -290,7 +290,9 @@ na jejich číselnou IP adresu. Při jejich analýze jsou tedy vidět všechny w
 oběť navštívila. DNS běží standardně na portu 53 v nezašifrované podobě.\n\
 Proto je po útočníka jakýkoliv dotaz snadno čitelný. Doporučuje se všude, kde je to\n\
 jen možné, používat DNSSEC, což jebezpečnější varianta využívající digitální podpis.\n\
-Zařízení si proto může ověřit, že DNS záznam není podvrhnutý."
+Zařízení si proto může ověřit, že DNS záznam není podvrhnutý. Na koncových zařízeních\n\
+(mobilních telefonech Android) je například od verze 14 možné zapnout \"Soukromé DNS\",\n\
+které zabrání odposlouchávání dotazů DNS."
     text2 = "\
 Bezpečnější variantou je pak oět využívat VPN, kdy je kompletní tok dat pro útočníka\n\
 nečitelný. Existují bezplatné varianty VPN, ale doporučuje se využívat placené služby.\n\
