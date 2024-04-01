@@ -284,20 +284,36 @@ def info_dns():
     icon = PhotoImage(master=dns_w,file='images/sword.png')     
     dns_w.tk.call('wm', 'iconphoto', dns_w._w, icon)
 
-    text = "DNS neboli Domain Name Service běží standardně na portu 53 pod protokolem UDPa je nezašifrován. \n\
-        Proto je po útočníka jakýkoliv dotaz snadno čitelný. Doporučuje se všude, kde je to jen možné,\n\
-            používat DNSSEC, což je zabezpečená varianta běžící na portu 553 a protokolu TCP."
+    text = "\
+DNS neboli Domain Name Service je služba překládající pro člověka čitelné názvy webů\n\
+na jejich číselnou IP adresu. Při jejich analýze jsou tedy vidět všechny weby, které\n\
+oběť navštívila. DNS běží standardně na portu 53 v nezašifrované podobě.\n\
+Proto je po útočníka jakýkoliv dotaz snadno čitelný. Doporučuje se všude, kde je to\n\
+jen možné, používat DNSSEC, což jebezpečnější varianta využívající digitální podpis.\n\
+Zařízení si proto může ověřit, že DNS záznam není podvrhnutý."
+    text2 = "\
+Bezpečnější variantou je pak oět využívat VPN, kdy je kompletní tok dat pro útočníka\n\
+nečitelný. Existují bezplatné varianty VPN, ale doporučuje se využívat placené služby.\n\
+Rozdíl je v rychlosti a množství serverů VPN využitelných pro připojení v různých státech.\n\
+Důležitým faktorem je také důveryhodnost. Placené služby jsou zpravidla zůvěryhodnější, než\n\
+bezplatné varitanty. U těch není jistota, že samy provoz neanalyzují a dál data nepřeprodávají."
 
-    image = ctk.CTkImage(Image.open('images/infos/dns.png'), size=(250,250)) 
+    image = ctk.CTkImage(Image.open('images/infos/dns.png'), size=(300,250)) 
     image_label = ctk.CTkLabel(master=dns_w, text="", image=image)
+    image = ctk.CTkImage(Image.open('images/infos/vpn.jpg'), size=(450,250)) 
+    image_label2 = ctk.CTkLabel(master=dns_w, text="", image=image)
 
     title_main = ctk.CTkLabel(dns_w, text="DNS", font=('Open Sans', 30, "bold"))
     title_sub = ctk.CTkLabel(dns_w, text=text, justify="left", font=('Open Sans', 16))
+    title_main2 = ctk.CTkLabel(dns_w, text="VPN", font=('Open Sans', 30, "bold"))
+    title_sub2 = ctk.CTkLabel(dns_w, text=text2, justify="left", font=('Open Sans', 16))
 
     image_label.grid(row=0,column=0, rowspan=2, padx=15, pady=15)
+    image_label2.grid(row=2,column=0, rowspan=2, padx=15, pady=15)
     title_main.grid(row=0 ,column=1, padx=5, pady=5, sticky="S")
-    title_sub.grid(row=1 ,column=1, padx=10, pady=5, sticky ="N")
-    
+    title_sub.grid(row=1, column=1, padx=10, pady=5, sticky ="N")
+    title_main2.grid(row=2 ,column=1, padx=5, pady=5, sticky="S")
+    title_sub2.grid(row=3, column=1, padx=10, pady=5, sticky ="N")
     dns_w.mainloop()
 
 

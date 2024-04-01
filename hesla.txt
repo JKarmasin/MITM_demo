@@ -52321,7 +52321,6 @@ c*******
 *a*abb**
 *a*abcaa
 *a*abcab
-klara59501350
 *a*abcac
 *a*abca*
 *a*abcba
