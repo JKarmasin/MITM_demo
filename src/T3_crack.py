@@ -204,6 +204,16 @@ def connect_to_wifi():
         
             print(f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
 
+        # Zkusím se odpojit od "Wired connection 1", pokud jsem ve virtualnim stroji
+        try:
+            command = f"nmcli con down id 'Wired connection 1'"
+            print("COMMAND: " + command)
+            print("     -- Odpojeno od VM wired connection")
+            # Odpojení VM Wired conncetion 
+            subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+        except Exception as e:
+            print("     -- Nejsem ve virtuálu?: ", e)
+
         command = f"nmcli device wifi connect {net} password {password} ifname {interface}"
         print("COMMAND: " + command)
 
