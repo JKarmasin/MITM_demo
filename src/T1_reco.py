@@ -185,6 +185,12 @@ def start_airodump_full():
 
     airodump_on_button.configure(state=DISABLED) 
     airodump_off_button.configure(state=NORMAL) 
+    
+    # Uklidím případný soubor output_airodump-01.csv po předešlém spuštění
+    file_name = output_airodump + "-01.csv"
+    print(file_name+"==========")
+    if os.path.isfile(file_name):
+        os.remove(file_name)
 
     command = f"sudo airodump-ng {interface} -w {output_airodump} --output-format csv"
     print(f"COMMAND: {command}")
@@ -193,6 +199,9 @@ def start_airodump_full():
     
     # Spustí zpracovávání souboru v samostatném vlákně
     #print("-- Spuštím vlákno process_csv...")
+    #global csv_parser
+    #csv_parser = Thread(target=process_csv, daemon=True)
+    #csv_parser.start()
     Thread(target=process_csv, daemon=True).start()
 # ========================================================================================================================
 # Funkce pro ukončení airodump-ng
@@ -202,6 +211,8 @@ def stop_airodump_full():
     airodump_off_button.configure(state=DISABLED) 
     airodump_on_button.configure(state=NORMAL) 
 
+
+
     if airodump_process:
         os.killpg(os.getpgid(airodump_process.pid), signal.SIGTERM)
         print("     -- OK: Airodump-ng byl ukončen.")
@@ -210,6 +221,8 @@ def stop_airodump_full():
     #print(f"=== DEBUG: stop_reading_file 2a: {stop_reading_file}")
     stop_reading_file = True
     #print(f"=== DEBUG: stop_reading_file 2b: {stop_reading_file}")
+    #global csv_parser
+    #csv_parser.join()
 
 # ========================================================================================================================
 # Funkce pro načtení csv souboru a jeho následné zpracování
@@ -222,19 +235,21 @@ def process_csv():
     #print(f"=== DEBUG: stop_reading_file 1a: {stop_reading_file}")
 
     global output_airodump
-    output_airodump = output_airodump+"-01.csv"
+    my_output_airodump = output_airodump+"-01.csv"
+
+    print("     -- "+my_output_airodump)
 
     while True:
         #print(f"=== DEBUG: stop_reading_file 1b: {stop_reading_file}")
         # Krátká pauza, aby se nezatěžoval systém a aby se poprvé stihnul vytvořit soubor csv
         time.sleep(1)
         try:
-            if not os.path.isfile(output_airodump):
+            if not os.path.isfile(my_output_airodump):
                 #status.configure(text="Žádný CSV soubor není zatím vytvořený...")
                 continue
 
             # Open the input file
-            with open(output_airodump, 'r', encoding='utf-8') as file:
+            with open(my_output_airodump, 'r', encoding='utf-8') as file:
                 lines = file.readlines()
             # Remove the first empty line
             lines = lines[1:]
@@ -324,7 +339,7 @@ def process_csv():
         if stop_reading_file:
             #print(f"=== DEBUG: stop_reading_file 3: {stop_reading_file}")
             print("     -- OK: Vlákno zpracovávání CSV bylo ukončeno.")
-            break
+            return
     
 # ========================================================================================================================
 def tree_ap_selected(Event):

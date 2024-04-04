@@ -6,6 +6,7 @@ from threading import Thread
 import os
 from src import global_names
 from src import infos
+import time
 
 # ========================================================================================================================
 # Globální proměnná pro uchování reference na nekončící procesy pro jejich pozdější ukončení
@@ -214,6 +215,7 @@ def connect_to_wifi():
         except Exception as e:
             print("     -- Nejsem ve virtuálu?: ", e)
 
+        time.sleep(1)
         command = f"nmcli device wifi connect {net} password {password} ifname {interface}"
         print("COMMAND: " + command)
 
@@ -226,8 +228,11 @@ def connect_to_wifi():
         print("     -- ÚSPĚŠNĚ PŘIPOJENO K WI-FI SÍTI! --")
         print("     -------------------------------------")
 
-        #global connect_frame
-        #connect_frame.configure(highlightthickness=0)
+        #TEST
+        time.sleep(1)
+        subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+        time.sleep(1)
+
         global_names.finished_tab = 2
         global menu_button
         menu_button.configure(fg_color="transparent", text_color=("green", "green"), image=check_image)
