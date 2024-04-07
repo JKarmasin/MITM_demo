@@ -31,7 +31,7 @@ Ten je možní mít nainstalovaný přímo "na železe" (lepší chod aplikace),
   - ve VMware "Open Virtual Machine" --> najít ve složce s rozbaleným archivem jediný použitelný soubor a ten vybrat
 - spustit virtuální stroj
   - v případě problémů: je třeba mít povolenou virtualizaci v UEFI, Google for help
-- defaultní pčihlašovací údaje: 
+- defaultní přihlašovací údaje: 
   - login: kali
   - heslo: kali
   
@@ -49,7 +49,7 @@ git clone https://github.com/JKarmasin/MITM_demo.git
 cd MITM_demo
 sudo ./install_adapter.sh
 ```
-- restartovat systém pro načtení ovladačů k USB adaptéru Archer 1200AU, v případě úspěchu po připojení začně zelezně blikat
+- restartovat systém pro načtení ovladačů k USB adaptéru Archer 1200AU, v případě úspěchu po připojení začně zeleně blikat
 - opět v teminálu:
 ```
 cd MITM_demo
@@ -57,7 +57,7 @@ cd MITM_demo
 ```
 - Tím se vytvoří virtuální prostředí pro běh python aplikace a stáhnou se požadované balíčky
 ### Spuštění aplikace
-- aplikace se pouští pomocí spoštěcího skriptu. Ten aktivuje virtuální prostředí a spustí samotnou aplikaci
+- aplikace se pouští pomocí spouštěcího skriptu. Ten aktivuje virtuální prostředí a spustí samotnou aplikaci
 - ve složce s apliakcí v konzoli:
 ```
 ./start.sh
