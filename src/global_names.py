@@ -1,7 +1,7 @@
 # Proměnná k odemčení všech poležek menu bez nutnosti splnit předešlé kroky v útoku MITM
 # 0 = zamčená tlačítka menu
 # 1 = odemčená kompletní aplikace už po spuštění
-developer_mode = 1
+developer_mode = 0
 
 # Soubor s globálními proměnnými
 interface = ""
