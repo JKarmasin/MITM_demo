@@ -97,15 +97,22 @@ def start_monitor_mode():
     try:
         # Deaktivujte rozhraní
         subprocess.run(['ifconfig', interface, 'down'], check=True)
+        print(f"COMMAND: ifconfig {interface} down")
+
         # Vypne konfliktni procesy
         subprocess.run(['airmon-ng', 'check', 'kill'], check=True)
+        print(f"COMMAND: airmon-ng check kill")
+
         # Nastavte monitorovací mód
         subprocess.run(['airmon-ng', 'start', interface], check=True)
+        print(f"COMMAND: airmon-ng start {interface}")
+
         # Restartuji službu NetworkManager
         subprocess.run(['service', 'NetworkManager', 'restart'], check=True)
+        print(f"COMMAND: service NetworkManager restart\n")
 
         #status.configure(text=f"Rozhraní {interface} bylo úspěšně přepnuto do monitorovacího módu.")
-        print(f"Rozhraní {interface} bylo úspěšně přepnuto do monitorovacího módu.")
+        print(f"Rozhraní {interface} bylo úspěšně přepnuto do monitorovacího módu.\n")
 
         monitor_off_button.configure(state=NORMAL) 
         monitor_on_button.configure(state=DISABLED)
@@ -119,7 +126,7 @@ def start_monitor_mode():
 
     except subprocess.CalledProcessError as e:
         #status.configure(text=f"Chyba při nastavování monitorovacího módu: {e}")
-        print(f"Chyba při nastavování monitorovacího módu rozhraní: {e}")
+        print(f"Chyba při nastavování monitorovacího módu rozhraní: {e}\n")
 # ========================================================================================================================
 def stop_monitor_mode():
     print("===== STOP MONITOR MODE =================================")
@@ -145,17 +152,22 @@ def stop_monitor_mode():
         try:
             # Deaktivujte rozhraní
             subprocess.run(['ifconfig', interface, 'down'], check=True)
+            print(f"        ifconfig {interface} down")
+
             # Nastavte monitorovací mód
             subprocess.run(['airmon-ng', 'stop', interface], check=True)
+            print(f"        airmon-ng stop {interface}")
+
             # Restartuji službu NetworkManager
             subprocess.run(['service', 'NetworkManager', 'restart'], check=True)
-        
+            print(f"        service NetworkManager restart")
+
             #status.configure(text=f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
-            print(f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
+            print(f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.\n")
 
         except subprocess.CalledProcessError as e:
             #status.configure(text=f"Chyba při nastavování normálního módu: {e}")
-            print(f"Chyba při nastavování normálního módu rozhraní: {e}")
+            print(f"Chyba při nastavování normálního módu rozhraní: {e}\n")
 # ========================================================================================================================
 def get_mac_address(iface):
 
@@ -174,8 +186,8 @@ def get_mac_address(iface):
         else:
             return "ERROR: MAC address not found."
 
-    except subprocess.CalledProcessError:
-        return "Failed to execute ifconfig. Make sure the command exists and the interface name is correct."
+    except subprocess.CalledProcessError as e:
+        return "Chyba při spouštění ifconfig."
 # ======================================================================================================================== 
 # Spustí příkaz airodump-ng na zvoleném interfacu v samostatném procesu a výsledek zapisuje do souboru
 def start_airodump_full():
@@ -188,20 +200,16 @@ def start_airodump_full():
     
     # Uklidím případný soubor output_airodump-01.csv po předešlém spuštění
     file_name = output_airodump + "-01.csv"
-    print(file_name+"==========")
+    print("     -- Soubor: " + file_name)
     if os.path.isfile(file_name):
         os.remove(file_name)
 
     command = f"sudo airodump-ng {interface} -w {output_airodump} --output-format csv"
-    print(f"COMMAND: {command}")
+    print(f"COMMAND: {command}\n")
 
     airodump_process = subprocess.Popen(command, shell=True, stdout=capture, stderr=subprocess.PIPE, preexec_fn=os.setsid)
     
     # Spustí zpracovávání souboru v samostatném vlákně
-    #print("-- Spuštím vlákno process_csv...")
-    #global csv_parser
-    #csv_parser = Thread(target=process_csv, daemon=True)
-    #csv_parser.start()
     Thread(target=process_csv, daemon=True).start()
 # ========================================================================================================================
 # Funkce pro ukončení airodump-ng
@@ -210,8 +218,6 @@ def stop_airodump_full():
     print("     -- Ukončuji airodump.")
     airodump_off_button.configure(state=DISABLED) 
     airodump_on_button.configure(state=NORMAL) 
-
-
 
     if airodump_process:
         os.killpg(os.getpgid(airodump_process.pid), signal.SIGTERM)
@@ -231,13 +237,12 @@ def process_csv():
     print("     -- Začínám zpracovávat CSV.")
 
     global stop_reading_file
-
     #print(f"=== DEBUG: stop_reading_file 1a: {stop_reading_file}")
 
     global output_airodump
     my_output_airodump = output_airodump+"-01.csv"
 
-    print("     -- "+my_output_airodump)
+    print("     -- Soubor: " + my_output_airodump)
 
     while True:
         #print(f"=== DEBUG: stop_reading_file 1b: {stop_reading_file}")
@@ -301,7 +306,7 @@ def process_csv():
                     selected_row = [row[i] for i in selected_columns if i < len(row)]
                     tree_ap.insert('', tk.END, values=selected_row)
             except Exception as e:
-                print(f"An error occurred: {e}")
+                print(f"Nastala chyba: {e}")
 
             try:
                 reader = csv.reader(clients_lines)
@@ -331,7 +336,7 @@ def process_csv():
                     tree_cl.insert('', tk.END, values=selected_row, tags=selected_row[1])
 
             except Exception as e:
-                print(f"An error occurred: {e}")
+                print(f"Nastala chyba: {e}")
         except FileNotFoundError:
             print("ERROR: při čtení ze souboru csv")
 
@@ -346,9 +351,6 @@ def tree_ap_selected(Event):
     # Get selected item(s) on treeview_a
     selected_items = tree_ap.selection()
     
-    # Clear existing selections in treeview_b
-    #tree_cl.selection_remove(tree_cl.selection())
-    
     # For simplicity, assuming 'BSSID' is in the first column (index 0)
     bssid_column_index = tree_ap["columns"].index("BSSID")
 
@@ -357,7 +359,6 @@ def tree_ap_selected(Event):
         # Get the BSSID value of the selected row in treeview_a
         item_values = tree_ap.item(item, "values")
         bssid_value = item_values[bssid_column_index]
-        #status.configure(text=bssid_value) 
         #print("Vybral jsem " + bssid_value + " v seznamu AP") # DEBUGG
         selected_bssids.append(bssid_value)
     
@@ -412,7 +413,6 @@ def tree_cl_selected(Event):
     # Get selected item(s) on treeview_a
     selected_items = tree_cl.selection()
 
-    # TODO if selection is empty, then return else celej ten zbytek
     item = selected_items[0]
     item_values = tree_cl.item(item, "values")
 
@@ -444,7 +444,6 @@ def tree_cl_selected(Event):
     global_names.finished_tab = 0
     
     # Změním obrázek
-    #done_image = ctk.CTkImage(light_image=Image.open("images/icons/done.png"),dark_image=Image.open("images/icons/done.png"), size=(20, 20))
     menu_button.configure(fg_color="transparent", text_color=("green", "green"), image=check_image)
     next_menu_button.configure(state=NORMAL)
 
@@ -459,7 +458,7 @@ def finish():
     
 
 # ===========================================================
-def draw_reco(window):      # def draw_reco(frame_t1, btn_next):
+def draw_reco(window):      
     global menu_button
     global check_image
     global next_menu_button

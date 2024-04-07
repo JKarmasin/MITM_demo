@@ -155,7 +155,7 @@ def grep_aircrack_process():
             connect_frame.configure(fg_color=global_names.my_color)
 
     # Ukončím běhání progress baru
-    print("     -- Konec lámání hesla!")
+    #print("     -- Konec lámání hesla!")
     crack_pw_progress.stop()
     crack_pw_progress.grid_forget()
 # ========================================================================================================================
@@ -165,14 +165,49 @@ def crack_pw():
 
     #capfile = "wpa-good.cap"        # TODO změnit na fungující hovno !!!!!!!!!!!!!!!!
     capfile = output_handshake + "-01.cap"
-    command = f"aircrack-ng {capfile} -w {wordlist_name} -l {output_password}"
+    command = f"aircrack-ng {capfile} -w '{wordlist_name}' -l {output_password}"
     print("===== PASSWORD CRACKING ===================================")
-    print("COMMAND: "+command)
+    print("COMMAND: " + command + "\n")
 
     global aircrack_process
     aircrack_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
     Thread(target=grep_aircrack_process, daemon=True).start()
 
+# ========================================================================================================================
+def reset_adapter():
+    print("===== RESET ADAPTER TO NORMAL MODE=========================")
+    interface = global_names.interface
+    is_monitor = False
+    try:
+        # Spustí příkaz `iw` a získá informace o rozhraní
+        vystup = subprocess.check_output(["iw", interface, "info"], text=True)
+ 
+        # Zkontroluje, zda je výstup obsahuje "type monitor"
+        if "type monitor" in vystup:
+            is_monitor = True
+
+    except subprocess.CalledProcessError as e:
+        print("     -- Nastala chyba při spouštění příkazu:", e)
+    except Exception as e:
+        print("     -- Nastala neočekávaná chyba:", e)
+        
+    if is_monitor:
+        try:
+            # Deaktivujte rozhraní
+            subprocess.run(['ifconfig', interface, 'down'], check=True)
+            # Nastavte monitorovací mód
+            subprocess.run(['airmon-ng', 'stop', interface], check=True)
+            # Restartuji službu NetworkManager
+            subprocess.run(['service', 'NetworkManager', 'restart'], check=True)
+        
+            #status.configure(text=f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
+            print(f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.\n")
+
+        except subprocess.CalledProcessError as e:
+            #status.configure(text=f"Chyba při nastavování normálního módu: {e}")
+            print(f"Chyba při nastavování normálního módu rozhraní: {e}\n")
+    connect_button.configure(state=ctk.NORMAL)
+    
 # ========================================================================================================================
 def connect_to_wifi():
     print("===== WI-FI CONNECTION ====================================")
@@ -180,30 +215,6 @@ def connect_to_wifi():
         interface = global_names.interface
         net = global_names.net
         password = global_names.password
-
-        is_monitor = False
-        try:
-            # Spustí příkaz `iw` a získá informace o rozhraní
-            vystup = subprocess.check_output(["iw", interface, "info"], text=True)
-       
-            # Zkontroluje, zda je výstup obsahuje "type monitor"
-            if "type monitor" in vystup:
-                is_monitor = True
-
-        except subprocess.CalledProcessError as e:
-            print("     -- Nastala chyba při spouštění příkazu:", e)
-        except Exception as e:
-            print("     -- Nastala neočekávaná chyba:", e)
-        
-        if is_monitor:
-            # Deaktivujte rozhraní
-            subprocess.run(['ifconfig', interface, 'down'], check=True)
-            # Zastavit monitorovací mód
-            subprocess.run(['airmon-ng', 'stop', interface], check=True)
-            # Restartuji službu NetworkManager
-            subprocess.run(['service', 'NetworkManager', 'restart'], check=True)
-        
-            print(f"Rozhraní {interface} bylo úspěšně přepnuto do normálního módu.")
 
         # Zkusím se odpojit od "Wired connection 1", pokud jsem ve virtualnim stroji
         try:
@@ -215,23 +226,19 @@ def connect_to_wifi():
         except Exception as e:
             print("     -- Nejsem ve virtuálu?: ", e)
 
-        time.sleep(1)
         command = f"nmcli device wifi connect {net} password {password} ifname {interface}"
-        print("COMMAND: " + command)
+        print("COMMAND: " + command + "\n")
 
         # Připojení se k Wi-Fi síti
-        subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+        nmcli_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
 
-        #status.configure(text=f"Úspěšně připojeno k cílové Wi-fi síti!")
-        connect_button.configure(state=DISABLED)
+        out, err = nmcli_process.communicate()
+        print("     -- " + out.decode())
+
+        #connect_button.configure(state=DISABLED)
         print("     -------------------------------------") 
         print("     -- ÚSPĚŠNĚ PŘIPOJENO K WI-FI SÍTI! --")
-        print("     -------------------------------------")
-
-        #TEST
-        time.sleep(1)
-        subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
-        time.sleep(1)
+        print("     -------------------------------------\n")
 
         global_names.finished_tab = 2
         global menu_button
@@ -240,13 +247,12 @@ def connect_to_wifi():
         connect_frame.configure(fg_color=("gray75", "gray25"))
 
     except subprocess.CalledProcessError as e:
-        #status.configure(text=f"Chyba při připojování k síti: {e}")
-        print(f"Chyba při připojování k síti: {e}")
+        print(f"Chyba při připojování k síti: {e}\n")
 
 # ===========================================================
 def disconnect_from_wifi():
     command = f"nmcli con donw id {global_names.net}"
-    print("COMMAND: " + command)    
+    print("COMMAND: " + command + "\n")    
     subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
     print(f"        -- Úspěšně odpojeno od sítě {global_names.net}")
 
@@ -319,9 +325,6 @@ def draw_crack(window):
     load_wordlist_frame.pack(padx=10,pady=5, fill='x')
     load_wordlist_frame_label = ctk.CTkLabel(load_wordlist_frame, text="Načíst hotový slovník hesel", font=('Open Sans', 16, 'bold'))
     load_wordlist_frame_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)  
-    #if global_names.finished_tab == 1:
-    #load_wordlist_frame.configure(highlightbackground=global_names.my_color, highlightthickness=3, highlightcolor=global_names.my_color)
-    #load_wordlist_frame.pack(padx=10,pady=5, fill='x')
 
     load_wl_button = ctk.CTkButton(load_wordlist_frame, text="Načíst slovník hesel", width= 200, command=lambda: load_wordlist(window))
     load_wl_button.grid(row=1, column=0, padx=5, pady=5, sticky=W)
@@ -348,7 +351,6 @@ def draw_crack(window):
     crack_info_button = ctk.CTkButton(crack_pw_frame, text="INFO", width=200, command=infos.info_crack)
     crack_info_button.grid(row=2, column=2, sticky=E, padx=5, pady=5)
 
-    #crack_pw_progress = ctk.CTkProgressbar(crack_pw_frame, orient=HORIZONTAL, length=800, mode='determinate')
     global crack_pw_progress
     crack_pw_progress = ctk.CTkProgressBar(crack_pw_frame, orientation=HORIZONTAL, mode='determinate')
     #crack_pw_progress.step(0)
@@ -373,6 +375,9 @@ def draw_crack(window):
     password_label.grid(row=1, column=1, padx=5, pady=5)
 
     global connect_button
-    connect_button = ctk.CTkButton(connect_frame, text="Připojit se k síti", width= 200, command=connect_to_wifi)
-    connect_button.grid(row=2, column=0, columnspan=2, sticky=W, padx=5, pady=5)
+    global adapter_button
+    adapter_button = ctk.CTkButton(connect_frame, text="Vypnout monitor mód", width= 200, command=reset_adapter)
+    connect_button = ctk.CTkButton(connect_frame, text="Připojit se k síti", width= 200, command=connect_to_wifi, state=ctk.DISABLED)
+    adapter_button.grid(row=2, column=0, columnspan=2, sticky=W, padx=5, pady=5)
+    connect_button.grid(row=2, column=2, columnspan=1, sticky=W, padx=5, pady=5)
 

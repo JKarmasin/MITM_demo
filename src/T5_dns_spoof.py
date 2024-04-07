@@ -6,7 +6,7 @@ import os
 from src import global_names
 from src import infos
 import sys
-sys.path.append('/usr/local/lib/python3.11/dist-packages')
+#sys.path.append('/usr/local/lib/python3.11/dist-packages')
 from CTkListbox import *
 
 # ========================================================================================================================================
@@ -40,14 +40,10 @@ def extract_dns_queries(pcap_file):
     return dns_queries
 
 # ========================================================================================================================================
-# Function to display the DNS queries
 def display_dns_queries(dns_field, dns_queries):
-    #dns_field.delete(0, tk.END)
     dns_field.delete("all")
-
     idx = 0
     for site_name, timestamp in sorted(dns_queries.items(), key=lambda item: item[1]):  # Sort by timestamp
-        #dns_field.insert(tk.END, f"{timestamp} - {site_name}\n")
         dns_field.insert(idx, f"{timestamp} - {site_name}")
         idx += 1
 

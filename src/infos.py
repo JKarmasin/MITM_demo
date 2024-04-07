@@ -88,7 +88,7 @@ HANDSHAKE JE DOKONČEN. AP I KLIENT MAJÍ STEJNÝ ŠIFROVACÍ KLÍČ PRO KOMUNIK
 \n\n\n\
 Legenda:\n\
 - PMK (Private Master Key) = PSK (Pre-shared Key) - \"heslo\" k Wi-Fi síti\n\
-- PTK (Pairwise Temporal Key) - klíč používaný k šifrování unicast komunikace\n\
+- PTK (Pairwise Transient Key) - klíč používaný k šifrování unicast komunikace\n\
 - GTK (Group Temporal Key) - klíč používaný k šifrování broadcast/multicast komunikace"
 
     image = ctk.CTkImage(Image.open('images/infos/handshake.png'), size=(700,600)) 

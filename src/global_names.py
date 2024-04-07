@@ -1,3 +1,8 @@
+# Proměnná k odemčení všech poležek menu bez nutnosti splnit předešlé kroky v útoku MITM
+# 0 = zamčená tlačítka menu
+# 1 = odemčená kompletní aplikace už po spuštění
+developer_mode = 1
+
 # Soubor s globálními proměnnými
 interface = ""
 net = ""
@@ -13,7 +18,6 @@ output_handshake = "tmp/handshake"
 output_handshake_prefix = "handshake"
 output_password = "password.txt"
 output_traffic = "tmp/full_traffic.pcap"
-
 
 # Proměnné uchovávající reference na procesy pro jejich ukončení
 airodump_process = None
